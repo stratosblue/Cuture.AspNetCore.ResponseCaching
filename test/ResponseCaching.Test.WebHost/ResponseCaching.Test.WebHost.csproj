@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="4.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Cuture.AspNetCore.ResponseCaching.StackExchange.Redis\Cuture.AspNetCore.ResponseCaching.StackExchange.Redis.csproj" />
+    <ProjectReference Include="..\..\src\Cuture.AspNetCore.ResponseCaching\Cuture.AspNetCore.ResponseCaching.csproj" />
+  </ItemGroup>
+</Project>

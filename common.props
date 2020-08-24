@@ -1,0 +1,46 @@
+<Project>
+  <!--Project Setting-->
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+
+    <NoWarn>CA2007;CA1303;CA1716;CA1062</NoWarn>
+  </PropertyGroup>
+
+  <!--Version-->
+  <PropertyGroup>
+    <VersionMajor>0</VersionMajor>
+    <VersionMinor>0</VersionMinor>
+    <VersionPatch>1</VersionPatch>
+    <VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionPatch)</VersionPrefix>
+    <PackageVersion>$(VersionPrefix)-alpha0004</PackageVersion>
+  </PropertyGroup>
+
+  <!--Package Info-->
+  <PropertyGroup>
+    <Description>用于ASP.NET Core的响应缓存库</Description>
+
+    <PackageIdPrefix>Cuture.AspNetCore.ResponseCaching</PackageIdPrefix>
+    <Authors>Stratos</Authors>
+    <Company></Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/StratosBlue/Cuture.AspNetCore.ResponseCaching.git</PackageProjectUrl>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+    <AssemblyVersion>$(VersionMajor).$(VersionMinor).$(VersionPatch).0</AssemblyVersion>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+  </PropertyGroup>
+
+  <!--Buid-->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

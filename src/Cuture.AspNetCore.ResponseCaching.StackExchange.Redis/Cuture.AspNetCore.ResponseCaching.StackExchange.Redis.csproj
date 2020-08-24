@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../common.props" />
+
+  <PropertyGroup>
+    <RootNamespace>Cuture.AspNetCore.ResponseCaching</RootNamespace>
+
+    <Description>
+      $(Description)
+      基于 StackExchange.Redis 的 ResponseCache 实现。
+    </Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cuture.AspNetCore.ResponseCaching\Cuture.AspNetCore.ResponseCaching.csproj" />
+  </ItemGroup>
+</Project>
