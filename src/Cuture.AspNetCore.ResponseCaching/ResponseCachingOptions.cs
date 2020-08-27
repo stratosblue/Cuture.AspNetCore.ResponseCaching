@@ -10,11 +10,17 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     public class ResponseCachingOptions : IOptions<ResponseCachingOptions>
     {
+        #region Private 字段
+
         private CacheStoreLocation _defaultCacheStoreLocation = CacheStoreLocation.Memory;
-        private CacheKeyStrictMode _defaultStrictMode = CacheKeyStrictMode.Ignore;
         private ExecutingLockMode _defaultLockMode = ExecutingLockMode.None;
+        private CacheKeyStrictMode _defaultStrictMode = CacheKeyStrictMode.Ignore;
         private int _maxCacheableResponseLength = ResponseCachingConstants.DefaultMaxCacheableResponseLength;
         private int _maxCacheKeyLength = ResponseCachingConstants.DefaultMaxCacheKeyLength;
+
+        #endregion Private 字段
+
+        #region Public 属性
 
         /// <summary>
         /// 默认缓存存放位置
@@ -29,22 +35,6 @@ namespace Cuture.AspNetCore.ResponseCaching
                     throw new ArgumentOutOfRangeException($"{nameof(DefaultCacheStoreLocation)} 不能为 {nameof(CacheStoreLocation.Default)}");
                 }
                 _defaultCacheStoreLocation = value;
-            }
-        }
-
-        /// <summary>
-        /// 默认缓存键的严格模式
-        /// </summary>
-        public CacheKeyStrictMode DefaultStrictMode
-        {
-            get => _defaultStrictMode;
-            set
-            {
-                if (value == CacheKeyStrictMode.Default)
-                {
-                    throw new ArgumentOutOfRangeException($"{nameof(DefaultStrictMode)} 不能为 {nameof(CacheKeyStrictMode.Default)}");
-                }
-                _defaultStrictMode = value;
             }
         }
 
@@ -65,6 +55,27 @@ namespace Cuture.AspNetCore.ResponseCaching
                 _defaultLockMode = value;
             }
         }
+
+        /// <summary>
+        /// 默认缓存键的严格模式
+        /// </summary>
+        public CacheKeyStrictMode DefaultStrictMode
+        {
+            get => _defaultStrictMode;
+            set
+            {
+                if (value == CacheKeyStrictMode.Default)
+                {
+                    throw new ArgumentOutOfRangeException($"{nameof(DefaultStrictMode)} 不能为 {nameof(CacheKeyStrictMode.Default)}");
+                }
+                _defaultStrictMode = value;
+            }
+        }
+
+        /// <summary>
+        /// 是否启用
+        /// </summary>
+        public bool Enable { get; set; } = true;
 
         /// <summary>
         /// 默认的最大可缓存响应长度
@@ -100,5 +111,7 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         /// <inheritdoc/>
         public ResponseCachingOptions Value => this;
+
+        #endregion Public 属性
     }
 }

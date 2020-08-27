@@ -13,7 +13,7 @@
     <VersionMinor>0</VersionMinor>
     <VersionPatch>1</VersionPatch>
     <VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionPatch)</VersionPrefix>
-    <PackageVersion>$(VersionPrefix)-alpha0004</PackageVersion>
+    <PackageVersion>$(VersionPrefix)-alpha0005</PackageVersion>
   </PropertyGroup>
 
   <!--Package Info-->

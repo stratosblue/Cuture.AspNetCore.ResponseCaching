@@ -152,6 +152,72 @@ namespace Microsoft.AspNetCore.Mvc
             Duration = duration;
         }
 
+        /// <summary>
+        /// 响应缓存
+        /// </summary>
+        /// <param name="duration">缓存时长（秒）</param>
+        /// <param name="mode"></param>
+        public ResponseCachingAttribute(int duration, CacheMode mode) : this(duration)
+        {
+            Mode = mode;
+        }
+
+        /// <summary>
+        /// 响应缓存
+        /// </summary>
+        /// <param name="duration">缓存时长（秒）</param>
+        /// <param name="mode"></param>
+        /// <param name="storeLocation"></param>
+        public ResponseCachingAttribute(int duration, CacheMode mode, CacheStoreLocation storeLocation) : this(duration)
+        {
+            Mode = mode;
+            StoreLocation = storeLocation;
+        }
+
+        /// <summary>
+        /// 响应缓存
+        /// </summary>
+        /// <param name="duration">缓存时长（秒）</param>
+        /// <param name="mode"></param>
+        /// <param name="storeLocation"></param>
+        /// <param name="strictMode"></param>
+        public ResponseCachingAttribute(int duration, CacheMode mode, CacheStoreLocation storeLocation, CacheKeyStrictMode strictMode) : this(duration)
+        {
+            Mode = mode;
+            StoreLocation = storeLocation;
+            StrictMode = strictMode;
+        }
+
+        /// <summary>
+        /// 响应缓存
+        /// </summary>
+        /// <param name="duration">缓存时长（秒）</param>
+        /// <param name="mode"></param>
+        /// <param name="storeLocation"></param>
+        /// <param name="lockMode"></param>
+        public ResponseCachingAttribute(int duration, CacheMode mode, CacheStoreLocation storeLocation, ExecutingLockMode lockMode) : this(duration)
+        {
+            Mode = mode;
+            StoreLocation = storeLocation;
+            LockMode = lockMode;
+        }
+
+        /// <summary>
+        /// 响应缓存
+        /// </summary>
+        /// <param name="duration">缓存时长（秒）</param>
+        /// <param name="mode"></param>
+        /// <param name="storeLocation"></param>
+        /// <param name="strictMode"></param>
+        /// <param name="lockMode"></param>
+        public ResponseCachingAttribute(int duration, CacheMode mode, CacheStoreLocation storeLocation, CacheKeyStrictMode strictMode, ExecutingLockMode lockMode) : this(duration)
+        {
+            Mode = mode;
+            StoreLocation = storeLocation;
+            StrictMode = strictMode;
+            LockMode = lockMode;
+        }
+
         #endregion Public 构造函数
 
         #region Public 方法
@@ -263,12 +329,17 @@ namespace Microsoft.AspNetCore.Mvc
         /// <returns></returns>
         private IFilterMetadata CreateFilter(IServiceProvider serviceProvider)
         {
+            var optionsAccessor = serviceProvider.GetRequiredService<IOptions<ResponseCachingOptions>>();
+            var options = optionsAccessor.Value;
+
+            if (!options.Enable)
+            {
+                return EmptyFilterMetadata.Instance;
+            }
+
             ILogger GetLogger<T>() => serviceProvider.GetService<ILogger<T>>();
 
             CheckDuration(Duration);
-
-            var optionsAccessor = serviceProvider.GetRequiredService<IOptions<ResponseCachingOptions>>();
-            var options = optionsAccessor.Value;
 
             IResponseCache responseCache = GetResponseCache(serviceProvider, options);
 
