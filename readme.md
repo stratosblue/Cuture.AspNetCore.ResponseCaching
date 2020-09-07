@@ -111,6 +111,33 @@ public ResultDto Foo()
 }
 ```
 
+### 基于Model缓存
+
+使用action的参数进行缓存
+```C#
+[HttpPost]
+[CacheByModel(60)]
+public ResultDto Foo(RequestDto input)
+{
+    //...action logic
+}
+
+public class RequestDto : ICacheKeyable
+{
+    public int Page { get; set; }
+
+    public int PageSize { get; set; }
+
+    public string AsCacheKey() => $"{Page}_{PageSize}";
+}
+```
+使用Model缓存会使用以下方式的其中一种生成Key（优先级从上往下）
+- 指定`ModelKeyParserType`
+- Model类实现`ICacheKeyable`接口
+- Model类的`ToString`方法
+
+#### 此时`Filter`由`ResourceFilter`转变为`ActionFilter`
+
 ### 基于用户缓存
 
 使用用户凭据中的`id`和query中的`page`与`pageSize`组合构建缓存Key
