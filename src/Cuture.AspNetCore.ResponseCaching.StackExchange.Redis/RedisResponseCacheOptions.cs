@@ -24,6 +24,9 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// </summary>
         public string CacheKeyPrefix { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public RedisResponseCacheOptions Value => this;
     }
 }

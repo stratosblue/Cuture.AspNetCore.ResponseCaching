@@ -14,9 +14,9 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
     public class RedisResponseCache : IDistributedResponseCache
     {
         /// <summary>
-        /// ContenType Hash字段名称
+        /// ContentType Hash字段名称
         /// </summary>
-        public const string ContenTypeFieldName = "ContenType";
+        public const string ContentTypeFieldName = "ContentType";
 
         /// <summary>
         /// BodyFieldName Hash字段名称
@@ -28,13 +28,13 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// </summary>
         public const string ExpireFieldName = "Expire";
 
-        private static readonly RedisValue[] _fieldNames = new RedisValue[] { ContenTypeFieldName, BodyFieldName, ExpireFieldName };
+        private static readonly RedisValue[] _fieldNames = new RedisValue[] { ContentTypeFieldName, BodyFieldName, ExpireFieldName };
 
         private readonly IDatabase _database;
 
         private readonly RedisValue _bodyFieldName = BodyFieldName;
         private readonly RedisValue _expireFieldName = ExpireFieldName;
-        private readonly RedisValue _contenTypeFieldName = ContenTypeFieldName;
+        private readonly RedisValue _contenTypeFieldName = ContentTypeFieldName;
 
         /// <summary>
         /// 基于 <see cref="StackExchange.Redis"/> 的响应缓存

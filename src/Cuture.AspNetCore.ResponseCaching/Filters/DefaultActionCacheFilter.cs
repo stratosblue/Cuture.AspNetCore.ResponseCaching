@@ -16,6 +16,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
     /// </summary>
     public class DefaultActionCacheFilter : CacheFilterBase<ActionExecutingContext, IActionResult>, IAsyncActionFilter, IAsyncResourceFilter
     {
+        /// <summary>
         /// 默认的基于ActionFilter的缓存过滤Filter
         /// </summary>
         /// <param name="context"></param>

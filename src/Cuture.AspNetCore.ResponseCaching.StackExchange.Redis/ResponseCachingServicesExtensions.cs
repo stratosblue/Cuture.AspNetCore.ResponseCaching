@@ -9,6 +9,9 @@ using StackExchange.Redis;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ResponseCachingServicesExtensions
     {
         /// <summary>
