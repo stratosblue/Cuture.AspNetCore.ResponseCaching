@@ -31,7 +31,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="context"></param>
         /// <param name="actionResult"></param>
         /// <returns></returns>
-        private static Task SetResultToContexAsync(ActionExecutingContext context, IActionResult actionResult)
+        private static Task SetResultToContextAsync(ActionExecutingContext context, IActionResult actionResult)
         {
             context.Result = actionResult;
             return Task.CompletedTask;
@@ -50,7 +50,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             {
                 await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
                                                                         context,
-                                                                        inActionResult => SetResultToContexAsync(context, inActionResult),
+                                                                        inActionResult => SetResultToContextAsync(context, inActionResult),
                                                                         () => ExecutingAndReplaceResponseStreamAsync(context, next, key));
             }
             else

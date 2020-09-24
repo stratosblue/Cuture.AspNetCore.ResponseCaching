@@ -25,6 +25,7 @@ namespace Microsoft.AspNetCore.Mvc
 
         private SpinLock _createInstanceLock = new SpinLock(false);
 
+        private int _dumpCapacity = ResponseCachingConstants.DefaultDumpCapacity;
         private IFilterMetadata _filterMetadata;
 
         #endregion Private 字段
@@ -39,6 +40,24 @@ namespace Microsoft.AspNetCore.Mvc
         /// 需要Attribute数据时实现 <see cref="IResponseCachingAttributeSetter"/> 接口
         /// </summary>
         public Type CustomCacheKeyGeneratorType { get; set; }
+
+        /// <summary>
+        /// Dump响应时的<see cref="System.IO.MemoryStream"/>初始化大小
+        /// <para/>
+        /// 不能小于 <see cref="ResponseCachingConstants.DefaultMinMaxCacheableResponseLength"/>
+        /// </summary>
+        public int DumpCapacity
+        {
+            get => _dumpCapacity;
+            set
+            {
+                if (value < ResponseCachingConstants.DefaultMinMaxCacheableResponseLength)
+                {
+                    throw new ArgumentOutOfRangeException($"{nameof(DumpCapacity)} can not less than {ResponseCachingConstants.DefaultMinMaxCacheableResponseLength}");
+                }
+                _dumpCapacity = value;
+            }
+        }
 
         /// <summary>
         /// 缓存时长（秒）

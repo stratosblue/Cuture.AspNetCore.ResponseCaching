@@ -17,22 +17,13 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// <typeparam name="TLocalCachingData">本地缓存类型</typeparam>
     public class ResponseCachingContext<TFilterContext, TLocalCachingData> where TFilterContext : FilterContext
     {
+        #region Private 字段
+
         private readonly ResponseCachingAttribute _cachingAttribute;
 
-        /// <summary>
-        /// 缓存Key生成器
-        /// </summary>
-        public ICacheKeyGenerator KeyGenerator { get; }
+        #endregion Private 字段
 
-        /// <summary>
-        /// 响应缓存容器
-        /// </summary>
-        public IResponseCache ResponseCache { get; }
-
-        /// <summary>
-        /// 执行锁定器
-        /// </summary>
-        public IRequestExecutingLocker<TFilterContext, TLocalCachingData> ExecutingLocker { get; }
+        #region Public 属性
 
         /// <summary>
         /// 响应缓存确定器
@@ -40,14 +31,24 @@ namespace Cuture.AspNetCore.ResponseCaching
         public IResponseCacheDeterminer CacheDeterminer { get; set; }
 
         /// <summary>
+        /// 响应转储Stream工厂
+        /// </summary>
+        public IDumpStreamFactory DumpStreamFactory { get; set; }
+
+        /// <summary>
         /// 缓存有效时长（秒）
         /// </summary>
         public int Duration { get; }
 
         /// <summary>
-        /// 缓存Key的最大长度
+        /// 执行锁定器
         /// </summary>
-        public int MaxCacheKeyLength { get; }
+        public IRequestExecutingLocker<TFilterContext, TLocalCachingData> ExecutingLocker { get; }
+
+        /// <summary>
+        /// 缓存Key生成器
+        /// </summary>
+        public ICacheKeyGenerator KeyGenerator { get; }
 
         /// <summary>
         /// 最大可缓存响应长度
@@ -55,9 +56,18 @@ namespace Cuture.AspNetCore.ResponseCaching
         public int MaxCacheableResponseLength { get; } = -1;
 
         /// <summary>
-        /// 响应转储Stream工厂
+        /// 缓存Key的最大长度
         /// </summary>
-        public IDumpStreamFactory DumpStreamFactory { get; set; }
+        public int MaxCacheKeyLength { get; }
+
+        /// <summary>
+        /// 响应缓存容器
+        /// </summary>
+        public IResponseCache ResponseCache { get; }
+
+        #endregion Public 属性
+
+        #region Public 构造函数
 
         /// <summary>
         ///
@@ -92,8 +102,9 @@ namespace Cuture.AspNetCore.ResponseCaching
             ResponseCache = responseCache ?? throw new ArgumentNullException(nameof(responseCache));
             CacheDeterminer = cacheDeterminer ?? throw new ArgumentNullException(nameof(cacheDeterminer));
             Duration = cachingAttribute.Duration > 1 ? cachingAttribute.Duration : throw new ArgumentOutOfRangeException($"{nameof(cachingAttribute.Duration)}  can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} seconds");
-
-            DumpStreamFactory = new DefaultDumpStreamFactory(ResponseCachingConstants.DefaultMinMaxCacheableResponseLength * 2);
+            DumpStreamFactory = new DefaultDumpStreamFactory(_cachingAttribute.DumpCapacity);
         }
+
+        #endregion Public 构造函数
     }
 }

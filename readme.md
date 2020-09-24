@@ -9,6 +9,7 @@
 - 支持基于`QueryKey`、`FormKey`、`Header`、`Claim`、`Model`中单个或多个组合的缓存键生成；
 - 默认缓存Key生成器会包含请求路径为缓存Key；
 - 支持基于`Memory`和`Redis`(StackExchange.Redis)的缓存；
+- `Asp.net Core`版本要求 - `3.0`以上
 
 ## 使用
 
@@ -53,6 +54,7 @@ public void ConfigureServices(IServiceCollection services)
                  MaxCacheableResponseLength = 1024 * 1024,      //最大可缓存的响应内容长度
                  CustomCacheKeyGeneratorType = typeof(CustomCacheKeyGeneratorType),     //自定义缓存Key生成器类型
                  ModelKeyParserType = typeof(ModelKeyParserType),   //自定义Model的Key分析器
+                 DumpCapacity = 1024 * 2,   //Dump响应流时的MemoryStream初始化大小
                  LockMode = ExecutingLockMode.CacheKeySingle    //执行锁定模式 - 依据缓存Key锁定（尽可能保证单机每个Key只有一个action方法体在执行）
                  )]
 public IEnumerable<DataDto> Foo([FromQuery] int page, [FromQuery] int pageSize, [FromBody] RequestDto input)

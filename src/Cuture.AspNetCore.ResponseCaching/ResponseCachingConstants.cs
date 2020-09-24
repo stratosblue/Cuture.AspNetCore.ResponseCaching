@@ -18,7 +18,7 @@
         /// <summary>
         /// 默认dump时memorystream初始容量
         /// </summary>
-        public const int DefaultDumpCapacity = 512;
+        public const int DefaultDumpCapacity = 1024;
 
         /// <summary>
         /// 默认最大可缓存响应长度的最小值 - 128byte
