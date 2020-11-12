@@ -3,13 +3,13 @@
 基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`缓存组件
 
 ## 注意项
-- 针对`Action`的缓存实现，基于`Filter`，非AOP实现；
+- 针对`Action`的缓存实现，基于`Filter`，非中间件/AOP实现；
 - 命中缓存时直接将内容写入响应流，省略了序列化、反序列化等操作；
 - 只会缓存响应内容和`ContentType`，忽略了其它响应Header；
 - 支持基于`QueryKey`、`FormKey`、`Header`、`Claim`、`Model`中单个或多个组合的缓存键生成；
 - 默认缓存Key生成器会包含请求路径为缓存Key；
 - 支持基于`Memory`和`Redis`(StackExchange.Redis)的缓存；
-- `Asp.net Core`版本要求 - `3.0`以上
+- `Asp.net Core`版本要求 - `3.1`以上
 
 ## 使用
 
