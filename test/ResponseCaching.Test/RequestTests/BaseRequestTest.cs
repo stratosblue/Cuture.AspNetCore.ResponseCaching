@@ -18,9 +18,13 @@ namespace ResponseCaching.Test.RequestTests
     {
         protected abstract Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs();
 
+        protected virtual Task BeforeRunning() => Task.CompletedTask;
+
         [TestMethod]
         public virtual async Task ExecuteAsync()
         {
+            await BeforeRunning();
+
             var funcs = GetAllRequestFuncs();
 
             var data = await IntervalRunAsync(funcs);

@@ -33,6 +33,24 @@ namespace ResponseCaching.Test.WebHost.Controllers
         }
 
         [HttpGet]
+        [ActionName("path-cache")]
+        [CacheByPath(Duration, LockMode = ExecutingLockMode.CacheKeySingle)]
+        public IEnumerable<WeatherForecast> CacheByPathGet()
+        {
+            _logger.LogInformation("{0} : {1}", DateTime.Now, "path-cache");
+            return TestDataGenerator.GetData(1, 5);
+        }
+
+        [HttpPost]
+        [ActionName("path-cache")]
+        [CacheByPath(Duration, LockMode = ExecutingLockMode.CacheKeySingle)]
+        public IEnumerable<WeatherForecast> CacheByPathPost()
+        {
+            _logger.LogInformation("{0} : {1}", DateTime.Now, "path-cache");
+            return TestDataGenerator.GetData(1, 5);
+        }
+
+        [HttpGet]
         [ActionName("get-q")]
         [CacheByQuery(Duration, "page", "pageSize", LockMode = ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByQuery([Required] int page, [Required] int pageSize)

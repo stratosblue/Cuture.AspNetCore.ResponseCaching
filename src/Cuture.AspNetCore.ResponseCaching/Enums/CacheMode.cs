@@ -21,7 +21,7 @@
         Custom = 2,
 
         /// <summary>
-        /// 请求路径唯一缓存
+        /// 请求路径唯一缓存（不包含查询）
         /// </summary>
         PathUniqueness = 3,
     }

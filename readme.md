@@ -16,7 +16,7 @@
 - 安装`Nuget`包
 
 ```PowerShell
-Install-Package Cuture.AspNetCore.ResponseCaching -IncludePrerelease
+Install-Package Cuture.AspNetCore.ResponseCaching
 ```
 
 - 在`Startup`中配置选项
@@ -39,7 +39,7 @@ public void ConfigureServices(IServiceCollection services)
 
 - 标记需要缓存的`Action`
 
-使用`[ResponseCaching]`标记需要缓存响应的`Action`，或者使用简便标记`[CacheByQuery]`、`[CacheByForm]`、`[CacheByHeader]`、`[CacheByClaim]`、`[CacheByModel]`；
+使用`[ResponseCaching]`标记需要缓存响应的`Action`，或者使用简便标记`[CacheByQuery]`、`[CacheByForm]`、`[CacheByHeader]`、`[CacheByClaim]`、`[CacheByModel]`、`[CacheByPath]` (这些标记都是继承自`ResponseCaching`并进行了简单的预设置)；
 
 ```C#
 [ResponseCaching(
@@ -68,7 +68,7 @@ public IEnumerable<DataDto> Foo([FromQuery] int page, [FromQuery] int pageSize, 
     - 安装`Nuget`包
 
     ```PowerShell
-    Install-Package Cuture.AspNetCore.ResponseCaching.StackExchange.Redis -IncludePrerelease
+    Install-Package Cuture.AspNetCore.ResponseCaching.StackExchange.Redis
     ```
 
     - 配置Redis缓存

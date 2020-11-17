@@ -77,6 +77,8 @@ namespace Microsoft.AspNetCore.Mvc
         /// * 越细粒度的控制会带来相对更多的性能消耗
         /// <para/>
         /// * 虽然已经尽可能的实现了并发控制，仍然最好不要依赖此功能实现具体业务
+        /// <para/>
+        /// * 默认实现对 ActionFilter 的锁定效果不敢保证100%
         /// </summary>
         public ExecutingLockMode LockMode { get; set; } = ExecutingLockMode.Default;
 

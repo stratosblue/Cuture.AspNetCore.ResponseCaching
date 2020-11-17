@@ -21,7 +21,7 @@
         ActionSingle = 2,
 
         /// <summary>
-        /// 根据缓存键放行单个请求
+        /// 根据缓存键放行单个请求（可能会有很多的同步对象，慎重评估并使用此选项）
         /// </summary>
         CacheKeySingle = 3,
     }

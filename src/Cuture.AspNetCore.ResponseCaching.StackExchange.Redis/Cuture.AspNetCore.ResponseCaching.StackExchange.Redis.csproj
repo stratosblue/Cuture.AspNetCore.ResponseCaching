@@ -5,8 +5,7 @@
     <RootNamespace>Cuture.AspNetCore.ResponseCaching</RootNamespace>
 
     <Description>
-      $(Description)
-      基于 StackExchange.Redis 的 ResponseCache 实现。
+      $(Description)。此包为使用 StackExchange.Redis 的 ResponseCache 实现。
     </Description>
   </PropertyGroup>
   <ItemGroup>
