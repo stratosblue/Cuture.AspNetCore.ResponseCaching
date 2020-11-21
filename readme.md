@@ -39,7 +39,7 @@ public void ConfigureServices(IServiceCollection services)
 
 - 标记需要缓存的`Action`
 
-使用`[ResponseCaching]`标记需要缓存响应的`Action`，或者使用简便标记`[CacheByQuery]`、`[CacheByForm]`、`[CacheByHeader]`、`[CacheByClaim]`、`[CacheByModel]`、`[CacheByPath]` (这些标记都是继承自`ResponseCaching`并进行了简单的预设置)；
+使用`[ResponseCaching]`标记需要缓存响应的`Action`，或者使用简便标记`[CacheByQuery]`、`[CacheByForm]`、`[CacheByHeader]`、`[CacheByClaim]`、`[CacheByModel]`、`[CacheByPath]`、`[CacheByFullUrl]` (这些标记都是继承自`ResponseCaching`并进行了简单的预设置)；
 
 ```C#
 [ResponseCaching(

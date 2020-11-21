@@ -16,6 +16,13 @@ namespace ResponseCaching.Test.RequestTests
     [TestClass]
     public abstract class BaseRequestTest : WebServerHostedTestBase
     {
+        protected virtual int ReRequestTimes { get; } = 3;
+
+        /// <summary>
+        /// 请求互相检查
+        /// </summary>
+        protected virtual bool CheckEachOtherRequest { get; } = true;
+
         protected abstract Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs();
 
         protected virtual Task BeforeRunning() => Task.CompletedTask;
@@ -31,15 +38,18 @@ namespace ResponseCaching.Test.RequestTests
 
             Assert.IsTrue(data.Length > 0);
 
-            for (int i = 0; i < data.Length - 1; i++)
+            if (CheckEachOtherRequest)
             {
-                for (int j = i + 1; j < data.Length; j++)
+                for (int i = 0; i < data.Length - 1; i++)
                 {
-                    Assert.AreNotEqual(data[i], data[j]);
+                    for (int j = i + 1; j < data.Length; j++)
+                    {
+                        AreNotEqual(data[i], data[j]);
+                    }
                 }
             }
 
-            for (int time = 0; time < 3; time++)
+            for (int time = 0; time < ReRequestTimes; time++)
             {
                 var values = await IntervalRunAsync(funcs);
 
@@ -75,6 +85,37 @@ namespace ResponseCaching.Test.RequestTests
             //}
 
             return tasks.Select(m => m.Result.Data).ToArray();
+        }
+
+        protected void AreNotEqual<T>(IEnumerable<T> items1, IEnumerable<T> items2) where T : IEquatable<T>
+        {
+            Assert.AreNotEqual(items1, items2);
+            if (items1 != null
+                && items2 != null)
+            {
+                var count1 = items1.Count();
+                var count2 = items2.Count();
+
+                if (count1 != count2)
+                {
+                    return;
+                }
+
+                using var enumerator1 = items1.GetEnumerator();
+                using var enumerator2 = items2.GetEnumerator();
+
+                bool allSame = true;
+                while (enumerator1.MoveNext()
+                       && enumerator2.MoveNext())
+                {
+                    allSame = enumerator1.Current.Equals(enumerator2.Current);
+                    if (!allSame)
+                    {
+                        break;
+                    }
+                }
+                Assert.AreNotEqual(true, allSame, "两个序列数据相同");
+            }
         }
     }
 }

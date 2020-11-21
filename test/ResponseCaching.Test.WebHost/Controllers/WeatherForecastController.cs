@@ -51,6 +51,15 @@ namespace ResponseCaching.Test.WebHost.Controllers
         }
 
         [HttpGet]
+        [ActionName("url-cache")]
+        [CacheByFullUrl(Duration, LockMode = ExecutingLockMode.CacheKeySingle)]
+        public IEnumerable<WeatherForecast> CacheByFullUrl([Required] int page, [Required] int pageSize)
+        {
+            _logger.LogInformation("{0} : {1}", DateTime.Now, "url-cache");
+            return TestDataGenerator.GetData((page - 1) * pageSize, pageSize);
+        }
+
+        [HttpGet]
         [ActionName("get-q")]
         [CacheByQuery(Duration, "page", "pageSize", LockMode = ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByQuery([Required] int page, [Required] int pageSize)

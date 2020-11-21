@@ -12,6 +12,8 @@ namespace ResponseCaching.Test.RequestTests
     [TestClass]
     public class CacheByPathTest : BaseRequestTest
     {
+        protected override bool CheckEachOtherRequest => false;
+
         protected override async Task BeforeRunning()
         {
             //预请求，保证两种请求方式数据一致

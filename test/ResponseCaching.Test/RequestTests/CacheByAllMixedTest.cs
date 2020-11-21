@@ -18,6 +18,8 @@ namespace ResponseCaching.Test.RequestTests
         private const int CookieCount = 5;
         private string[] _cookies = null;
 
+        protected override bool CheckEachOtherRequest => false;
+
         [TestInitialize]
         public override async Task InitAsync()
         {

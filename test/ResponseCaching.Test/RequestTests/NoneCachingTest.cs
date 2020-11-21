@@ -42,7 +42,7 @@ namespace ResponseCaching.Test.RequestTests
                 {
                     for (int j = i + 1; j < data.Length; j++)
                     {
-                        Assert.AreNotEqual(data[i], data[j]);
+                        AreNotEqual(data[i], data[j]);
                     }
                 }
             }
