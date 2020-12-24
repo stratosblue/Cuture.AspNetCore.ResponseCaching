@@ -4,12 +4,15 @@
   <PropertyGroup>
     <RootNamespace>Cuture.AspNetCore.ResponseCaching</RootNamespace>
 
-    <Description>
-      $(Description)。此包为使用 StackExchange.Redis 的 ResponseCache 实现。
-    </Description>
+    <Description>$(Description)。此包为使用 StackExchange.Redis 的 ResponseCache 实现。</Description>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
+    <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cuture.AspNetCore.ResponseCaching\Cuture.AspNetCore.ResponseCaching.csproj" />
