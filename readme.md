@@ -10,6 +10,7 @@
 - 默认缓存Key生成器会包含请求路径为缓存Key；
 - 支持基于`Memory`和`Redis`(StackExchange.Redis)的缓存；
 - `Asp.net Core`版本要求 - `3.1`以上
+- [执行流程概览](/flow_of_execution.md)
 
 ## 使用
 
