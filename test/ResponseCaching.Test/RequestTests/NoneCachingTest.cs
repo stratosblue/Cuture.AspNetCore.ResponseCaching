@@ -34,7 +34,7 @@ namespace ResponseCaching.Test.RequestTests
 
             for (int time = 0; time < 3; time++)
             {
-                var data = await IntervalRunAsync(funcs);
+                var data = await InternalRunAsync(funcs);
 
                 Assert.IsTrue(data.Length > 0);
 

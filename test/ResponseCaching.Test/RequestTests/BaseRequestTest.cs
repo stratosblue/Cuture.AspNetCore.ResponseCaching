@@ -34,7 +34,7 @@ namespace ResponseCaching.Test.RequestTests
 
             var funcs = GetAllRequestFuncs();
 
-            var data = await IntervalRunAsync(funcs);
+            var data = await InternalRunAsync(funcs);
 
             Assert.IsTrue(data.Length > 0);
 
@@ -51,7 +51,7 @@ namespace ResponseCaching.Test.RequestTests
 
             for (int time = 0; time < ReRequestTimes; time++)
             {
-                var values = await IntervalRunAsync(funcs);
+                var values = await InternalRunAsync(funcs);
 
                 Assert.AreEqual(data.Length, values.Length);
 
@@ -70,7 +70,7 @@ namespace ResponseCaching.Test.RequestTests
             }
         }
 
-        protected virtual async Task<WeatherForecast[][]> IntervalRunAsync(Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] funcs)
+        protected virtual async Task<WeatherForecast[][]> InternalRunAsync(Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] funcs)
         {
             var tasks = new List<Task<TextHttpOperationResult<WeatherForecast[]>>>();
             foreach (var func in funcs)
@@ -80,9 +80,7 @@ namespace ResponseCaching.Test.RequestTests
             }
             await Task.WhenAll(tasks);
 
-            //if (tasks.Any(m => m.Result.Data == null))
-            //{
-            //}
+            Assert.IsFalse(tasks.Any(m => m.Result.Data == null));
 
             return tasks.Select(m => m.Result.Data).ToArray();
         }
@@ -115,6 +113,28 @@ namespace ResponseCaching.Test.RequestTests
                     }
                 }
                 Assert.AreNotEqual(true, allSame, "两个序列数据相同");
+            }
+        }
+
+        protected void AreEqual<T>(IEnumerable<T> items1, IEnumerable<T> items2) where T : IEquatable<T>
+        {
+            if (items1 != null
+                && items2 != null)
+            {
+                var count1 = items1.Count();
+                var count2 = items2.Count();
+
+                Assert.AreEqual(count1, count2);
+
+                using var enumerator1 = items1.GetEnumerator();
+                using var enumerator2 = items2.GetEnumerator();
+
+                while (enumerator1.MoveNext()
+                       && enumerator2.MoveNext())
+                {
+                    Assert.IsNotNull(enumerator1.Current);
+                    Assert.IsTrue(enumerator1.Current.Equals(enumerator2.Current));
+                }
             }
         }
     }

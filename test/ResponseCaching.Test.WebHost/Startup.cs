@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
+using ResponseCaching.Test.WebHost.Test;
+
 namespace ResponseCaching.Test.WebHost
 {
     public class Startup
@@ -47,6 +49,8 @@ namespace ResponseCaching.Test.WebHost
                         ValidateAudience = false
                     };
                 });
+
+            services.AddTransient<TestCustomCacheKeyGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

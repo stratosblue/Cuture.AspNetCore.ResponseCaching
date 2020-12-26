@@ -40,9 +40,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         private static void CheckAndSetType(ref Type target, Type value, Type baseType)
         {
-            if (value is null || value.IsSubclassOf(baseType))
+            if (value is null || baseType.IsAssignableFrom(value))
             {
                 target = value;
+                return;
             }
             throw new ResponseCachingException($"{value.FullName} is not subclass of {baseType.FullName}");
         }

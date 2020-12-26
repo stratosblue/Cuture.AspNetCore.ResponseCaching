@@ -490,7 +490,7 @@ namespace Microsoft.AspNetCore.Mvc
                 return null;
             }
 
-            if (!CustomCacheKeyGeneratorType.IsSubclassOf(typeof(ICustomCacheKeyGenerator)))
+            if (!typeof(ICustomCacheKeyGenerator).IsAssignableFrom(CustomCacheKeyGeneratorType))
             {
                 throw new ArgumentException($"type of {CustomCacheKeyGeneratorType} must derives from {nameof(ICustomCacheKeyGenerator)}");
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
@@ -131,6 +132,17 @@ namespace ResponseCaching.Test.WebHost.Controllers
         {
             _logger.LogInformation("{0} : {1}", DateTime.Now, "get-all-mixed");
             return TestDataGenerator.GetData((page - 1) * pageSize, pageSize);
+        }
+
+        [HttpGet]
+        [ActionName("cache-custom")]
+        [ResponseCaching(Duration,
+                         CustomCacheKeyGeneratorType = typeof(TestCustomCacheKeyGenerator),
+                         LockMode = ExecutingLockMode.CacheKeySingle)]
+        [Description("cache_key_definite")]
+        public IEnumerable<WeatherForecast> CacheByCustom()
+        {
+            return TestDataGenerator.GetData(0, 5);
         }
     }
 }

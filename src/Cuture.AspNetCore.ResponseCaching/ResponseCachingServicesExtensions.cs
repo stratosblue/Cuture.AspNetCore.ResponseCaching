@@ -29,9 +29,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IMemoryResponseCache, DefaultMemoryResponseCache>();
 
-            services.AddSingleton<FullPathAndQueryCacheKeyGenerator>();
-            services.AddSingleton<RequestPathCacheKeyGenerator>();
-            services.AddSingleton<DefaultModelKeyParser>();
+            services.TryAddSingleton<FullPathAndQueryCacheKeyGenerator>();
+            services.TryAddSingleton<RequestPathCacheKeyGenerator>();
+            services.TryAddSingleton<DefaultModelKeyParser>();
 
             services.TryAddSingleton<IResponseCacheDeterminer, DefaultResponseCacheDeterminer>();
 
