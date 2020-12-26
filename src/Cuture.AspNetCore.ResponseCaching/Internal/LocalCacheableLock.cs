@@ -11,6 +11,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
     /// <typeparam name="TPayload"></typeparam>
     public class LocalCacheableLock<TPayload> : IDisposable where TPayload : class
     {
+        #region Private 字段
+
         /// <summary>
         /// 本地缓存可用毫秒数
         /// </summary>
@@ -33,6 +35,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         /// </summary>
         private long _localCachedPayloadExpireTime;
 
+        #endregion Private 字段
+
+        #region Public 构造函数
+
         /// <summary>
         /// 本地缓存可用毫秒数
         /// </summary>
@@ -44,6 +50,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
             Debug.WriteLine($"{{0}}:new instance of {nameof(LocalCacheableLock<TPayload>)} created. localCacheAvailableMilliseconds:{{1}}", DateTime.Now, localCacheAvailableMilliseconds);
         }
 
+        #endregion Public 构造函数
+
+        #region Private 析构函数
+
         /// <summary>
         ///
         /// </summary>
@@ -51,6 +61,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         {
             Dispose(disposing: false);
         }
+
+        #endregion Private 析构函数
+
+        #region Public 方法
 
         /// <summary>
         ///
@@ -102,6 +116,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
             }
         }
 
+        #endregion Public 方法
+
+        #region Protected 方法
+
         /// <summary>
         ///
         /// </summary>
@@ -122,5 +140,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
                 Debug.WriteLine($"{{0}}:{nameof(LocalCacheableLock<TPayload>)} Disposed.", DateTime.Now);
             }
         }
+
+        #endregion Protected 方法
     }
 }

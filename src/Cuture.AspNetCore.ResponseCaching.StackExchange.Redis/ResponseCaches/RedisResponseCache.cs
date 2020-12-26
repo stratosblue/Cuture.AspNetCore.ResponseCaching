@@ -13,10 +13,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
     /// </summary>
     public class RedisResponseCache : IDistributedResponseCache
     {
-        /// <summary>
-        /// ContentType Hash字段名称
-        /// </summary>
-        public const string ContentTypeFieldName = "ContentType";
+        #region const
 
         /// <summary>
         /// BodyFieldName Hash字段名称
@@ -24,17 +21,29 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         public const string BodyFieldName = "Body";
 
         /// <summary>
+        /// ContentType Hash字段名称
+        /// </summary>
+        public const string ContentTypeFieldName = "ContentType";
+
+        /// <summary>
         /// Expire Hash字段名称
         /// </summary>
         public const string ExpireFieldName = "Expire";
 
+        #endregion const
+
+        #region Private 字段
+
         private static readonly RedisValue[] _fieldNames = new RedisValue[] { ContentTypeFieldName, BodyFieldName, ExpireFieldName };
 
-        private readonly IDatabase _database;
-
         private readonly RedisValue _bodyFieldName = BodyFieldName;
-        private readonly RedisValue _expireFieldName = ExpireFieldName;
         private readonly RedisValue _contenTypeFieldName = ContentTypeFieldName;
+        private readonly IDatabase _database;
+        private readonly RedisValue _expireFieldName = ExpireFieldName;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// 基于 <see cref="StackExchange.Redis"/> 的响应缓存
@@ -50,6 +59,10 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
                 _database = _database.WithKeyPrefix(prefix);
             }
         }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
 
         /// <inheritdoc/>
         public async Task<ResponseCacheEntry> GetAsync(string key)
@@ -77,5 +90,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
             });
             _ = _database.KeyExpireAsync(redisKey, TimeSpan.FromSeconds(duration));
         }
+
+        #endregion Public 方法
     }
 }

@@ -5,25 +5,17 @@
     /// </summary>
     public static class ResponseCachingConstants
     {
-        /// <summary>
-        /// 最小缓存可用秒数
-        /// </summary>
-        public const int MinCacheAvailableSeconds = 1;
+        #region const
 
         /// <summary>
-        /// 最小缓存可用毫秒数
+        /// 默认字符串连接字符
         /// </summary>
-        public const int MinCacheAvailableMilliseconds = MinCacheAvailableSeconds * 1000;
+        public const char CombineChar = ':';
 
         /// <summary>
         /// 默认dump时memorystream初始容量
         /// </summary>
         public const int DefaultDumpCapacity = 1024;
-
-        /// <summary>
-        /// 默认最大可缓存响应长度的最小值 - 128byte
-        /// </summary>
-        public const int DefaultMinMaxCacheableResponseLength = 128;
 
         /// <summary>
         /// 默认最大可缓存响应长度 - 512k
@@ -36,9 +28,19 @@
         public const int DefaultMaxCacheKeyLength = 1024;
 
         /// <summary>
-        /// 默认字符串连接字符
+        /// 默认最大可缓存响应长度的最小值 - 128byte
         /// </summary>
-        public const char CombineChar = ':';
+        public const int DefaultMinMaxCacheableResponseLength = 128;
+
+        /// <summary>
+        /// 最小缓存可用毫秒数
+        /// </summary>
+        public const int MinCacheAvailableMilliseconds = MinCacheAvailableSeconds * 1000;
+
+        /// <summary>
+        /// 最小缓存可用秒数
+        /// </summary>
+        public const int MinCacheAvailableSeconds = 1;
 
         /// <summary>
         /// CacheKey在Request.Items的Key
@@ -54,5 +56,7 @@
         /// 原始流在Request.Items的Key
         /// </summary>
         public const string ResponseCachingOriginalStreamKey = "__ResponseCaching.OriginalStream";
+
+        #endregion const
     }
 }

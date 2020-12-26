@@ -23,6 +23,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         #region Public 构造函数
 
+        /// <summary>
+        /// 拦截器集合
+        /// </summary>
+        /// <param name="cachingProcessInterceptor"><see cref="ICachingProcessInterceptor"/></param>
         public InterceptorAggregator(ICachingProcessInterceptor cachingProcessInterceptor)
         {
             CachingProcessInterceptor = cachingProcessInterceptor;

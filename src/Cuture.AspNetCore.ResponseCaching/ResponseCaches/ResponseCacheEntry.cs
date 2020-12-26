@@ -7,15 +7,21 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
     /// </summary>
     public class ResponseCacheEntry
     {
-        /// <summary>
-        /// ContentType
-        /// </summary>
-        public string ContentType { get; }
+        #region Public 属性
 
         /// <summary>
         /// 内容
         /// </summary>
         public ReadOnlyMemory<byte> Body { get; }
+
+        /// <summary>
+        /// ContentType
+        /// </summary>
+        public string ContentType { get; }
+
+        #endregion Public 属性
+
+        #region Public 构造函数
 
         /// <summary>
         /// 响应缓存条目
@@ -27,5 +33,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
             ContentType = contentType;
             Body = body;
         }
+
+        #endregion Public 构造函数
     }
 }

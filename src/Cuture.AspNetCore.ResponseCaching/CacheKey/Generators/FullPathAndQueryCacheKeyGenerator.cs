@@ -10,7 +10,11 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
     /// </summary>
     public class FullPathAndQueryCacheKeyGenerator : ICacheKeyGenerator
     {
+        #region Public 方法
+
         /// <inheritdoc/>
         public ValueTask<string> GenerateKeyAsync(FilterContext filterContext) => new ValueTask<string>(filterContext.HttpContext.Request.GetEncodedPathAndQuery());
+
+        #endregion Public 方法
     }
 }

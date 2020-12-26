@@ -76,7 +76,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Public 构造函数
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <param name="cachingAttribute"></param>
         /// <param name="cacheKeyGenerator"></param>
@@ -84,6 +84,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="responseCache"></param>
         /// <param name="cacheDeterminer"></param>
         /// <param name="optionsAccessor"></param>
+        /// <param name="interceptorAggregator"></param>
         public ResponseCachingContext(ResponseCachingAttribute cachingAttribute,
                                       ICacheKeyGenerator cacheKeyGenerator,
                                       IRequestExecutingLocker<TFilterContext, TLocalCachingData> executingLocker,

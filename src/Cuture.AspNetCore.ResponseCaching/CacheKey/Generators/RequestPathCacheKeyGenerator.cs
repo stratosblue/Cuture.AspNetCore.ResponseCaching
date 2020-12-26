@@ -9,15 +9,19 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
     /// </summary>
     public class RequestPathCacheKeyGenerator : ICacheKeyGenerator
     {
+        #region Public 方法
+
         /// <inheritdoc/>
         public ValueTask<string> GenerateKeyAsync(FilterContext filterContext)
         {
             var path = filterContext.HttpContext.Request.Path.Value;
             if (path.EndsWith('/'))
             {
-                return new ValueTask<string>(path.Substring(0, path.Length - 1));
+                return new ValueTask<string>(path[0..^1]);
             }
             return new ValueTask<string>(path);
         }
+
+        #endregion Public 方法
     }
 }

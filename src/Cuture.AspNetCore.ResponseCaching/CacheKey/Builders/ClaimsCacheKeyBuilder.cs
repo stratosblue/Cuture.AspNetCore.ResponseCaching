@@ -15,10 +15,16 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
     /// </summary>
     public class ClaimsCacheKeyBuilder : CacheKeyBuilder
     {
+        #region Private 字段
+
         /// <summary>
         /// ClaimType列表
         /// </summary>
         private readonly string[] _claimTypes;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// Claims缓存键构建器
@@ -30,6 +36,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         {
             _claimTypes = claimTypes?.ToArray() ?? throw new ArgumentNullException(nameof(claimTypes));
         }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
 
         /// <inheritdoc/>
         public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
@@ -51,5 +61,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
             }
             return base.BuildAsync(filterContext, keyBuilder);
         }
+
+        #endregion Public 方法
     }
 }

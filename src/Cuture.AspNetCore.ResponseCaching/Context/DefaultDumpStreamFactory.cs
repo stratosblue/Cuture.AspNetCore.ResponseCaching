@@ -7,10 +7,16 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     public class DefaultDumpStreamFactory : IDumpStreamFactory
     {
+        #region Public 属性
+
         /// <summary>
         /// 初始化 <see cref="MemoryStream"/> 的容量
         /// </summary>
         public int InitialCapacity { get; }
+
+        #endregion Public 属性
+
+        #region Public 构造函数
 
         /// <summary>
         /// 默认转储Stream工厂
@@ -21,7 +27,13 @@ namespace Cuture.AspNetCore.ResponseCaching
             InitialCapacity = initialCapacity;
         }
 
+        #endregion Public 构造函数
+
+        #region Public 方法
+
         /// <inheritdoc/>
         public MemoryStream Create() => new MemoryStream(InitialCapacity);
+
+        #endregion Public 方法
     }
 }

@@ -7,6 +7,8 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     public class RequestFormNotFindException : ArgumentNullException
     {
+        #region Public 构造函数
+
         /// <inheritdoc/>
         public RequestFormNotFindException(string message) : base(message)
         {
@@ -21,5 +23,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         public RequestFormNotFindException()
         {
         }
+
+        #endregion Public 构造函数
     }
 }

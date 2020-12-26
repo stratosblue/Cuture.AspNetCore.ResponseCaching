@@ -10,10 +10,12 @@ using StackExchange.Redis;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public static class ResponseCachingServicesExtensions
     {
+        #region Public 方法
+
         /// <summary>
         /// 使用Redis缓存
         /// </summary>
@@ -56,6 +58,10 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder.UseRedisResponseCache(connectionMultiplexer);
         }
 
+        #endregion Public 方法
+
+        #region Internal 方法
+
         /// <summary>
         /// 使用Redis缓存
         /// <para/>
@@ -74,5 +80,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return builder;
         }
+
+        #endregion Internal 方法
     }
 }

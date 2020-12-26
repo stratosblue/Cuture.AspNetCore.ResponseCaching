@@ -9,6 +9,8 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     public interface IResponseCacheDeterminer
     {
+        #region Public 方法
+
         /// <summary>
         /// 是否可以缓存此次请求
         /// <para/>
@@ -27,5 +29,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="context"></param>
         /// <returns></returns>
         bool CanCaching(ActionExecutedContext context);
+
+        #endregion Public 方法
     }
 }

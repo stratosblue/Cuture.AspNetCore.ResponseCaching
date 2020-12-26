@@ -12,8 +12,14 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
     /// <typeparam name="TPayload">缓存内容类型</typeparam>
     public sealed class LocalCacheableLockPool<TKey, TPayload> : IDisposable where TPayload : class
     {
-        private ConcurrentDictionary<TKey, Lazy<LockState<TPayload>>> _allLockStates = new ConcurrentDictionary<TKey, Lazy<LockState<TPayload>>>();
+        #region Private 字段
+
         private readonly Func<LocalCacheableLock<TPayload>> _lockFactory;
+        private ConcurrentDictionary<TKey, Lazy<LockState<TPayload>>> _allLockStates = new ConcurrentDictionary<TKey, Lazy<LockState<TPayload>>>();
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// 可本地缓存锁池
@@ -23,6 +29,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         {
             _lockFactory = lockFactory ?? throw new ArgumentNullException(nameof(lockFactory));
         }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
 
         /// <summary>
         /// 清理锁字典内的空项
@@ -129,6 +139,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
                 }
             }
         }
+
+        #endregion Public 方法
     }
 
     /// <summary>
@@ -136,6 +148,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
     /// </summary>
     internal class LockState<TPayload> where TPayload : class
     {
+        #region Public 字段
+
         /// <summary>
         /// 无效标记，不应该继续使用该对象
         /// </summary>
@@ -146,10 +160,18 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         /// </summary>
         public SpinLock UseLock = new SpinLock(false);
 
+        #endregion Public 字段
+
+        #region Public 属性
+
         /// <summary>
         /// 弱引用
         /// </summary>
         public WeakReference<LocalCacheableLock<TPayload>> WeakReference { get; set; }
+
+        #endregion Public 属性
+
+        #region Public 构造函数
 
         /// <summary>
         /// 锁状态
@@ -159,5 +181,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         {
             WeakReference = weakReference;
         }
+
+        #endregion Public 构造函数
     }
 }

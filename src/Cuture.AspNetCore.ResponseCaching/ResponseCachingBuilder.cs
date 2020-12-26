@@ -7,8 +7,14 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     public class ResponseCachingBuilder
     {
+        #region Public 属性
+
         /// <inheritdoc cref="IServiceCollection"/>
         public IServiceCollection Services { get; }
+
+        #endregion Public 属性
+
+        #region Public 构造函数
 
         /// <summary>
         /// ResponseCaching构建类
@@ -18,5 +24,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         {
             Services = services;
         }
+
+        #endregion Public 构造函数
     }
 }

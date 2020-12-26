@@ -15,18 +15,24 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
     /// </summary>
     public abstract class CacheFilterBase<TFilterExecutingContext, TLocalCachingData> where TFilterExecutingContext : FilterContext
     {
-        /// <summary>
-        /// ResponseCaching上下文
-        /// </summary>
-        protected ResponseCachingContext<TFilterExecutingContext, TLocalCachingData> Context { get; }
+        #region Protected 属性
 
         /// <summary>
         /// 响应缓存容器
         /// </summary>
         protected IResponseCache ResponseCache => Context.ResponseCache;
 
+        /// <summary>
+        /// ResponseCaching上下文
+        /// </summary>
+        protected ResponseCachingContext<TFilterExecutingContext, TLocalCachingData> Context { get; }
+
         /// <inheritdoc cref="ILogger"/>
         protected ILogger Logger { get; }
+
+        #endregion Protected 属性
+
+        #region Public 构造函数
 
         /// <summary>
         /// CacheFilter基类
@@ -38,6 +44,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             Context = context ?? throw new ArgumentNullException(nameof(context));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        #endregion Public 构造函数
+
+        #region Protected 方法
 
         /// <summary>
         /// 保存响应
@@ -71,18 +81,6 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         }
 
         /// <summary>
-        /// 将缓存写入响应，经过拦截器
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="cacheEntry"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected async Task<bool> WriteCacheToResponseWithInterceptorAsync(ActionContext context, ResponseCacheEntry cacheEntry)
-        {
-            return await Context.Interceptors.OnResponseWritingAsync(context, cacheEntry, WriteCacheToResponseAsync);
-        }
-
-        /// <summary>
         /// 将缓存写入响应
         /// </summary>
         /// <param name="context"></param>
@@ -95,5 +93,19 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             await context.HttpContext.Response.BodyWriter.WriteAsync(cacheEntry.Body, context.HttpContext.RequestAborted);
             return true;
         }
+
+        /// <summary>
+        /// 将缓存写入响应，经过拦截器
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="cacheEntry"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected async Task<bool> WriteCacheToResponseWithInterceptorAsync(ActionContext context, ResponseCacheEntry cacheEntry)
+        {
+            return await Context.Interceptors.OnResponseWritingAsync(context, cacheEntry, WriteCacheToResponseAsync);
+        }
+
+        #endregion Protected 方法
     }
 }

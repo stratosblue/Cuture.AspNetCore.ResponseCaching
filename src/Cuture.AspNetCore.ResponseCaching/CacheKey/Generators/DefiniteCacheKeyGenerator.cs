@@ -10,7 +10,13 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
     /// </summary>
     public class DefiniteCacheKeyGenerator : ICacheKeyGenerator
     {
+        #region Private 字段
+
         private readonly string _key;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// 确定值缓存键生成器
@@ -21,7 +27,13 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
             _key = key ?? throw new ArgumentNullException(nameof(key));
         }
 
+        #endregion Public 构造函数
+
+        #region Public 方法
+
         /// <inheritdoc/>
         public ValueTask<string> GenerateKeyAsync(FilterContext filterContext) => new ValueTask<string>(_key);
+
+        #endregion Public 方法
     }
 }

@@ -11,7 +11,13 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
     /// </summary>
     public sealed class DefaultMemoryResponseCache : IMemoryResponseCache, IDisposable
     {
+        #region Private 字段
+
         private readonly IMemoryCache _memoryCache;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// 默认的基于内存的响应缓存
@@ -20,6 +26,16 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         public DefaultMemoryResponseCache(ILoggerFactory loggerFactory)
         {
             _memoryCache = new MemoryCache(new MemoryCacheOptions(), loggerFactory);
+        }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            _memoryCache.Dispose();
         }
 
         /// <inheritdoc/>
@@ -36,10 +52,6 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
             return Task.CompletedTask;
         }
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            _memoryCache.Dispose();
-        }
+        #endregion Public 方法
     }
 }

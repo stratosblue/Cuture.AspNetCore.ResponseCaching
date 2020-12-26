@@ -14,9 +14,15 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
     /// </summary>
     public class DefaultCacheKeyGenerator : ICacheKeyGenerator
     {
+        #region Private 字段
+
         private readonly CacheKeyBuilder _innerBuilder;
 
         private readonly ObjectPool<StringBuilder> _stringBuilderPool;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// 缓存键生成器
@@ -27,6 +33,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
             _innerBuilder = innerBuilder ?? throw new ArgumentNullException(nameof(innerBuilder));
             _stringBuilderPool = new DefaultObjectPoolProvider().CreateStringBuilderPool();
         }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
 
         /// <inheritdoc/>
         public async ValueTask<string> GenerateKeyAsync(FilterContext filterContext)
@@ -51,5 +61,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
                 _stringBuilderPool.Return(keyBuilder);
             }
         }
+
+        #endregion Public 方法
     }
 }

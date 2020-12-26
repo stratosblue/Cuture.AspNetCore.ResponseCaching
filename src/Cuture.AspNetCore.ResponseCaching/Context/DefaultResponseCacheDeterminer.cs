@@ -10,10 +10,14 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     internal class DefaultResponseCacheDeterminer : IResponseCacheDeterminer
     {
+        #region Public 方法
+
         /// <inheritdoc/>
         public bool CanCaching(ResourceExecutedContext context, ResponseCacheEntry cacheEntry) => context.HttpContext.Response.StatusCode == StatusCodes.Status200OK;
 
         /// <inheritdoc/>
         public bool CanCaching(ActionExecutedContext context) => context.Result != null;
+
+        #endregion Public 方法
     }
 }

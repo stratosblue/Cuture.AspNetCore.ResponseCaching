@@ -4,10 +4,12 @@ using System.Runtime.Serialization;
 namespace Microsoft.AspNetCore.Mvc
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public class ResponseCachingException : Exception
     {
+        #region Public 构造函数
+
         /// <inheritdoc/>
         public ResponseCachingException()
         {
@@ -23,9 +25,15 @@ namespace Microsoft.AspNetCore.Mvc
         {
         }
 
+        #endregion Public 构造函数
+
+        #region Protected 构造函数
+
         /// <inheritdoc/>
         protected ResponseCachingException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
+
+        #endregion Protected 构造函数
     }
 }

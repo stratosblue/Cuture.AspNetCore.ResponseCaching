@@ -14,10 +14,16 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
     /// </summary>
     public class FormKeysCacheKeyBuilder : CacheKeyBuilder
     {
+        #region Private 字段
+
         /// <summary>
         /// 表单键列表
         /// </summary>
         private readonly string[] _formKeys;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// 表单参数缓存键构建器
@@ -29,6 +35,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         {
             _formKeys = formKeys?.ToArray() ?? throw new ArgumentNullException(nameof(formKeys));
         }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
 
         /// <inheritdoc/>
         public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
@@ -59,6 +69,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
             return base.BuildAsync(filterContext, keyBuilder);
         }
 
+        #endregion Public 方法
+
+        #region Protected 方法
+
         /// <summary>
         /// 处理未找到表单
         /// </summary>
@@ -69,11 +83,11 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
             {
                 CacheKeyStrictMode.Ignore => true,
                 CacheKeyStrictMode.Strict => false,
-#pragma warning disable CA2208 // 正确实例化参数异常
                 CacheKeyStrictMode.StrictWithException => throw new RequestFormNotFindException(),
-#pragma warning restore CA2208 // 正确实例化参数异常
                 _ => throw new ArgumentException($"Unhandleable CacheKeyStrictMode: {StrictMode}"),
             };
         }
+
+        #endregion Protected 方法
     }
 }

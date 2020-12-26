@@ -29,6 +29,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
             set => CheckAndSetType(ref _cachingProcessInterceptorType, value, typeof(ICachingProcessInterceptor));
         }
 
+        /// <summary>
+        ///
+        /// </summary>
         public InterceptorOptions Value => this;
 
         #endregion Public 属性

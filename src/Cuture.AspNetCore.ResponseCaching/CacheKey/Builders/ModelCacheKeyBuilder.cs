@@ -14,6 +14,8 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
     /// </summary>
     public class ModelCacheKeyBuilder : CacheKeyBuilder
     {
+        #region Private 字段
+
         private readonly IModelKeyParser _modelKeyParser;
 
         /// <summary>
@@ -25,6 +27,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         /// 使用所有Model
         /// </summary>
         private readonly bool _useAllModel;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// 参数Model缓存键构建器
@@ -42,6 +48,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
             _useAllModel = _modelNames.Length == 0;
             _modelKeyParser = modelKeyParser;
         }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
 
         /// <inheritdoc/>
         public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
@@ -78,5 +88,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
 
             throw new ResponseCachingException("not find ActionArguments in HttpContext.Items");
         }
+
+        #endregion Public 方法
     }
 }

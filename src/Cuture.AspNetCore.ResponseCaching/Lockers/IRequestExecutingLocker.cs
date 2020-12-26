@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Cuture.AspNetCore.ResponseCaching.Lockers
 {
+    #region Base
+
     /// <summary>
     /// http请求执行锁定器
     /// <para/>
@@ -15,6 +17,13 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
     /// </summary>
     public interface IRequestExecutingLocker<in TExecutingContext, TCachingData> where TExecutingContext : FilterContext
     {
+        #region Public 方法
+
+        /// <summary>
+        /// 释放相关资源
+        /// </summary>
+        void Dispose();
+
         /// <summary>
         /// 使用锁执行并处理缓存
         /// </summary>
@@ -25,16 +34,44 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
         /// <returns></returns>
         Task ProcessCacheWithLockAsync(string cacheKey, TExecutingContext executingContext, Func<TCachingData, Task> cacheAvailableFunc, Func<Task<TCachingData>> cacheUnAvailableFunc);
 
-        /// <summary>
-        /// 释放相关资源
-        /// </summary>
-        void Dispose();
+        #endregion Public 方法
     }
+
+    #endregion Base
+
+    #region Action
+
+    #region Action Base
+
+    /// <inheritdoc/>
+    public interface IActionExecutingLocker : IRequestExecutingLocker<ActionExecutingContext, IActionResult>
+    {
+    }
+
+    #endregion Action Base
+
+    /// <inheritdoc/>
+    public interface IActionSingleActionExecutingLocker : IActionExecutingLocker
+    {
+    }
+
+    /// <inheritdoc/>
+    public interface ICacheKeySingleActionExecutingLocker : IActionExecutingLocker
+    {
+    }
+
+    #endregion Action
+
+    #region Resource
+
+    #region Resource Base
 
     /// <inheritdoc/>
     public interface IResourceExecutingLocker : IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>
     {
     }
+
+    #endregion Resource Base
 
     /// <inheritdoc/>
     public interface IActionSingleResourceExecutingLocker : IResourceExecutingLocker
@@ -46,18 +83,5 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
     {
     }
 
-    /// <inheritdoc/>
-    public interface IActionExecutingLocker : IRequestExecutingLocker<ActionExecutingContext, IActionResult>
-    {
-    }
-
-    /// <inheritdoc/>
-    public interface IActionSingleActionExecutingLocker : IActionExecutingLocker
-    {
-    }
-
-    /// <inheritdoc/>
-    public interface ICacheKeySingleActionExecutingLocker : IActionExecutingLocker
-    {
-    }
+    #endregion Resource
 }

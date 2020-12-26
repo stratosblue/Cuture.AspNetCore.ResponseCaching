@@ -14,10 +14,16 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
     /// </summary>
     public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
     {
+        #region Private 字段
+
         /// <summary>
         /// 请求查询参数列表
         /// </summary>
         private readonly string[] _queryKeys;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         /// <summary>
         /// 请求查询参数缓存键构建器
@@ -29,6 +35,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         {
             _queryKeys = queryKeys?.ToArray() ?? throw new ArgumentNullException(nameof(queryKeys));
         }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
 
         /// <inheritdoc/>
         public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
@@ -51,5 +61,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
             }
             return base.BuildAsync(filterContext, keyBuilder);
         }
+
+        #endregion Public 方法
     }
 }

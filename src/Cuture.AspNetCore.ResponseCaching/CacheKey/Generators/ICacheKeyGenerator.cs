@@ -9,11 +9,15 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
     /// </summary>
     public interface ICacheKeyGenerator
     {
+        #region Public 方法
+
         /// <summary>
         /// 生成缓存Key
         /// </summary>
         /// <param name="filterContext"></param>
         /// <returns></returns>
         ValueTask<string> GenerateKeyAsync(FilterContext filterContext);
+
+        #endregion Public 方法
     }
 }

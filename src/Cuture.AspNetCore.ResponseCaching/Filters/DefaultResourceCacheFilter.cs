@@ -14,6 +14,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
     /// </summary>
     public class DefaultResourceCacheFilter : CacheFilterBase<ResourceExecutingContext, ResponseCacheEntry>, IAsyncResourceFilter
     {
+        #region Public 构造函数
+
         /// <summary>
         /// 默认的基于ResourceFilter的缓存过滤Filter
         /// </summary>
@@ -23,27 +25,40 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         {
         }
 
-        /// <summary>
-        /// 执行请求
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        protected async Task ExecutingRequestAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
+        #endregion Public 构造函数
+
+        #region Public 方法
+
+        /// <inheritdoc/>
+        public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
-            if (Context.ExecutingLocker != null)
+            var key = (await Context.KeyGenerator.GenerateKeyAsync(context)).ToLowerInvariant();
+            Debug.WriteLine(key);
+
+            if (key.Length > Context.MaxCacheKeyLength)
             {
-                await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
-                                                                        context,
-                                                                        inCacheEntry => WriteCacheToResponseWithInterceptorAsync(context, inCacheEntry),
-                                                                        () => DumpAndCacheResponseAsync(context, next, key));
+                Logger.LogWarning("CacheKey is too long to cache. maxLength: {0} key: {1}", Context.MaxCacheKeyLength, key);
+                await next();
+                return;
             }
-            else
+
+            if (string.IsNullOrEmpty(key))
             {
-                await DumpAndCacheResponseAsync(context, next, key);
+                await next();
+                return;
             }
+
+            if (await TryServeFromCacheAsync(context, key))
+            {
+                return;
+            }
+
+            await ExecutingRequestAsync(context, next, key);
         }
+
+        #endregion Public 方法
+
+        #region Protected 方法
 
         /// <summary>
         /// 转储并缓存响应
@@ -92,31 +107,28 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             }
         }
 
-        /// <inheritdoc/>
-        public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
+        /// <summary>
+        /// 执行请求
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="next"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        protected async Task ExecutingRequestAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
         {
-            var key = (await Context.KeyGenerator.GenerateKeyAsync(context)).ToLowerInvariant();
-            Debug.WriteLine(key);
-
-            if (key.Length > Context.MaxCacheKeyLength)
+            if (Context.ExecutingLocker != null)
             {
-                Logger.LogWarning("CacheKey is too long to cache. maxLength: {0} key: {1}", Context.MaxCacheKeyLength, key);
-                await next();
-                return;
+                await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
+                                                                        context,
+                                                                        inCacheEntry => WriteCacheToResponseWithInterceptorAsync(context, inCacheEntry),
+                                                                        () => DumpAndCacheResponseAsync(context, next, key));
             }
-
-            if (string.IsNullOrEmpty(key))
+            else
             {
-                await next();
-                return;
+                await DumpAndCacheResponseAsync(context, next, key);
             }
-
-            if (await TryServeFromCacheAsync(context, key))
-            {
-                return;
-            }
-
-            await ExecutingRequestAsync(context, next, key);
         }
+
+        #endregion Protected 方法
     }
 }

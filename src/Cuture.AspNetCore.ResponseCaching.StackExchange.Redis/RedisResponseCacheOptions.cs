@@ -9,6 +9,13 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     public class RedisResponseCacheOptions : IOptions<RedisResponseCacheOptions>
     {
+        #region Public 属性
+
+        /// <summary>
+        /// 缓存Key前缀
+        /// </summary>
+        public string CacheKeyPrefix { get; set; }
+
         /// <summary>
         /// 连接配置
         /// </summary>
@@ -20,13 +27,10 @@ namespace Cuture.AspNetCore.ResponseCaching
         public IConnectionMultiplexer ConnectionMultiplexer { get; set; }
 
         /// <summary>
-        /// 缓存Key前缀
-        /// </summary>
-        public string CacheKeyPrefix { get; set; }
-
-        /// <summary>
-        /// 
+        ///
         /// </summary>
         public RedisResponseCacheOptions Value => this;
+
+        #endregion Public 属性
     }
 }

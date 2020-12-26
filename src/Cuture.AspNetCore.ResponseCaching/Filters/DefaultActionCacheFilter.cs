@@ -17,6 +17,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
     /// </summary>
     public class DefaultActionCacheFilter : CacheFilterBase<ActionExecutingContext, IActionResult>, IAsyncActionFilter, IAsyncResourceFilter
     {
+        #region Public 构造函数
+
         /// <summary>
         /// 默认的基于ActionFilter的缓存过滤Filter
         /// </summary>
@@ -26,93 +28,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         {
         }
 
-        /// <summary>
-        /// 将返回值设置到执行上下文
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="actionResult"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private Task SetResultToContextWithInterceptorAsync(ActionExecutingContext context, IActionResult actionResult)
-        {
-            return Context.Interceptors.OnResultSettingAsync(context, actionResult, SetResultToContextAsync);
-        }
+        #endregion Public 构造函数
 
-        /// <summary>
-        /// 将返回值设置到执行上下文
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="actionResult"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Task SetResultToContextAsync(ActionExecutingContext context, IActionResult actionResult)
-        {
-            context.Result = actionResult;
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// 执行请求
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        protected async Task ExecutingRequestAsync(ActionExecutingContext context, ActionExecutionDelegate next, string key)
-        {
-            if (Context.ExecutingLocker != null)
-            {
-                await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
-                                                                        context,
-                                                                        inActionResult => SetResultToContextWithInterceptorAsync(context, inActionResult),
-                                                                        () => ExecutingAndReplaceResponseStreamAsync(context, next, key));
-            }
-            else
-            {
-                await ExecutingAndReplaceResponseStreamAsync(context, next, key);
-            }
-        }
-
-        /// <summary>
-        /// 执行请求并替换响应流
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        protected async Task<IActionResult> ExecutingAndReplaceResponseStreamAsync(ActionExecutingContext context, ActionExecutionDelegate next, string key)
-        {
-            var response = context.HttpContext.Response;
-            var originalBody = response.Body;
-            var dumpStream = Context.DumpStreamFactory.Create();
-
-            try
-            {
-                response.Body = dumpStream;
-                var executedContext = await next();
-
-                if (Context.CacheDeterminer.CanCaching(executedContext))
-                {
-                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingCacheKeyKey, key);
-                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingDumpStreamKey, dumpStream);
-                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingOriginalStreamKey, originalBody);
-
-                    return executedContext.Result;
-                }
-                response.Body = originalBody;
-                dumpStream.Dispose();
-
-                return null;
-            }
-            catch
-            {
-                //TODO 在此处还原流是否会有问题？
-                response.Body = originalBody;
-                dumpStream.Dispose();
-
-                throw;
-            }
-        }
+        #region Public 方法
 
         /// <inheritdoc/>
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -179,5 +97,103 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                 }
             }
         }
+
+        #endregion Public 方法
+
+        #region Protected 方法
+
+        /// <summary>
+        /// 执行请求并替换响应流
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="next"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        protected async Task<IActionResult> ExecutingAndReplaceResponseStreamAsync(ActionExecutingContext context, ActionExecutionDelegate next, string key)
+        {
+            var response = context.HttpContext.Response;
+            var originalBody = response.Body;
+            var dumpStream = Context.DumpStreamFactory.Create();
+
+            try
+            {
+                response.Body = dumpStream;
+                var executedContext = await next();
+
+                if (Context.CacheDeterminer.CanCaching(executedContext))
+                {
+                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingCacheKeyKey, key);
+                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingDumpStreamKey, dumpStream);
+                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingOriginalStreamKey, originalBody);
+
+                    return executedContext.Result;
+                }
+                response.Body = originalBody;
+                dumpStream.Dispose();
+
+                return null;
+            }
+            catch
+            {
+                //TODO 在此处还原流是否会有问题？
+                response.Body = originalBody;
+                dumpStream.Dispose();
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 执行请求
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="next"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        protected async Task ExecutingRequestAsync(ActionExecutingContext context, ActionExecutionDelegate next, string key)
+        {
+            if (Context.ExecutingLocker != null)
+            {
+                await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
+                                                                        context,
+                                                                        inActionResult => SetResultToContextWithInterceptorAsync(context, inActionResult),
+                                                                        () => ExecutingAndReplaceResponseStreamAsync(context, next, key));
+            }
+            else
+            {
+                await ExecutingAndReplaceResponseStreamAsync(context, next, key);
+            }
+        }
+
+        #endregion Protected 方法
+
+        #region Private 方法
+
+        /// <summary>
+        /// 将返回值设置到执行上下文
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="actionResult"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static Task SetResultToContextAsync(ActionExecutingContext context, IActionResult actionResult)
+        {
+            context.Result = actionResult;
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 将返回值设置到执行上下文
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="actionResult"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Task SetResultToContextWithInterceptorAsync(ActionExecutingContext context, IActionResult actionResult)
+        {
+            return Context.Interceptors.OnResultSettingAsync(context, actionResult, SetResultToContextAsync);
+        }
+
+        #endregion Private 方法
     }
 }

@@ -7,6 +7,8 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
     /// </summary>
     public interface IResponseCache
     {
+        #region Public 方法
+
         /// <summary>
         /// 获取缓存
         /// </summary>
@@ -22,5 +24,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// <param name="duration">有效时长（秒）</param>
         /// <returns></returns>
         Task SetAsync(string key, ResponseCacheEntry entry, int duration);
+
+        #endregion Public 方法
     }
 }

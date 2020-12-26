@@ -12,17 +12,31 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
     /// </summary>
     public abstract class CacheKeyBuilder
     {
+        #region const
+
         /// <summary>
         /// 连接Key字符
         /// </summary>
         public const char CombineChar = ResponseCachingConstants.CombineChar;
 
+        #endregion const
+
+        #region Private 字段
+
         private readonly CacheKeyBuilder _innerBuilder;
+
+        #endregion Private 字段
+
+        #region Public 属性
 
         /// <summary>
         /// 严格模式
         /// </summary>
         public CacheKeyStrictMode StrictMode { get; }
+
+        #endregion Public 属性
+
+        #region Public 构造函数
 
         /// <summary>
         /// 缓存键构建器
@@ -35,6 +49,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
             StrictMode = strictMode;
         }
 
+        #endregion Public 构造函数
+
+        #region Public 方法
+
         /// <summary>
         /// 构建Key
         /// </summary>
@@ -43,6 +61,10 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         /// <returns></returns>
         public virtual ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder) => _innerBuilder is null ? new ValueTask<string>(keyBuilder.ToString()) : _innerBuilder.BuildAsync(filterContext, keyBuilder);
 
+        #endregion Public 方法
+
+        #region Protected 方法
+
         /// <summary>
         /// 处理未找到key的情况
         /// </summary>
@@ -50,20 +72,15 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         /// <returns></returns>
         protected bool ProcessKeyNotFind(string notFindKeyName)
         {
-            switch (StrictMode)
+            return StrictMode switch
             {
-                case CacheKeyStrictMode.Ignore:
-                    return true;
-
-                case CacheKeyStrictMode.Strict:
-                    return false;
-
-                case CacheKeyStrictMode.StrictWithException:
-                    throw new CacheVaryKeyNotFindException(notFindKeyName);
-
-                default:
-                    throw new ArgumentException($"Unhandleable CacheKeyStrictMode: {StrictMode}");
-            }
+                CacheKeyStrictMode.Ignore => true,
+                CacheKeyStrictMode.Strict => false,
+                CacheKeyStrictMode.StrictWithException => throw new CacheVaryKeyNotFindException(notFindKeyName),
+                _ => throw new ArgumentException($"Unhandleable CacheKeyStrictMode: {StrictMode}"),
+            };
         }
+
+        #endregion Protected 方法
     }
 }

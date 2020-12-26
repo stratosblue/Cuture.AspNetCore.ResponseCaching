@@ -7,6 +7,8 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     public class CacheVaryKeyNotFindException : ArgumentNullException
     {
+        #region Public 构造函数
+
         /// <inheritdoc/>
         public CacheVaryKeyNotFindException(string keyName) : base($"Cache VaryKey Not Find: {keyName}")
         {
@@ -21,5 +23,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         public CacheVaryKeyNotFindException(string message, Exception innerException) : base(message, innerException)
         {
         }
+
+        #endregion Public 构造函数
     }
 }
