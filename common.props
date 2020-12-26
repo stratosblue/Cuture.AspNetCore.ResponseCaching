@@ -13,8 +13,8 @@
   <!--Version-->
   <PropertyGroup>
     <VersionMajor>1</VersionMajor>
-    <VersionMinor>0</VersionMinor>
-    <VersionPatch>4</VersionPatch>
+    <VersionMinor>1</VersionMinor>
+    <VersionPatch>0</VersionPatch>
     <VersionPrefix>$(VersionMajor).$(VersionMinor).$(VersionPatch)</VersionPrefix>
     <PackageVersion>$(VersionPrefix)</PackageVersion>
   </PropertyGroup>

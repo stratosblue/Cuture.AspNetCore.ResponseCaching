@@ -13,8 +13,9 @@ graph TD
     B2["依据选项从DI中获取IResponseCache"] -->
     B3["依据选项确定ICacheKeyGenerator"] -->
     B4["从DI获取IResponseCacheDeterminer"] -->
-    B5["确定使用的IRequestExecutingLocker及ResponseCachingContext"] --> 
-    B6["创建Filter并返回"] --> Filter构建结束
+    B5["创建拦截器聚合InterceptorAggregator"] -->
+    B6["确定使用的IRequestExecutingLocker及ResponseCachingContext"] --> 
+    B7["创建Filter并返回"] --> Filter构建结束
 ```
 
 ----
@@ -61,6 +62,19 @@ graph TD
     BE["构建完成"]
 ```
 
+### 1.4. InterceptorAggregator创建流程
+```mermaid
+graph TD 
+    C1["获取ResponseCachingAttribute.CachingProcessInterceptorType属性值"]
+        C1 --CachingProcessInterceptorType不为空--> C2
+        C1 --CachingProcessInterceptorType为空--> C11["从DI获取选项IOptions<InterceptorOptions>,并获取其CachingProcessInterceptorType属性"]
+            C11 --CachingProcessInterceptorType不为空--> C2
+            C11 --CachingProcessInterceptorType为空--> C3
+    C2["从DI获取对应类型的实例"] -->
+    C3["使用已获取的拦截器创建InterceptorAggregator对象"] -->
+    CE["创建结束"]
+```
+
 ## 2. Filter执行过程
 
 ### 2.1 ResourceFilter执行过程
@@ -79,10 +93,11 @@ graph TD
                 P221 --需要执行操作--> P222
             P22 --没有--> P222["从IDumpStreamFactory获取dumpStream并替换Http响应流"] --> P2221["执行请求体"] --> P22211["从响应中获取ResponseCacheEntry"] --> P222111["使用IResponseCacheDeterminer确定是否可以缓存响应"]
                 P222111 --可以缓存--> P2221111["判断响应内容长度是否小于MaxCacheableResponseLength"]
-                    P2221111 --小于等于--> P22211111["使用IResponseCache缓存响应"] -->PE
+                    P2221111 --小于等于--> P22211111["拦截器ICachingProcessInterceptor.OnCacheStoringAsync"] --> P222111111["使用IResponseCache缓存响应"] -->PE
                     P2221111 --大于--> PE
                 P222111 --不可缓存--> PE
-    P3["将缓存内容写入响应"] --> PE
+    P3["拦截器ICachingProcessInterceptor.OnResponseWritingAsync"] -->
+    P4["将缓存内容写入响应"] --> PE
     PE["缓存处理Filter流程结束"]
 ```
 
@@ -104,12 +119,13 @@ graph TD
         P2 --获取到ResponseCacheEntry--> P3
         P2 --没有获取到ResponseCacheEntry--> P22["是否有IRequestExecutingLocker进行锁定"]
             P22 --有--> P221["使用IRequestExecutingLocker加锁并执行操作"]
-                P221 --锁定时等待到了ActionResult--> P2211["设置Context的Result为等待到的Result"] --> PAE
+                P221 --锁定时等待到了ActionResult--> P2211["拦截器ICachingProcessInterceptor.OnResultSettingAsync"] --> P22111["设置Context的Result为等待到的Result"] --> PAE
                 P221 --需要执行操作--> P222
             P22 --没有--> P222["从IDumpStreamFactory获取dumpStream并替换Http响应流"] --> P2221["执行请求体"] --> P22211["使用IResponseCacheDeterminer确定是否可以缓存响应"] 
                 P22211 --可以缓存--> P222111["将key、dumpStream、原始响应流originalBody放入HttpContext.Items"] --> PAE
                 P22211 --不可缓存--> P222112["将originalBody还原到HttpContext.Response.Body并释放dumpStream"] --> PAE
-    P3["将缓存内容写入响应"] --> PAE
+    P3["拦截器ICachingProcessInterceptor.OnResponseWritingAsync"] -->
+    P4["将缓存内容写入响应"] --> PAE
     PAE["IAsyncActionFilter逻辑结束"]
 ```
 
@@ -123,7 +139,7 @@ graph TD
         PR1 --没有获取到数据--> PRE
     PR2["将dumpStream内容还原到originalBody并从dumpStream中获取响应内容"] -->
     PR3["判断响应内容长度是否小于MaxCacheableResponseLength"]
-        PR3 --小于等于--> PR31["从响应和响应内容生成ResponseCacheEntry"] --> PR311["使用IResponseCache缓存响应"] --> PRPE
+        PR3 --小于等于--> PR31["从响应和响应内容生成ResponseCacheEntry"] --> PR311["拦截器ICachingProcessInterceptor.OnCacheStoringAsync"] --> PR3111["使用IResponseCache缓存响应"] --> PRPE
         PR3 --大于--> PRPE
     PRPE["将originalBody还原到HttpContext.Response.Body并释放dumpStream"] -->
     PRE["IAsyncResourceFilter逻辑结束"] -->
