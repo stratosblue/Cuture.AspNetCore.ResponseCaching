@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -31,6 +32,19 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="context"></param>
         /// <param name="actionResult"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private Task SetResultToContextWithInterceptorAsync(ActionExecutingContext context, IActionResult actionResult)
+        {
+            return Context.Interceptors.OnResultSettingAsync(context, actionResult, SetResultToContextAsync);
+        }
+
+        /// <summary>
+        /// 将返回值设置到执行上下文
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="actionResult"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Task SetResultToContextAsync(ActionExecutingContext context, IActionResult actionResult)
         {
             context.Result = actionResult;
@@ -50,7 +64,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             {
                 await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
                                                                         context,
-                                                                        inActionResult => SetResultToContextAsync(context, inActionResult),
+                                                                        inActionResult => SetResultToContextWithInterceptorAsync(context, inActionResult),
                                                                         () => ExecutingAndReplaceResponseStreamAsync(context, next, key));
             }
             else
@@ -103,10 +117,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <inheritdoc/>
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-#pragma warning disable CA1308 // 将字符串规范化为大写
             var key = (await Context.KeyGenerator.GenerateKeyAsync(context)).ToLowerInvariant();
-#pragma warning restore CA1308 // 将字符串规范化为大写
-
             Debug.WriteLine(key);
 
             if (key.Length > Context.MaxCacheKeyLength)
@@ -154,7 +165,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                     {
                         var cacheEntry = new ResponseCacheEntry(context.HttpContext.Response.ContentType, responseBody);
 
-                        _ = ResponseCache.SetAsync(key, cacheEntry, Context.Duration);
+                        await Context.Interceptors.OnCacheStoringAsync(context, key, cacheEntry, Context.Duration, SetCacheAsync);
                     }
                     else
                     {

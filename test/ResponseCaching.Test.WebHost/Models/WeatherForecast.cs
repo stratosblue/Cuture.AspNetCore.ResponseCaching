@@ -4,7 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ResponseCaching.Test.WebHost.Models
 {
+#pragma warning disable CS0660 // 类型定义运算符 == 或运算符 !=，但不重写 Object.Equals(object o)
     public class WeatherForecast : IEquatable<WeatherForecast>
+#pragma warning restore CS0660 // 类型定义运算符 == 或运算符 !=，但不重写 Object.Equals(object o)
     {
         public DateTime Date { get; set; }
 

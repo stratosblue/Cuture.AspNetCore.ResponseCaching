@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 
@@ -38,6 +40,20 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         }
 
         /// <summary>
+        /// 保存响应
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="cacheEntry"></param>
+        /// <param name="duration"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected async Task<ResponseCacheEntry> SetCacheAsync(string key, ResponseCacheEntry cacheEntry, int duration)
+        {
+            await ResponseCache.SetAsync(key, cacheEntry, duration);
+            return cacheEntry;
+        }
+
+        /// <summary>
         /// 尝试以缓存处理请求
         /// </summary>
         /// <param name="context"></param>
@@ -48,11 +64,22 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             var cacheEntry = await ResponseCache.GetAsync(key);
             if (cacheEntry != null)
             {
-                await WriteCacheToResponseAsync(context, cacheEntry);
-                return true;
+                return await WriteCacheToResponseWithInterceptorAsync(context, cacheEntry);
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 将缓存写入响应，经过拦截器
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="cacheEntry"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected async Task<bool> WriteCacheToResponseWithInterceptorAsync(ActionContext context, ResponseCacheEntry cacheEntry)
+        {
+            return await Context.Interceptors.OnResponseWritingAsync(context, cacheEntry, WriteCacheToResponseAsync);
         }
 
         /// <summary>
@@ -61,10 +88,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="context"></param>
         /// <param name="cacheEntry"></param>
         /// <returns></returns>
-        protected static async Task WriteCacheToResponseAsync(FilterContext context, ResponseCacheEntry cacheEntry)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected async Task<bool> WriteCacheToResponseAsync(ActionContext context, ResponseCacheEntry cacheEntry)
         {
             context.HttpContext.Response.ContentType = cacheEntry.ContentType;
             await context.HttpContext.Response.BodyWriter.WriteAsync(cacheEntry.Body, context.HttpContext.RequestAborted);
+            return true;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
+using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
@@ -46,6 +47,11 @@ namespace Cuture.AspNetCore.ResponseCaching
         public IRequestExecutingLocker<TFilterContext, TLocalCachingData> ExecutingLocker { get; }
 
         /// <summary>
+        /// 拦截器集合
+        /// </summary>
+        public InterceptorAggregator Interceptors { get; }
+
+        /// <summary>
         /// 缓存Key生成器
         /// </summary>
         public ICacheKeyGenerator KeyGenerator { get; }
@@ -83,7 +89,8 @@ namespace Cuture.AspNetCore.ResponseCaching
                                       IRequestExecutingLocker<TFilterContext, TLocalCachingData> executingLocker,
                                       IResponseCache responseCache,
                                       IResponseCacheDeterminer cacheDeterminer,
-                                      IOptions<ResponseCachingOptions> optionsAccessor)
+                                      IOptions<ResponseCachingOptions> optionsAccessor,
+                                      InterceptorAggregator interceptorAggregator)
         {
             var options = optionsAccessor.Value;
 
@@ -103,6 +110,8 @@ namespace Cuture.AspNetCore.ResponseCaching
             CacheDeterminer = cacheDeterminer ?? throw new ArgumentNullException(nameof(cacheDeterminer));
             Duration = cachingAttribute.Duration > 1 ? cachingAttribute.Duration : throw new ArgumentOutOfRangeException($"{nameof(cachingAttribute.Duration)}  can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} seconds");
             DumpStreamFactory = new DefaultDumpStreamFactory(_cachingAttribute.DumpCapacity);
+
+            Interceptors = interceptorAggregator;
         }
 
         #endregion Public 构造函数

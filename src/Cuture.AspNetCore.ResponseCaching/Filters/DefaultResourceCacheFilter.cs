@@ -36,7 +36,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             {
                 await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
                                                                         context,
-                                                                        inCacheEntry => WriteCacheToResponseAsync(context, inCacheEntry),
+                                                                        inCacheEntry => WriteCacheToResponseWithInterceptorAsync(context, inCacheEntry),
                                                                         () => DumpAndCacheResponseAsync(context, next, key));
             }
             else
@@ -78,7 +78,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             {
                 if (cacheEntry.Body.Length <= Context.MaxCacheableResponseLength)
                 {
-                    _ = ResponseCache.SetAsync(key, cacheEntry, Context.Duration);
+                    await Context.Interceptors.OnCacheStoringAsync(context, key, cacheEntry, Context.Duration, SetCacheAsync);
                 }
                 else
                 {
@@ -95,10 +95,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <inheritdoc/>
         public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
-#pragma warning disable CA1308 // 将字符串规范化为大写
             var key = (await Context.KeyGenerator.GenerateKeyAsync(context)).ToLowerInvariant();
-#pragma warning restore CA1308 // 将字符串规范化为大写
-
             Debug.WriteLine(key);
 
             if (key.Length > Context.MaxCacheKeyLength)
