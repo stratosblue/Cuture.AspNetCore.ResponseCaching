@@ -67,14 +67,14 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="next"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<ResponseCacheEntry> DumpAndCacheResponseAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
+        protected async Task<ResponseCacheEntry?> DumpAndCacheResponseAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
         {
             var response = context.HttpContext.Response;
             var originalBody = response.Body;
             using var dumpStream = Context.DumpStreamFactory.Create();
 
-            ResponseCacheEntry cacheEntry = null;
-            ResourceExecutedContext executedContext = null;
+            ResponseCacheEntry? cacheEntry = null;
+            ResourceExecutedContext executedContext;
             try
             {
                 response.Body = dumpStream;

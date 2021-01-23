@@ -12,7 +12,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     {
         #region Private 字段
 
-        private Type _cachingProcessInterceptorType;
+        private Type? _cachingProcessInterceptorType;
 
         #endregion Private 字段
 
@@ -23,7 +23,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// <para/>
         /// 需要实现 <see cref="ICachingProcessInterceptor"/> 接口
         /// </summary>
-        public Type CachingProcessInterceptorType
+        public Type? CachingProcessInterceptorType
         {
             get => _cachingProcessInterceptorType;
             set => CheckAndSetType(ref _cachingProcessInterceptorType, value, typeof(ICachingProcessInterceptor));
@@ -38,7 +38,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         #region Private 方法
 
-        private static void CheckAndSetType(ref Type target, Type value, Type baseType)
+        private static void CheckAndSetType(ref Type? target, Type? value, Type baseType)
         {
             if (value is null || baseType.IsAssignableFrom(value))
             {

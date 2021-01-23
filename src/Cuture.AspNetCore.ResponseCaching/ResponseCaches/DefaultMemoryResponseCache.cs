@@ -39,10 +39,10 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         }
 
         /// <inheritdoc/>
-        public Task<ResponseCacheEntry> GetAsync(string key)
+        public Task<ResponseCacheEntry?> GetAsync(string key)
         {
             _memoryCache.TryGetValue<ResponseCacheEntry>(key, out var cacheEntry);
-            return Task.FromResult(cacheEntry);
+            return Task.FromResult(cacheEntry)!;
         }
 
         /// <inheritdoc/>

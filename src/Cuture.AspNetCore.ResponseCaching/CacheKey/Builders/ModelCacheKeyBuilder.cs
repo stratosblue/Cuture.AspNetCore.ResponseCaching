@@ -39,7 +39,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         /// <param name="strictMode"></param>
         /// <param name="modelNames"></param>
         /// <param name="modelKeyParser"></param>
-        public ModelCacheKeyBuilder(CacheKeyBuilder innerBuilder,
+        public ModelCacheKeyBuilder(CacheKeyBuilder? innerBuilder,
                                     CacheKeyStrictMode strictMode,
                                     IEnumerable<string> modelNames,
                                     IModelKeyParser modelKeyParser) : base(innerBuilder, strictMode)

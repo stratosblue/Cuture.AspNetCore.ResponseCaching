@@ -14,7 +14,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        Task<ResponseCacheEntry> GetAsync(string key);
+        Task<ResponseCacheEntry?> GetAsync(string key);
 
         /// <summary>
         /// 设置缓存

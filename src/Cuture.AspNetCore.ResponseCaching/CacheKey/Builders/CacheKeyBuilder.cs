@@ -23,7 +23,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
 
         #region Private 字段
 
-        private readonly CacheKeyBuilder _innerBuilder;
+        private readonly CacheKeyBuilder? _innerBuilder;
 
         #endregion Private 字段
 
@@ -43,7 +43,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         /// </summary>
         /// <param name="innerBuilder"></param>
         /// <param name="strictMode"></param>
-        public CacheKeyBuilder(CacheKeyBuilder innerBuilder, CacheKeyStrictMode strictMode)
+        public CacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode)
         {
             _innerBuilder = innerBuilder;
             StrictMode = strictMode;

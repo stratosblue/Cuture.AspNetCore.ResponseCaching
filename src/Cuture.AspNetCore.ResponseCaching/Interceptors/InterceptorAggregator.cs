@@ -17,7 +17,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         #region Public 属性
 
         /// <inheritdoc cref="ICachingProcessInterceptor"/>
-        public ICachingProcessInterceptor CachingProcessInterceptor { get; }
+        public ICachingProcessInterceptor? CachingProcessInterceptor { get; }
 
         #endregion Public 属性
 
@@ -27,7 +27,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// 拦截器集合
         /// </summary>
         /// <param name="cachingProcessInterceptor"><see cref="ICachingProcessInterceptor"/></param>
-        public InterceptorAggregator(ICachingProcessInterceptor cachingProcessInterceptor)
+        public InterceptorAggregator(ICachingProcessInterceptor? cachingProcessInterceptor)
         {
             CachingProcessInterceptor = cachingProcessInterceptor;
         }

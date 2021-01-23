@@ -44,7 +44,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
             var keyBuilder = _stringBuilderPool.Get();
             try
             {
-                var path = filterContext.HttpContext.Request.Path.Value;
+                var path = filterContext.HttpContext.Request.Path.Value!;
 
                 if (path.EndsWith('/'))
                 {

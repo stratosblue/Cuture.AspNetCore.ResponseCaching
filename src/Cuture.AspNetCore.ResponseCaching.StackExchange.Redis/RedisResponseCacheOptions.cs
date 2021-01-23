@@ -14,17 +14,17 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <summary>
         /// 缓存Key前缀
         /// </summary>
-        public string CacheKeyPrefix { get; set; }
+        public string? CacheKeyPrefix { get; set; }
 
         /// <summary>
         /// 连接配置
         /// </summary>
-        public string Configuration { get; set; }
+        public string? Configuration { get; set; }
 
         /// <summary>
         ///
         /// </summary>
-        public IConnectionMultiplexer ConnectionMultiplexer { get; set; }
+        public IConnectionMultiplexer? ConnectionMultiplexer { get; set; }
 
         /// <summary>
         ///

@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">The string configuration to use for this multiplexer.</param>
         /// <param name="cacheKeyPrefix">缓存Key前缀</param>
         /// <returns></returns>
-        public static ResponseCachingBuilder UseRedisResponseCache(this ResponseCachingBuilder builder, string configuration, string cacheKeyPrefix = null)
+        public static ResponseCachingBuilder UseRedisResponseCache(this ResponseCachingBuilder builder, string configuration, string? cacheKeyPrefix = null)
         {
             var connectionMultiplexer = ConnectionMultiplexer.Connect(configuration);
             return builder.UseRedisResponseCache(connectionMultiplexer, cacheKeyPrefix);
@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="connectionMultiplexer"></param>
         /// <param name="cacheKeyPrefix">缓存Key前缀</param>
         /// <returns></returns>
-        public static ResponseCachingBuilder UseRedisResponseCache(this ResponseCachingBuilder builder, IConnectionMultiplexer connectionMultiplexer, string cacheKeyPrefix = null)
+        public static ResponseCachingBuilder UseRedisResponseCache(this ResponseCachingBuilder builder, IConnectionMultiplexer connectionMultiplexer, string? cacheKeyPrefix = null)
         {
             return builder.UseRedisResponseCache(options =>
             {

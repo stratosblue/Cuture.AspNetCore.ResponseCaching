@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Cuture.AspNetCore.ResponseCaching.Internal
@@ -10,12 +11,13 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
     /// </summary>
     /// <typeparam name="TKey">key类型</typeparam>
     /// <typeparam name="TPayload">缓存内容类型</typeparam>
-    public sealed class LocalCacheableLockPool<TKey, TPayload> : IDisposable where TPayload : class
+    public sealed class LocalCacheableLockPool<TKey, TPayload> : IDisposable where TPayload : class where TKey : notnull
     {
         #region Private 字段
 
         private readonly Func<LocalCacheableLock<TPayload>> _lockFactory;
         private ConcurrentDictionary<TKey, Lazy<LockState<TPayload>>> _allLockStates = new ConcurrentDictionary<TKey, Lazy<LockState<TPayload>>>();
+        private bool _isDisposed = false;
 
         #endregion Private 字段
 
@@ -39,6 +41,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         /// </summary>
         public void Clean()
         {
+            CheckDisposed();
+
             lock (_allLockStates)
             {
                 var tmpLockStates = _allLockStates.ToImmutableArray();
@@ -77,8 +81,14 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         /// </summary>
         public void Dispose()
         {
+            if (_isDisposed)
+            {
+                return;
+            }
+            _isDisposed = true;
+
             var all = _allLockStates;
-            _allLockStates = null;
+            _allLockStates = null!;
             var tmpLockStates = all.ToImmutableArray();
             foreach (var item in tmpLockStates)
             {
@@ -101,6 +111,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         /// <returns></returns>
         public LocalCacheableLock<TPayload> GetLock(TKey key)
         {
+            CheckDisposed();
+
             var lazyLockState = _allLockStates.GetOrAdd(key, (innerKey) =>
             {
                 return new Lazy<LockState<TPayload>>(() => new LockState<TPayload>(new WeakReference<LocalCacheableLock<TPayload>>(_lockFactory())));
@@ -141,6 +153,19 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         }
 
         #endregion Public 方法
+
+        #region Private 方法
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void CheckDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(LocalCacheableLockPool<TKey, TPayload>));
+            }
+        }
+
+        #endregion Private 方法
     }
 
     /// <summary>

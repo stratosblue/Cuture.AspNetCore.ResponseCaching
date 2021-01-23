@@ -27,7 +27,7 @@ namespace Microsoft.AspNetCore.Mvc
         private SpinLock _createInstanceLock = new SpinLock(false);
 
         private int _dumpCapacity = ResponseCachingConstants.DefaultDumpCapacity;
-        private IFilterMetadata _filterMetadata;
+        private IFilterMetadata? _filterMetadata;
 
         #endregion Private 字段
 
@@ -102,17 +102,17 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// 依据声明
         /// </summary>
-        public string[] VaryByClaims { get; set; }
+        public string[]? VaryByClaims { get; set; }
 
         /// <summary>
         /// 依据表单键
         /// </summary>
-        public string[] VaryByFormKeys { get; set; }
+        public string[]? VaryByFormKeys { get; set; }
 
         /// <summary>
         /// 依据请求头
         /// </summary>
-        public string[] VaryByHeaders { get; set; }
+        public string[]? VaryByHeaders { get; set; }
 
         /// <summary>
         /// 依据Model
@@ -131,12 +131,12 @@ namespace Microsoft.AspNetCore.Mvc
         /// 则检查Model是否实现 <see cref="ICacheKeyable"/> 接口，如果Model未实现 <see cref="ICacheKeyable"/> 接口，
         /// 则调用Model的 <see cref="object.ToString"/> 方法生成Key
         /// </summary>
-        public string[] VaryByModels { get; set; }
+        public string[]? VaryByModels { get; set; }
 
         /// <summary>
         /// 依据查询键
         /// </summary>
-        public string[] VaryByQueryKeys { get; set; }
+        public string[]? VaryByQueryKeys { get; set; }
 
         #region Types
 
@@ -145,7 +145,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <para/>
         /// 需要实现 <see cref="ICachingProcessInterceptor"/> 接口
         /// </summary>
-        public Type CachingProcessInterceptorType { get; set; }
+        public Type? CachingProcessInterceptorType { get; set; }
 
         /// <summary>
         /// 自定义缓存键生成器类型
@@ -154,14 +154,14 @@ namespace Microsoft.AspNetCore.Mvc
         /// <para/>
         /// 需要Attribute数据时实现 <see cref="IResponseCachingAttributeSetter"/> 接口
         /// </summary>
-        public Type CustomCacheKeyGeneratorType { get; set; }
+        public Type? CustomCacheKeyGeneratorType { get; set; }
 
         /// <summary>
         /// Model的Key解析器类型
         /// <para/>
         /// 需要实现 <see cref="IModelKeyParser"/> 接口
         /// </summary>
-        public Type ModelKeyParserType { get; set; }
+        public Type? ModelKeyParserType { get; set; }
 
         #endregion Types
 
@@ -308,7 +308,7 @@ namespace Microsoft.AspNetCore.Mvc
 
                 case CacheMode.Custom:
                     {
-                        CacheKeyBuilder keyBuilder = null;
+                        CacheKeyBuilder? keyBuilder = null;
                         if (VaryByHeaders?.Length > 0)
                         {
                             keyBuilder = new RequestHeadersCacheKeyBuilder(keyBuilder, strictMode, VaryByHeaders);
@@ -329,7 +329,7 @@ namespace Microsoft.AspNetCore.Mvc
                         {
                             var modelKeyParserType = ModelKeyParserType ?? typeof(DefaultModelKeyParser);
                             var modelKeyParser = serviceProvider.GetRequiredService(modelKeyParserType) as IModelKeyParser;
-                            keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, VaryByModels, modelKeyParser);
+                            keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, VaryByModels, modelKeyParser!);
                             filterType = FilterType.Action;
                         }
 
@@ -370,7 +370,7 @@ namespace Microsoft.AspNetCore.Mvc
                 return EmptyFilterMetadata.Instance;
             }
 
-            ILogger GetLogger<T>() => serviceProvider.GetService<ILogger<T>>();
+            ILogger GetLogger<T>() => serviceProvider.GetRequiredService<ILogger<T>>();
 
             CheckDuration(Duration);
 
@@ -379,7 +379,7 @@ namespace Microsoft.AspNetCore.Mvc
             ICacheKeyGenerator cacheKeyGenerator = TryGetCustomCacheKeyGenerator(serviceProvider, out FilterType filterType)
                                                    ?? CreateCacheKeyGenerator(serviceProvider, options, out filterType);
 
-            var cacheDeterminer = serviceProvider.GetService<IResponseCacheDeterminer>();
+            var cacheDeterminer = serviceProvider.GetRequiredService<IResponseCacheDeterminer>();
 
             var interceptorAggregator = CreateInterceptorAggregator(serviceProvider);
 
@@ -389,7 +389,7 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 case FilterType.Resource:
                     {
-                        Type executingLockerType = lockMode switch
+                        Type? executingLockerType = lockMode switch
                         {
                             ExecutingLockMode.ActionSingle => typeof(IActionSingleResourceExecutingLocker),
                             ExecutingLockMode.CacheKeySingle => typeof(ICacheKeySingleResourceExecutingLocker),
@@ -400,7 +400,7 @@ namespace Microsoft.AspNetCore.Mvc
                                                 : serviceProvider.GetRequiredService(executingLockerType) as IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>;
                         var responseCachingContext = new ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry>(this,
                                                                                                                               cacheKeyGenerator,
-                                                                                                                              executingLocker,
+                                                                                                                              executingLocker!,
                                                                                                                               responseCache,
                                                                                                                               cacheDeterminer,
                                                                                                                               optionsAccessor,
@@ -409,7 +409,7 @@ namespace Microsoft.AspNetCore.Mvc
                     }
                 case FilterType.Action:
                     {
-                        Type executingLockerType = lockMode switch
+                        Type? executingLockerType = lockMode switch
                         {
                             ExecutingLockMode.ActionSingle => typeof(IActionSingleActionExecutingLocker),
                             ExecutingLockMode.CacheKeySingle => typeof(ICacheKeySingleActionExecutingLocker),
@@ -420,7 +420,7 @@ namespace Microsoft.AspNetCore.Mvc
                                                 : serviceProvider.GetRequiredService(executingLockerType) as IRequestExecutingLocker<ActionExecutingContext, IActionResult>;
                         var responseCachingContext = new ResponseCachingContext<ActionExecutingContext, IActionResult>(this,
                                                                                                                        cacheKeyGenerator,
-                                                                                                                       executingLocker,
+                                                                                                                       executingLocker!,
                                                                                                                        responseCache,
                                                                                                                        cacheDeterminer,
                                                                                                                        optionsAccessor,
@@ -444,7 +444,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="serviceProvider"></param>
         /// <returns></returns>
-        private ICachingProcessInterceptor GetCachingProcessInterceptor(IServiceProvider serviceProvider)
+        private ICachingProcessInterceptor? GetCachingProcessInterceptor(IServiceProvider serviceProvider)
         {
             var type = CachingProcessInterceptorType ?? serviceProvider.GetRequiredService<IOptions<InterceptorOptions>>().Value.CachingProcessInterceptorType;
 
@@ -482,7 +482,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="serviceProvider"></param>
         /// <param name="filterType"></param>
         /// <returns></returns>
-        private ICacheKeyGenerator TryGetCustomCacheKeyGenerator(IServiceProvider serviceProvider, out FilterType filterType)
+        private ICacheKeyGenerator? TryGetCustomCacheKeyGenerator(IServiceProvider serviceProvider, out FilterType filterType)
         {
             filterType = FilterType.Resource;
             if (CustomCacheKeyGeneratorType == null)

@@ -31,7 +31,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         /// <param name="innerBuilder"></param>
         /// <param name="strictMode"></param>
         /// <param name="formKeys"></param>
-        public FormKeysCacheKeyBuilder(CacheKeyBuilder innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> formKeys) : base(innerBuilder, strictMode)
+        public FormKeysCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> formKeys) : base(innerBuilder, strictMode)
         {
             _formKeys = formKeys?.ToArray() ?? throw new ArgumentNullException(nameof(formKeys));
         }

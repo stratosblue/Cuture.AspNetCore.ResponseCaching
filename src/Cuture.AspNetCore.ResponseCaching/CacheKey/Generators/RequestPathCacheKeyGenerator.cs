@@ -14,7 +14,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
         /// <inheritdoc/>
         public ValueTask<string> GenerateKeyAsync(FilterContext filterContext)
         {
-            var path = filterContext.HttpContext.Request.Path.Value;
+            var path = filterContext.HttpContext.Request.Path.Value!;
             if (path.EndsWith('/'))
             {
                 return new ValueTask<string>(path[0..^1]);

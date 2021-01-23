@@ -6,6 +6,7 @@
 
     <NoWarn>CA2007;CA1303;CA1716;CA1062</NoWarn>
 
+    <Nullable>enable</Nullable>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>

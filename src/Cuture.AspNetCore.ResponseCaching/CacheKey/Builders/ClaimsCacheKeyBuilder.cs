@@ -32,7 +32,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         /// <param name="innerBuilder"></param>
         /// <param name="strictMode"></param>
         /// <param name="claimTypes">ClaimType列表</param>
-        public ClaimsCacheKeyBuilder(CacheKeyBuilder innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> claimTypes) : base(innerBuilder, strictMode)
+        public ClaimsCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> claimTypes) : base(innerBuilder, strictMode)
         {
             _claimTypes = claimTypes?.ToArray() ?? throw new ArgumentNullException(nameof(claimTypes));
         }

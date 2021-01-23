@@ -109,7 +109,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="next"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<IActionResult> ExecutingAndReplaceResponseStreamAsync(ActionExecutingContext context, ActionExecutionDelegate next, string key)
+        protected async Task<IActionResult?> ExecutingAndReplaceResponseStreamAsync(ActionExecutingContext context, ActionExecutionDelegate next, string key)
         {
             var response = context.HttpContext.Response;
             var originalBody = response.Body;

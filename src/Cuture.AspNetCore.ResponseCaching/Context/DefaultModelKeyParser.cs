@@ -10,7 +10,7 @@
             {
                 return keyable.AsCacheKey();
             }
-            return model?.ToString();
+            return model?.ToString() ?? string.Empty;
         }
 
         #endregion Public 方法

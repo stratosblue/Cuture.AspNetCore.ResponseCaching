@@ -31,7 +31,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders
         /// <param name="innerBuilder"></param>
         /// <param name="strictMode"></param>
         /// <param name="queryKeys"></param>
-        public QueryKeysCacheKeyBuilder(CacheKeyBuilder innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> queryKeys) : base(innerBuilder, strictMode)
+        public QueryKeysCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> queryKeys) : base(innerBuilder, strictMode)
         {
             _queryKeys = queryKeys?.ToArray() ?? throw new ArgumentNullException(nameof(queryKeys));
         }

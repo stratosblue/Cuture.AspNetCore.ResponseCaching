@@ -28,7 +28,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         /// <summary>
         /// 本地缓存数据
         /// </summary>
-        private volatile TPayload _localCachedPayload;
+        private volatile TPayload? _localCachedPayload;
 
         /// <summary>
         /// 本地缓存数据过期时间
@@ -82,7 +82,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         /// <param name="cacheUnAvailableFunc">缓存不可用时的委托</param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task LockRunAsync(Func<TPayload, Task> cacheAvailableFunc, Func<Task<TPayload>> cacheUnAvailableFunc, CancellationToken token)
+        public async Task LockRunAsync(Func<TPayload, Task> cacheAvailableFunc, Func<Task<TPayload?>> cacheUnAvailableFunc, CancellationToken token)
         {
             try
             {

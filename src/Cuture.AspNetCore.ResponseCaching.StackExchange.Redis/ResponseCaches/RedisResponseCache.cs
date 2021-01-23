@@ -52,7 +52,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         public RedisResponseCache(IOptions<RedisResponseCacheOptions> optionAccessor)
         {
             var options = optionAccessor.Value;
-            _database = options.ConnectionMultiplexer.GetDatabase();
+            _database = options.ConnectionMultiplexer!.GetDatabase();
             var prefix = options.CacheKeyPrefix;
             if (!string.IsNullOrEmpty(prefix))
             {
@@ -65,7 +65,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         #region Public 方法
 
         /// <inheritdoc/>
-        public async Task<ResponseCacheEntry> GetAsync(string key)
+        public async Task<ResponseCacheEntry?> GetAsync(string key)
         {
             var redisValues = await _database.HashGetAsync(key, _fieldNames);
             if (redisValues[0].IsNull || redisValues[1].IsNull || redisValues[2].IsNull)

@@ -32,7 +32,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
         /// <param name="cacheAvailableFunc">缓存可用时的委托</param>
         /// <param name="cacheUnAvailableFunc">缓存不可用时的委托</param>
         /// <returns></returns>
-        Task ProcessCacheWithLockAsync(string cacheKey, TExecutingContext executingContext, Func<TCachingData, Task> cacheAvailableFunc, Func<Task<TCachingData>> cacheUnAvailableFunc);
+        Task ProcessCacheWithLockAsync(string cacheKey, TExecutingContext executingContext, Func<TCachingData, Task> cacheAvailableFunc, Func<Task<TCachingData?>> cacheUnAvailableFunc);
 
         #endregion Public 方法
     }
