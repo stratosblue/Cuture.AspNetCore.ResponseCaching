@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
+using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Logging;
 
 namespace Cuture.AspNetCore.ResponseCaching.Filters
 {
@@ -23,8 +22,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// 默认的基于ActionFilter的缓存过滤Filter
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="logger"></param>
-        public DefaultActionCacheFilter(ResponseCachingContext<ActionExecutingContext, IActionResult> context, ILogger logger) : base(context, logger)
+        /// <param name="cachingDiagnosticsAccessor"></param>
+        public DefaultActionCacheFilter(ResponseCachingContext<ActionExecutingContext, IActionResult> context, CachingDiagnosticsAccessor cachingDiagnosticsAccessor) : base(context, cachingDiagnosticsAccessor)
         {
         }
 
@@ -36,11 +35,11 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var key = (await Context.KeyGenerator.GenerateKeyAsync(context)).ToLowerInvariant();
-            Debug.WriteLine(key);
+            CachingDiagnostics.CacheKeyGenerated(context, key, Context.KeyGenerator, Context);
 
             if (key.Length > Context.MaxCacheKeyLength)
             {
-                Logger.LogWarning("CacheKey is too long to cache. maxLength: {0} key: {1}", Context.MaxCacheKeyLength, key);
+                CachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, Context);
                 await next();
                 return;
             }
@@ -60,41 +59,49 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         }
 
         /// <inheritdoc/>
-        public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
+        public async Task OnResourceExecutionAsync(ResourceExecutingContext executingContext, ResourceExecutionDelegate next)
         {
-            await next();
-
-            var httpItems = context.HttpContext.Items;
-            if (httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingOriginalStreamKey, out var savedOriginalBody)
-                && savedOriginalBody is Stream originalBody
-                && httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingDumpStreamKey, out var savedDumpStream)
-                && savedDumpStream is MemoryStream dumpStream
-                && httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingCacheKeyKey, out var savedKey)
-                && savedKey is string key)
+            CachingDiagnostics.StartProcessingCache(executingContext, Context);
+            try
             {
-                try
+                await next();
+
+                var httpItems = executingContext.HttpContext.Items;
+                if (httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingOriginalStreamKey, out var savedOriginalBody)
+                    && savedOriginalBody is Stream originalBody
+                    && httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingDumpStreamKey, out var savedDumpStream)
+                    && savedDumpStream is MemoryStream dumpStream
+                    && httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingCacheKeyKey, out var savedKey)
+                    && savedKey is string key)
                 {
-                    dumpStream.Position = 0;
-                    await dumpStream.CopyToAsync(originalBody);
-
-                    var responseBody = dumpStream.ToArray().AsMemory();
-
-                    if (responseBody.Length <= Context.MaxCacheableResponseLength)
+                    try
                     {
-                        var cacheEntry = new ResponseCacheEntry(context.HttpContext.Response.ContentType, responseBody);
+                        dumpStream.Position = 0;
+                        await dumpStream.CopyToAsync(originalBody);
 
-                        await Context.Interceptors.OnCacheStoringAsync(context, key, cacheEntry, Context.Duration, SetCacheAsync);
+                        var responseBody = dumpStream.ToArray().AsMemory();
+
+                        if (responseBody.Length <= Context.MaxCacheableResponseLength)
+                        {
+                            var cacheEntry = new ResponseCacheEntry(executingContext.HttpContext.Response.ContentType, responseBody);
+
+                            await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, Context.Duration, SetCacheAsync);
+                        }
+                        else
+                        {
+                            CachingDiagnostics.CacheBodyTooLong(key, responseBody, Context.MaxCacheableResponseLength, executingContext, Context);
+                        }
                     }
-                    else
+                    finally
                     {
-                        Logger.LogWarning("Response too long to cache, key: {0}, maxLength: {1}, length: {2}", key, Context.MaxCacheableResponseLength, responseBody.Length);
+                        executingContext.HttpContext.Response.Body = originalBody;
+                        dumpStream.Dispose();
                     }
                 }
-                finally
-                {
-                    context.HttpContext.Response.Body = originalBody;
-                    dumpStream.Dispose();
-                }
+            }
+            finally
+            {
+                CachingDiagnostics.EndProcessingCache(executingContext, Context);
             }
         }
 
@@ -176,8 +183,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="actionResult"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Task SetResultToContextAsync(ActionExecutingContext context, IActionResult actionResult)
+        protected Task SetResultToContextAsync(ActionExecutingContext context, IActionResult actionResult)
         {
+            CachingDiagnostics.ResponseFromActionResult(context, actionResult, Context);
             context.Result = actionResult;
             return Task.CompletedTask;
         }

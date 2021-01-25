@@ -4,6 +4,7 @@ using System.Threading;
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Builders;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
+using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.Filters;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
@@ -11,7 +12,6 @@ using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Mvc
@@ -370,8 +370,6 @@ namespace Microsoft.AspNetCore.Mvc
                 return EmptyFilterMetadata.Instance;
             }
 
-            ILogger GetLogger<T>() => serviceProvider.GetRequiredService<ILogger<T>>();
-
             CheckDuration(Duration);
 
             IResponseCache responseCache = GetResponseCache(serviceProvider, options);
@@ -380,6 +378,8 @@ namespace Microsoft.AspNetCore.Mvc
                                                    ?? CreateCacheKeyGenerator(serviceProvider, options, out filterType);
 
             var cacheDeterminer = serviceProvider.GetRequiredService<IResponseCacheDeterminer>();
+
+            var cachingDiagnosticsAccessor = serviceProvider.GetRequiredService<CachingDiagnosticsAccessor>();
 
             var interceptorAggregator = CreateInterceptorAggregator(serviceProvider);
 
@@ -405,7 +405,7 @@ namespace Microsoft.AspNetCore.Mvc
                                                                                                                               cacheDeterminer,
                                                                                                                               optionsAccessor,
                                                                                                                               interceptorAggregator);
-                        return new DefaultResourceCacheFilter(responseCachingContext, GetLogger<DefaultResourceCacheFilter>());
+                        return new DefaultResourceCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 case FilterType.Action:
                     {
@@ -425,7 +425,7 @@ namespace Microsoft.AspNetCore.Mvc
                                                                                                                        cacheDeterminer,
                                                                                                                        optionsAccessor,
                                                                                                                        interceptorAggregator);
-                        return new DefaultActionCacheFilter(responseCachingContext, GetLogger<DefaultActionCacheFilter>());
+                        return new DefaultActionCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 default:
                     throw new NotImplementedException($"Not ready to support FilterType: {filterType}");

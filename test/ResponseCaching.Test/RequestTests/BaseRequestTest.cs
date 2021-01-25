@@ -64,7 +64,7 @@ namespace ResponseCaching.Test.RequestTests
                     for (int index = 0; index < target.Length; index++)
                     {
                         Debug.WriteLine($"index-{index}: {target[index]} --- {value[index]}");
-                        Assert.IsTrue(target[index].Equals(value[index]));
+                        Assert.IsTrue(target[index].Equals(value[index]), "Fail at {0} , item1:{1} , item2:{2}", index, target[index], value[index]);
                     }
                 }
             }

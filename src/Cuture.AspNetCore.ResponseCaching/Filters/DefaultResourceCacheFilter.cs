@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
+using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Logging;
 
 namespace Cuture.AspNetCore.ResponseCaching.Filters
 {
@@ -20,8 +19,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// 默认的基于ResourceFilter的缓存过滤Filter
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="logger"></param>
-        public DefaultResourceCacheFilter(ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry> context, ILogger logger) : base(context, logger)
+        /// <param name="cachingDiagnosticsAccessor"></param>
+        public DefaultResourceCacheFilter(ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry> context,
+                                          CachingDiagnosticsAccessor cachingDiagnosticsAccessor) : base(context, cachingDiagnosticsAccessor)
         {
         }
 
@@ -30,14 +30,26 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         #region Public 方法
 
         /// <inheritdoc/>
-        public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
+        public Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
-            var key = (await Context.KeyGenerator.GenerateKeyAsync(context)).ToLowerInvariant();
-            Debug.WriteLine(key);
+            if (CachingDiagnostics is null)
+            {
+                return InternalOnResourceExecutionAsync(context, next);
+            }
+            return InternalOnResourceExecutionWithDiagnosticAsync(context, next, CachingDiagnostics);
+        }
+
+        #endregion Public 方法
+
+        #region OnResourceExecutionAsync
+
+        private async Task InternalOnResourceExecutionAsync(ResourceExecutingContext executingContext, ResourceExecutionDelegate next)
+        {
+            var key = (await Context.KeyGenerator.GenerateKeyAsync(executingContext)).ToLowerInvariant();
 
             if (key.Length > Context.MaxCacheKeyLength)
             {
-                Logger.LogWarning("CacheKey is too long to cache. maxLength: {0} key: {1}", Context.MaxCacheKeyLength, key);
+                CachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, Context);
                 await next();
                 return;
             }
@@ -48,15 +60,50 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                 return;
             }
 
-            if (await TryServeFromCacheAsync(context, key))
+            if (await TryServeFromCacheAsync(executingContext, key))
             {
                 return;
             }
 
-            await ExecutingRequestAsync(context, next, key);
+            await ExecutingRequestAsync(executingContext, next, key);
         }
 
-        #endregion Public 方法
+        private async Task InternalOnResourceExecutionWithDiagnosticAsync(ResourceExecutingContext executingContext, ResourceExecutionDelegate next, CachingDiagnostics cachingDiagnostics)
+        {
+            cachingDiagnostics.StartProcessingCache(executingContext, Context);
+            try
+            {
+                var key = (await Context.KeyGenerator.GenerateKeyAsync(executingContext)).ToLowerInvariant();
+
+                cachingDiagnostics.CacheKeyGenerated(executingContext, key, Context.KeyGenerator, Context);
+
+                if (key.Length > Context.MaxCacheKeyLength)
+                {
+                    cachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, Context);
+                    await next();
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(key))
+                {
+                    await next();
+                    return;
+                }
+
+                if (await TryServeFromCacheAsync(executingContext, key))
+                {
+                    return;
+                }
+
+                await ExecutingRequestAsync(executingContext, next, key);
+            }
+            finally
+            {
+                cachingDiagnostics.EndProcessingCache(executingContext, Context);
+            }
+        }
+
+        #endregion OnResourceExecutionAsync
 
         #region Protected 方法
 
@@ -78,6 +125,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             try
             {
                 response.Body = dumpStream;
+
                 executedContext = await next();
                 dumpStream.Position = 0;
                 await dumpStream.CopyToAsync(originalBody);
@@ -97,7 +145,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                 }
                 else
                 {
-                    Logger.LogWarning("Response too long to cache, key: {0}, maxLength: {1}, length: {2}", key, Context.MaxCacheableResponseLength, cacheEntry.Body.Length);
+                    CachingDiagnostics.CacheBodyTooLong(key, cacheEntry.Body, Context.MaxCacheableResponseLength, context, Context);
                 }
                 return cacheEntry;
             }

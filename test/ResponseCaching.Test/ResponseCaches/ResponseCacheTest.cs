@@ -33,7 +33,7 @@ namespace ResponseCaching.Test.ResponseCaches
         [TestMethod]
         public async Task GetSetResponseEntry()
         {
-            var duration = 3;
+            var duration = 1;
             var key = "ResponseCacheTestKey";
             var contentType = "application/json; charset=utf-8";
             var body = Encoding.UTF8.GetBytes(SimResponseContent);
@@ -55,7 +55,7 @@ namespace ResponseCaching.Test.ResponseCaches
         [TestMethod]
         public async Task ParallelGetSetResponseEntry()
         {
-            var duration = 3;
+            var duration = 1;
 
             var tasks = Enumerable.Range(0, 500).Select(async index =>
             {

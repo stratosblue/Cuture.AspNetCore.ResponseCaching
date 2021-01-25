@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
 
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
+using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -42,6 +45,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IActionSingleActionExecutingLocker, DefaultActionSingleActionExecutingLocker>();
             services.TryAddTransient<ICacheKeySingleActionExecutingLocker, DefaultActionExecutingLocker>();
             services.TryAddTransient<IActionExecutingLocker, DefaultActionExecutingLocker>();
+
+            services.TryAddSingleton(serviceProvider => new CachingDiagnostics(serviceProvider));
+            services.TryAddSingleton<CachingDiagnosticsAccessor>();
 
             services.AddHttpContextAccessor();
 
@@ -116,5 +122,93 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         #endregion Interceptor
+
+        #region Diagnostics
+
+        #region services
+
+        /// <summary>
+        /// 添加Debug模式下的诊断信息日志输出
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static ResponseCachingBuilder AddDiagnosticDebugLogger(this ResponseCachingBuilder builder)
+        {
+            builder.InternalAddDiagnosticDebugLogger();
+            return builder;
+        }
+
+        /// <summary>
+        /// 添加Release模式下的诊断信息日志输出
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static ResponseCachingBuilder AddDiagnosticReleaseLogger(this ResponseCachingBuilder builder)
+        {
+            builder.InternalAddDiagnosticReleaseLogger();
+            return builder;
+        }
+
+        [Conditional("DEBUG")]
+        internal static void InternalAddDiagnosticDebugLogger(this ResponseCachingBuilder builder)
+        {
+            builder.InternalAddDiagnosticLogger();
+        }
+
+        internal static void InternalAddDiagnosticLogger(this ResponseCachingBuilder builder)
+        {
+            var services = builder.Services;
+
+            var diagnosticsDescriptor = ServiceDescriptor.Singleton(serviceProvider => new CachingDiagnostics(serviceProvider, new DiagnosticListener(ResponseCachingEventData.DiagnosticName)));
+            services.Replace(diagnosticsDescriptor);
+
+            services.TryAddSingleton(serviceProvider => new DiagnosticLogger(serviceProvider));
+            services.TryAddSingleton(serviceProvider => new DiagnosticLoggerSubscriber(serviceProvider));
+            services.TryAddSingleton(new DiagnosticLoggerSubscriberDisposerAccessor());
+        }
+
+        [Conditional("RELEASE")]
+        internal static void InternalAddDiagnosticReleaseLogger(this ResponseCachingBuilder builder)
+        {
+            builder.InternalAddDiagnosticLogger();
+        }
+
+        #endregion services
+
+        #region initialization
+
+        /// <summary>
+        /// 启用缓存诊断日志
+        /// </summary>
+        /// <param name="builder"></param>
+        public static void EnableResponseCachingDiagnosticLogger(this IApplicationBuilder builder)
+        {
+            builder.ApplicationServices.EnableResponseCachingDiagnosticLogger();
+        }
+
+        /// <summary>
+        /// 启用缓存诊断日志
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        public static void EnableResponseCachingDiagnosticLogger(this IServiceProvider serviceProvider)
+        {
+            var diagnosticLoggerSubscriber = serviceProvider.GetService<DiagnosticLoggerSubscriber>();
+            var diagnosticLoggerSubscriberDisposerAccessor = serviceProvider.GetService<DiagnosticLoggerSubscriberDisposerAccessor>();
+
+            if (diagnosticLoggerSubscriber is null
+                || diagnosticLoggerSubscriberDisposerAccessor is null)
+            {
+                return;
+                //throw new ResponseCachingException($"Must Add Diagnostic Logger Into {nameof(IServiceCollection)} Before Enable ResponseCaching Diagnostic Logger.");
+            }
+
+            var disposable = DiagnosticListener.AllListeners.Subscribe(diagnosticLoggerSubscriber);
+
+            diagnosticLoggerSubscriberDisposerAccessor.Disposable = disposable;
+        }
+
+        #endregion initialization
+
+        #endregion Diagnostics
     }
 }

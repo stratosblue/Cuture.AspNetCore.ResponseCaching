@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Microsoft.AspNetCore.Mvc
+namespace Cuture.AspNetCore.ResponseCaching
 {
     /// <summary>
     ///

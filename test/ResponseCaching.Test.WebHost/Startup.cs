@@ -29,7 +29,8 @@ namespace ResponseCaching.Test.WebHost
             services.AddResponseCaching();
 
             services.AddCaching(Configuration.GetSection("Caching:ResponseCaching"))
-                    .UseRedisResponseCache(Environment.GetEnvironmentVariable("ResponseCache_Test_Redis"), Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value);
+                    .UseRedisResponseCache(Environment.GetEnvironmentVariable("ResponseCache_Test_Redis"), Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
+                    .AddDiagnosticDebugLogger();
 
             services.AddControllers();
 
@@ -60,6 +61,8 @@ namespace ResponseCaching.Test.WebHost
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.EnableResponseCachingDiagnosticLogger();
 
             app.UseRouting();
 

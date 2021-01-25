@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
+using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,19 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
     /// </summary>
     public abstract class CacheFilterBase<TFilterExecutingContext, TLocalCachingData> where TFilterExecutingContext : FilterContext
     {
+        #region Private 字段
+
+        private readonly CachingDiagnosticsAccessor _cachingDiagnosticsAccessor;
+
+        #endregion Private 字段
+
         #region Protected 属性
+
+        /// <inheritdoc cref="Diagnostics.CachingDiagnostics"/>
+        protected CachingDiagnostics CachingDiagnostics => _cachingDiagnosticsAccessor.CachingDiagnostics;
+
+        /// <inheritdoc cref="ILogger"/>
+        protected ILogger Logger => CachingDiagnostics.Logger;
 
         /// <summary>
         /// 响应缓存容器
@@ -27,9 +40,6 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// </summary>
         protected ResponseCachingContext<TFilterExecutingContext, TLocalCachingData> Context { get; }
 
-        /// <inheritdoc cref="ILogger"/>
-        protected ILogger Logger { get; }
-
         #endregion Protected 属性
 
         #region Public 构造函数
@@ -38,11 +48,11 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// CacheFilter基类
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="logger"></param>
-        public CacheFilterBase(ResponseCachingContext<TFilterExecutingContext, TLocalCachingData> context, ILogger logger)
+        /// <param name="cachingDiagnosticsAccessor"></param>
+        public CacheFilterBase(ResponseCachingContext<TFilterExecutingContext, TLocalCachingData> context, CachingDiagnosticsAccessor cachingDiagnosticsAccessor)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _cachingDiagnosticsAccessor = cachingDiagnosticsAccessor;
         }
 
         #endregion Public 构造函数
@@ -89,6 +99,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected async Task<bool> WriteCacheToResponseAsync(ActionContext context, ResponseCacheEntry cacheEntry)
         {
+            CachingDiagnostics.ResponseFromCache(context, cacheEntry, Context);
             context.HttpContext.Response.ContentType = cacheEntry.ContentType;
             await context.HttpContext.Response.BodyWriter.WriteAsync(cacheEntry.Body, context.HttpContext.RequestAborted);
             return true;
