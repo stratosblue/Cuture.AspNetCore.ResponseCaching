@@ -32,30 +32,31 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         #region Public 方法
 
         /// <inheritdoc/>
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public async Task OnActionExecutionAsync(ActionExecutingContext executingContext, ActionExecutionDelegate next)
         {
-            var key = (await Context.KeyGenerator.GenerateKeyAsync(context)).ToLowerInvariant();
-            CachingDiagnostics.CacheKeyGenerated(context, key, Context.KeyGenerator, Context);
+            var key = (await Context.KeyGenerator.GenerateKeyAsync(executingContext)).ToLowerInvariant();
+            CachingDiagnostics.CacheKeyGenerated(executingContext, key, Context.KeyGenerator, Context);
 
             if (key.Length > Context.MaxCacheKeyLength)
             {
-                CachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, Context);
+                CachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, executingContext, Context);
                 await next();
                 return;
             }
 
             if (string.IsNullOrEmpty(key))
             {
+                CachingDiagnostics.NoCachingFounded(key, executingContext, Context);
                 await next();
                 return;
             }
 
-            if (await TryServeFromCacheAsync(context, key))
+            if (await TryServeFromCacheAsync(executingContext, key))
             {
                 return;
             }
 
-            await ExecutingRequestAsync(context, next, key);
+            await ExecutingRequestAsync(executingContext, next, key);
         }
 
         /// <inheritdoc/>
@@ -112,26 +113,29 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <summary>
         /// 执行请求并替换响应流
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="executingContext"></param>
         /// <param name="next"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<IActionResult?> ExecutingAndReplaceResponseStreamAsync(ActionExecutingContext context, ActionExecutionDelegate next, string key)
+        protected async Task<IActionResult?> ExecutingAndReplaceResponseStreamAsync(ActionExecutingContext executingContext, ActionExecutionDelegate next, string key)
         {
-            var response = context.HttpContext.Response;
+            var response = executingContext.HttpContext.Response;
             var originalBody = response.Body;
             var dumpStream = Context.DumpStreamFactory.Create();
 
             try
             {
                 response.Body = dumpStream;
+
+                CachingDiagnostics.NoCachingFounded(key, executingContext, Context);
+
                 var executedContext = await next();
 
                 if (Context.CacheDeterminer.CanCaching(executedContext))
                 {
-                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingCacheKeyKey, key);
-                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingDumpStreamKey, dumpStream);
-                    context.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingOriginalStreamKey, originalBody);
+                    executingContext.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingCacheKeyKey, key);
+                    executingContext.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingDumpStreamKey, dumpStream);
+                    executingContext.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingOriginalStreamKey, originalBody);
 
                     return executedContext.Result;
                 }

@@ -49,13 +49,14 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
 
             if (key.Length > Context.MaxCacheKeyLength)
             {
-                CachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, Context);
+                CachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, executingContext, Context);
                 await next();
                 return;
             }
 
             if (string.IsNullOrEmpty(key))
             {
+                CachingDiagnostics.NoCachingFounded(key, executingContext, Context);
                 await next();
                 return;
             }
@@ -79,7 +80,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
 
                 if (key.Length > Context.MaxCacheKeyLength)
                 {
-                    cachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, Context);
+                    cachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, executingContext, Context);
                     await next();
                     return;
                 }
@@ -110,13 +111,13 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <summary>
         /// 转储并缓存响应
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="executingContext"></param>
         /// <param name="next"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task<ResponseCacheEntry?> DumpAndCacheResponseAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
+        protected async Task<ResponseCacheEntry?> DumpAndCacheResponseAsync(ResourceExecutingContext executingContext, ResourceExecutionDelegate next, string key)
         {
-            var response = context.HttpContext.Response;
+            var response = executingContext.HttpContext.Response;
             var originalBody = response.Body;
             using var dumpStream = Context.DumpStreamFactory.Create();
 
@@ -125,6 +126,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             try
             {
                 response.Body = dumpStream;
+
+                CachingDiagnostics.NoCachingFounded(key, executingContext, Context);
 
                 executedContext = await next();
                 dumpStream.Position = 0;
@@ -141,11 +144,11 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             {
                 if (cacheEntry.Body.Length <= Context.MaxCacheableResponseLength)
                 {
-                    await Context.Interceptors.OnCacheStoringAsync(context, key, cacheEntry, Context.Duration, SetCacheAsync);
+                    await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, Context.Duration, SetCacheAsync);
                 }
                 else
                 {
-                    CachingDiagnostics.CacheBodyTooLong(key, cacheEntry.Body, Context.MaxCacheableResponseLength, context, Context);
+                    CachingDiagnostics.CacheBodyTooLong(key, cacheEntry.Body, Context.MaxCacheableResponseLength, executingContext, Context);
                 }
                 return cacheEntry;
             }

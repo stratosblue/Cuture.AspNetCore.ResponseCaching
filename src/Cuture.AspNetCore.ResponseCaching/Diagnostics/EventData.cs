@@ -46,7 +46,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     public class StartProcessingCacheEventData : ResponseCachingEventData
     {
         /// <summary>
-        /// 事件名称
+        /// <inheritdoc cref="StartProcessingCacheEventData"/>名称
         /// </summary>
         public const string EventName = DiagnosticName + ".StartProcessingCache";
 
@@ -66,7 +66,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     public class EndProcessingCacheEventData : ResponseCachingEventData
     {
         /// <summary>
-        /// 事件名称
+        /// <inheritdoc cref="EndProcessingCacheEventData"/>名称
         /// </summary>
         public const string EventName = DiagnosticName + ".EndProcessingCache";
 
@@ -86,7 +86,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     public class CacheKeyGeneratedEventData : ResponseCachingEventData
     {
         /// <summary>
-        /// 事件名称
+        /// <inheritdoc cref="CacheKeyGeneratedEventData"/>名称
         /// </summary>
         public const string EventName = DiagnosticName + ".CacheKeyGenerated";
 
@@ -120,7 +120,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     public class ResponseFromCacheEventData : ResponseCachingEventData
     {
         /// <summary>
-        /// 事件名称
+        /// <inheritdoc cref="ResponseFromCacheEventData"/>名称
         /// </summary>
         public const string EventName = DiagnosticName + ".ResponseFromCache";
 
@@ -146,16 +146,14 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     public class ResponseFromActionResultEventData : ResponseCachingEventData
     {
         /// <summary>
-        /// 事件名称
+        /// <inheritdoc cref="ResponseFromActionResultEventData"/>名称
         /// </summary>
         public const string EventName = DiagnosticName + ".ResponseFromActionResult";
 
         /// <inheritdoc cref="ActionExecutingContext"/>
         public ActionExecutingContext ActionExecutingContext { get; }
 
-        /// <summary>
-        /// ActionResult
-        /// </summary>
+        /// <inheritdoc cref="IActionResult"/>
         public IActionResult ActionResult { get; }
 
         /// <inheritdoc cref="ResponseFromActionResultEventData"/>
@@ -172,7 +170,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     public class CacheKeyTooLongEventData : ResponseCachingEventData
     {
         /// <summary>
-        /// 事件名称
+        /// <inheritdoc cref="CacheKeyTooLongEventData"/>名称
         /// </summary>
         public const string EventName = DiagnosticName + ".CacheKeyTooLong";
 
@@ -186,21 +184,51 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         /// </summary>
         public int MaxAvailableLength { get; }
 
+        /// <inheritdoc cref="Microsoft.AspNetCore.Mvc.Filters.FilterContext"/>
+        public FilterContext FilterContext { get; }
+
         /// <inheritdoc cref="CacheKeyTooLongEventData"/>
-        public CacheKeyTooLongEventData(string key, int maxAvailableLength, object context) : base(context)
+        public CacheKeyTooLongEventData(string key, int maxAvailableLength, FilterContext filterContext, object context) : base(context)
         {
             Key = key;
             MaxAvailableLength = maxAvailableLength;
+            FilterContext = filterContext;
         }
     }
 
     /// <summary>
-    /// 缓存内容过长事件
+    /// 找到缓存事件（需要执行正常流程）
     /// </summary>
-    public class CacheBodyTooLongEventData : ResponseCachingEventData
+    public class NoCachingFoundedEventData : ResponseCachingEventData
     {
         /// <summary>
-        /// 事件名称
+        /// <inheritdoc cref="NoCachingFoundedEventData"/>名称
+        /// </summary>
+        public const string EventName = DiagnosticName + ".NoCachingFounded";
+
+        /// <summary>
+        /// key
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <inheritdoc cref="Microsoft.AspNetCore.Mvc.Filters.FilterContext"/>
+        public FilterContext FilterContext { get; }
+
+        /// <inheritdoc cref="NoCachingFoundedEventData"/>
+        public NoCachingFoundedEventData(string key, FilterContext filterContext, object context) : base(context)
+        {
+            Key = key;
+            FilterContext = filterContext;
+        }
+    }
+
+    /// <summary>
+    /// 缓存内容过大事件
+    /// </summary>
+    public class CacheBodyTooLargeEventData : ResponseCachingEventData
+    {
+        /// <summary>
+        /// <inheritdoc cref="CacheBodyTooLargeEventData"/>名称
         /// </summary>
         public const string EventName = DiagnosticName + ".CacheBodyTooLong";
 
@@ -219,16 +247,16 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         /// </summary>
         public int MaxAvailableLength { get; }
 
-        /// <inheritdoc cref="ActionContext"/>
-        public ActionContext ActionContext { get; }
+        /// <inheritdoc cref="Microsoft.AspNetCore.Mvc.Filters.FilterContext"/>
+        public FilterContext FilterContext { get; }
 
-        /// <inheritdoc cref="CacheBodyTooLongEventData"/>
-        public CacheBodyTooLongEventData(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, ActionContext actionContext, object context) : base(context)
+        /// <inheritdoc cref="CacheBodyTooLargeEventData"/>
+        public CacheBodyTooLargeEventData(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, FilterContext filterContext, object context) : base(context)
         {
             Key = key;
             Body = body;
             MaxAvailableLength = maxAvailableLength;
-            ActionContext = actionContext;
+            FilterContext = filterContext;
         }
     }
 }

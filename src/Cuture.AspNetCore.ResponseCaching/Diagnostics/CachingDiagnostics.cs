@@ -43,13 +43,13 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
 
         #region Public 方法
 
-        /// <inheritdoc cref="CacheKeyTooLongEventData"/>
-        public void CacheBodyTooLong(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, ActionContext actionContext, object context)
+        /// <inheritdoc cref="CacheBodyTooLargeEventData"/>
+        public void CacheBodyTooLong(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, FilterContext filterContext, object context)
         {
             if (DiagnosticSource != null
-                && DiagnosticSource.IsEnabled(CacheBodyTooLongEventData.EventName))
+                && DiagnosticSource.IsEnabled(CacheBodyTooLargeEventData.EventName))
             {
-                DiagnosticSource.Write(CacheBodyTooLongEventData.EventName, new CacheBodyTooLongEventData(key, body, maxAvailableLength, actionContext, context));
+                DiagnosticSource.Write(CacheBodyTooLargeEventData.EventName, new CacheBodyTooLargeEventData(key, body, maxAvailableLength, filterContext, context));
                 return;
             }
             Logger.LogWarning("Response too long to cache, key: {0}, maxLength: {1}, length: {2}", key, maxAvailableLength, body.Length);
@@ -66,12 +66,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="CacheKeyTooLongEventData"/>
-        public void CacheKeyTooLong(string key, int maxAvailableLength, object context)
+        public void CacheKeyTooLong(string key, int maxAvailableLength, FilterContext filterContext, object context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(CacheKeyTooLongEventData.EventName))
             {
-                DiagnosticSource.Write(CacheKeyTooLongEventData.EventName, new CacheKeyTooLongEventData(key, maxAvailableLength, context));
+                DiagnosticSource.Write(CacheKeyTooLongEventData.EventName, new CacheKeyTooLongEventData(key, maxAvailableLength, filterContext, context));
                 return;
             }
             Logger.LogWarning("CacheKey is too long to cache. maxLength: {0} key: {1}", maxAvailableLength, key);
@@ -84,6 +84,16 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
                 && DiagnosticSource.IsEnabled(EndProcessingCacheEventData.EventName))
             {
                 DiagnosticSource.Write(EndProcessingCacheEventData.EventName, new EndProcessingCacheEventData(filterContext, context));
+            }
+        }
+
+        /// <inheritdoc cref="NoCachingFoundedEventData"/>
+        public void NoCachingFounded(string key, FilterContext filterContext, object context)
+        {
+            if (DiagnosticSource != null
+                && DiagnosticSource.IsEnabled(NoCachingFoundedEventData.EventName))
+            {
+                DiagnosticSource.Write(NoCachingFoundedEventData.EventName, new NoCachingFoundedEventData(key, filterContext, context));
             }
         }
 
