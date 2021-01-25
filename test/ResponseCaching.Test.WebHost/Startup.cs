@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 
 using ResponseCaching.Test.WebHost.Test;
 
+using StackExchange.Redis;
+
 namespace ResponseCaching.Test.WebHost
 {
     public class Startup
@@ -28,9 +30,19 @@ namespace ResponseCaching.Test.WebHost
         {
             services.AddResponseCaching();
 
+            //在系统环境变量中设置 `ResponseCache_Test_Redis` 为测试使用的 Redis 连接字符串
+
+            var redisConfigureString = Environment.GetEnvironmentVariable("ResponseCache_Test_Redis");
+
             services.AddCaching(Configuration.GetSection("Caching:ResponseCaching"))
-                    .UseRedisResponseCache(Environment.GetEnvironmentVariable("ResponseCache_Test_Redis"), Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
+                    .UseRedisResponseCache(redisConfigureString, Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
                     .AddDiagnosticDebugLogger();
+
+            //HACK 清理缓存，避免影响测试 -- 连接字符串需要添加 allowAdmin=true
+            {
+                var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfigureString);
+                connectionMultiplexer.GetServer(redisConfigureString.Split(',')[0]).FlushAllDatabases();
+            }
 
             services.AddControllers();
 
