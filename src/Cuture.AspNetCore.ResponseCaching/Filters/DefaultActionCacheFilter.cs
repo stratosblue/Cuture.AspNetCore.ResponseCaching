@@ -90,7 +90,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                         }
                         else
                         {
-                            CachingDiagnostics.CacheBodyTooLong(key, responseBody, Context.MaxCacheableResponseLength, executingContext, Context);
+                            CachingDiagnostics.CacheBodyTooLarge(key, responseBody, Context.MaxCacheableResponseLength, executingContext, Context);
                         }
                     }
                     finally

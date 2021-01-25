@@ -7,10 +7,11 @@
 - 命中缓存时直接将内容写入响应流，省略了序列化、反序列化等操作；
 - 只会缓存响应内容和`ContentType`，忽略了其它响应Header；
 - 支持基于`QueryKey`、`FormKey`、`Header`、`Claim`、`Model`中单个或多个组合的缓存键生成；
+- 已实现基于`Memory`和`Redis`(StackExchange.Redis)的缓存，可拓展；
 - 默认缓存Key生成器会包含请求路径为缓存Key；
-- 支持基于`Memory`和`Redis`(StackExchange.Redis)的缓存；
-- `Asp.net Core`版本要求 - `3.1`以上
-- [执行流程概览](/flow_of_execution.md)
+- `Asp.net Core`版本要求 - `3.1`以上；
+- `Diagnostics`支持；
+- [执行流程概览](/flow_of_execution.md)；
 
 ## 3. 如何使用
 
@@ -189,3 +190,43 @@ public ResultDto Foo(int page, int pageSize)
 ## 5. 自定义缓存实现
 
 实现`IMemoryResponseCache`或`IDistributedResponseCache`接口；并将实现注入`asp.net core`的DI，替换掉默认实现；
+
+-------
+
+## Diagnostics支持
+
+- 部分功能已使用`Diagnostic`，`DiagnosticName`为`Cuture.AspNetCore.ResponseCaching`；
+
+
+事件列表如下：
+
+|  事件名称   | 事件  |
+|    ----    | ----  |
+|Cuture.AspNetCore.ResponseCaching.StartProcessingCache     |开始处理缓存|
+|Cuture.AspNetCore.ResponseCaching.EndProcessingCache       |处理缓存结束|
+|Cuture.AspNetCore.ResponseCaching.CacheKeyGenerated        |缓存key已生成|
+|Cuture.AspNetCore.ResponseCaching.ResponseFromCache        |从缓存响应请求|
+|Cuture.AspNetCore.ResponseCaching.ResponseFromActionResult |使用`IActionResult`响应请求事件|
+|Cuture.AspNetCore.ResponseCaching.CacheKeyTooLong          |缓存键过长|
+|Cuture.AspNetCore.ResponseCaching.NoCachingFounded         |没有找到缓存|
+|Cuture.AspNetCore.ResponseCaching.CacheBodyTooLong         |缓存内容过大|
+
+-----
+
+### 使用`ILogger`打印事件信息
+- 已实现简单的`Diagnostic`订阅并打印，直接启用即可输出日志；
+- 使用`Diagnostic`会对性能有那么一点影响；
+
+#### 1. 配置服务时添加Logger
+```C#
+services.AddCaching()
+        .AddDiagnosticDebugLogger() //在Debug模式下使用Logger输出Diagnostic事件信息
+        .AddDiagnosticReleaseLogger();  //在Release模式下使用Logger输出Diagnostic事件信息
+```
+
+#### 2. 构建应用时启用Logger
+```C#
+app.EnableResponseCachingDiagnosticLogger();
+```
+
+如上配置后，内部将订阅相关`Diagnostic`，并将事件信息使用`ILogger`输出。

@@ -115,7 +115,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     }
 
     /// <summary>
-    /// 使用缓存响应事件
+    /// 从缓存响应请求事件
     /// </summary>
     public class ResponseFromCacheEventData : ResponseCachingEventData
     {
@@ -141,7 +141,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     }
 
     /// <summary>
-    /// 使用<see cref="ActionResult"/>响应事件
+    /// 使用<see cref="IActionResult"/>响应请求事件
     /// </summary>
     public class ResponseFromActionResultEventData : ResponseCachingEventData
     {
@@ -197,7 +197,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     }
 
     /// <summary>
-    /// 找到缓存事件（需要执行正常流程）
+    /// 没有找到缓存事件（需要执行正常流程）
     /// </summary>
     public class NoCachingFoundedEventData : ResponseCachingEventData
     {
@@ -230,7 +230,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         /// <summary>
         /// <inheritdoc cref="CacheBodyTooLargeEventData"/>名称
         /// </summary>
-        public const string EventName = DiagnosticName + ".CacheBodyTooLong";
+        public const string EventName = DiagnosticName + ".CacheBodyTooLarge";
 
         /// <summary>
         /// key

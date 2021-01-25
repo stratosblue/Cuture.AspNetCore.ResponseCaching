@@ -44,7 +44,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         #region Public 方法
 
         /// <inheritdoc cref="CacheBodyTooLargeEventData"/>
-        public void CacheBodyTooLong(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, FilterContext filterContext, object context)
+        public void CacheBodyTooLarge(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, FilterContext filterContext, object context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(CacheBodyTooLargeEventData.EventName))
