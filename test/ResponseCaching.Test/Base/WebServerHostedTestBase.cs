@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Cuture.Http;
 
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -25,6 +26,8 @@ namespace ResponseCaching.Test.Base
             var hostBuilder = TestWebHost.CreateHostBuilder(GetHostArgs());
             await ConfigureWebHost(hostBuilder);
             WebHost = await hostBuilder.StartAsync();
+
+            HttpRequestOptions.DefaultTurboClientFactory = new TestCutureHttpClientFactory(WebHost.GetTestClient());
 
             HttpRequestOptions.DefaultConnectionLimit = 500;
         }
