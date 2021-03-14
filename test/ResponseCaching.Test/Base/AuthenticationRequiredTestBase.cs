@@ -18,7 +18,7 @@ namespace ResponseCaching.Test.Base
     {
         protected override async Task<string> LoginAsync(string account)
         {
-            var token = await $"{BaseUrl}/login/jwt?uid={account}".ToHttpRequest().GetAsStringAsync();
+            var token = await $"{BaseUrl}/login/jwt?uid={account}".CreateHttpRequest().GetAsStringAsync();
 
             return token;
         }
@@ -29,7 +29,7 @@ namespace ResponseCaching.Test.Base
     {
         protected override async Task<string> LoginAsync(string account)
         {
-            var result = await $"{BaseUrl}/login/cookie?uid={account}".ToHttpRequest().TryGetAsStringAsync();
+            var result = await $"{BaseUrl}/login/cookie?uid={account}".CreateHttpRequest().TryGetAsStringAsync();
 
             return CookieUtility.Clean(result.ResponseMessage.GetCookie());
         }

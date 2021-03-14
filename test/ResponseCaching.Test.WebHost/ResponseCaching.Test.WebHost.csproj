@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    
+    <IsPackable>false</IsPackable>
+    <UserSecretsId>59ec6951-9d94-4c2c-ba9c-ead1c523ce5d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

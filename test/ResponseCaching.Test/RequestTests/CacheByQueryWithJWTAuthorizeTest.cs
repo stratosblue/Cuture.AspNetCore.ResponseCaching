@@ -23,7 +23,7 @@ namespace ResponseCaching.Test.RequestTests
             var jwts = new List<string>();
             for (int i = 1; i < 6; i++)
             {
-                var token = await $"{BaseUrl}/login/jwt?uid=testuser{i}".ToHttpRequest().GetAsStringAsync();
+                var token = await $"{BaseUrl}/login/jwt?uid=testuser{i}".CreateHttpRequest().GetAsStringAsync();
 
                 jwts.Add(token);
             }
@@ -33,11 +33,11 @@ namespace ResponseCaching.Test.RequestTests
         protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
         {
             return new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
-                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=1&pageSize=5".ToHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[0]}").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=1&pageSize=6".ToHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[1]}").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=2&pageSize=4".ToHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[2]}").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=2&pageSize=6".ToHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[3]}").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=3&pageSize=3".ToHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[4]}").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=1&pageSize=5".CreateHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[0]}").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=1&pageSize=6".CreateHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[1]}").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=2&pageSize=4".CreateHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[2]}").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=2&pageSize=6".CreateHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[3]}").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-at-q?page=3&pageSize=3".CreateHttpRequest().AddHeader("Authorization", $"Bearer {_jwts[4]}").TryGetAsObjectAsync<WeatherForecast[]>(),
             };
         }
     }

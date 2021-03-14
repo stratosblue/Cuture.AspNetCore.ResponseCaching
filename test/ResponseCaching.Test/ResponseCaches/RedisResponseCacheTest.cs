@@ -1,10 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using ResponseCaching.Test.WebHost;
 
 using StackExchange.Redis;
 
@@ -17,7 +19,12 @@ namespace ResponseCaching.Test.ResponseCaches
 
         protected override async Task<IResponseCache> GetResponseCache()
         {
-            var configuration = Environment.GetEnvironmentVariable("ResponseCache_Test_Redis");
+            var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", true)
+                                                          .AddJsonFile("appsettings.Development.json", true)
+                                                          .AddEnvironmentVariables()
+                                                          .AddUserSecrets<TestWebHost>()
+                                                          .Build()
+                                                          .GetValue<string>("ResponseCache_Test_Redis");
             _connectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(configuration);
             return new RedisResponseCache(new RedisResponseCacheOptions() { ConnectionMultiplexer = _connectionMultiplexer });
         }

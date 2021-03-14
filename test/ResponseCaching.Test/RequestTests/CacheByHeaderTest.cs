@@ -15,11 +15,11 @@ namespace ResponseCaching.Test.RequestTests
         protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
         {
             return new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
-                () => $"{BaseUrl}/WeatherForecast/get-h".ToHttpRequest().AddHeader("page","1").AddHeader("pageSize","5").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/get-h".ToHttpRequest().AddHeader("page","1").AddHeader("pageSize","6").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/get-h".ToHttpRequest().AddHeader("page","2").AddHeader("pageSize","4").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/get-h".ToHttpRequest().AddHeader("page","2").AddHeader("pageSize","6").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/get-h".ToHttpRequest().AddHeader("page","3").AddHeader("pageSize","3").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-h".CreateHttpRequest().AddHeader("page","1").AddHeader("pageSize","5").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-h".CreateHttpRequest().AddHeader("page","1").AddHeader("pageSize","6").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-h".CreateHttpRequest().AddHeader("page","2").AddHeader("pageSize","4").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-h".CreateHttpRequest().AddHeader("page","2").AddHeader("pageSize","6").TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/get-h".CreateHttpRequest().AddHeader("page","3").AddHeader("pageSize","3").TryGetAsObjectAsync<WeatherForecast[]>(),
             };
         }
     }

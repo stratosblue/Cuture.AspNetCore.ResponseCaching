@@ -28,7 +28,7 @@ namespace ResponseCaching.Test.RequestTests
             var cookies = new List<string>();
             for (int i = 1; i < CookieCount; i++)
             {
-                var result = await $"{BaseUrl}/login/cookie?uid=testuser{i}".ToHttpRequest().TryGetAsStringAsync();
+                var result = await $"{BaseUrl}/login/cookie?uid=testuser{i}".CreateHttpRequest().TryGetAsStringAsync();
                 var cookie = CookieUtility.Clean(result.ResponseMessage.GetCookie());
 
                 cookies.Add(cookie);
@@ -55,7 +55,7 @@ namespace ResponseCaching.Test.RequestTests
                                 {
                                     for (int pageSize_m = 7; pageSize_m < 15; pageSize_m += 4)
                                     {
-                                        result.Add(() => url.ToHttpRequest()
+                                        result.Add(() => url.CreateHttpRequest()
                                                             .UsePost()
                                                             .WithJsonContent(new PageResultRequestDto() { Page = page_m, PageSize = pageSize_m })
                                                             .AddHeader("page", page_h.ToString())

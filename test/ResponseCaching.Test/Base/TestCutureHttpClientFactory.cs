@@ -5,7 +5,7 @@ using Cuture.Http;
 
 namespace ResponseCaching.Test.Base
 {
-    internal class TestCutureHttpClientFactory : IHttpTurboClientFactory
+    internal class TestCutureHttpClientFactory : IHttpMessageInvokerFactory
     {
         #region Private 字段
 
@@ -32,10 +32,7 @@ namespace ResponseCaching.Test.Base
         {
         }
 
-        public IHttpTurboClient GetTurboClient(IHttpTurboRequest request)
-        {
-            return new HttpTurboClient(_testHttpClient, false);
-        }
+        public HttpMessageInvoker GetInvoker(IHttpRequest request) => _testHttpClient;
 
         #endregion Public 方法
     }

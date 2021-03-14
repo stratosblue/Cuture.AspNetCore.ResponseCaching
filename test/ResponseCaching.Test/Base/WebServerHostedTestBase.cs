@@ -27,9 +27,9 @@ namespace ResponseCaching.Test.Base
             await ConfigureWebHost(hostBuilder);
             WebHost = await hostBuilder.StartAsync();
 
-            HttpRequestOptions.DefaultTurboClientFactory = new TestCutureHttpClientFactory(WebHost.GetTestClient());
+            HttpRequestGlobalOptions.DefaultHttpMessageInvokerFactory = new TestCutureHttpClientFactory(WebHost.GetTestClient());
 
-            HttpRequestOptions.DefaultConnectionLimit = 500;
+            HttpRequestGlobalOptions.DefaultConnectionLimit = 500;
         }
 
         [TestCleanup]
@@ -58,7 +58,7 @@ namespace ResponseCaching.Test.Base
         /// <param name="assertAction">对每个请求的断言委托</param>
         /// <returns></returns>
         protected virtual async Task ParallelRequestAsync<T>(int requestCount,
-                                                             Func<IHttpTurboRequest> getRequestFunc,
+                                                             Func<IHttpRequest> getRequestFunc,
                                                              Action<HttpOperationResult<T>> assertAction)
         {
             if (requestCount < 1)
@@ -94,6 +94,6 @@ namespace ResponseCaching.Test.Base
             });
         }
 
-        protected virtual IHttpTurboRequest ConfigureBeforeRequest(IHttpTurboRequest request) => request;
+        protected virtual IHttpRequest ConfigureBeforeRequest(IHttpRequest request) => request;
     }
 }

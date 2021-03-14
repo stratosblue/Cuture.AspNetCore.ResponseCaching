@@ -24,12 +24,12 @@ namespace ResponseCaching.Test.RequestTests
         protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
         {
             return new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
-                () => $"{BaseUrl}/WeatherForecast/path-cache?page=1&pageSize=5".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache?page=1".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache?page=1&pageSize=5".ToHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache?page=1".ToHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache".ToHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/path-cache?page=1&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/path-cache?page=1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/path-cache".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/path-cache?page=1&pageSize=5".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/path-cache?page=1".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/path-cache".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
             };
         }
     }

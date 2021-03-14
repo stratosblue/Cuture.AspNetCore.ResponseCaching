@@ -12,8 +12,6 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
     /// <summary>
     /// http请求执行锁定器
-    /// <para/>
-    /// ！！实现 <see cref="IDisposable"/> 接口将导致Transient和Scoped实例在离开作用域时被释放
     /// </summary>
     public interface IRequestExecutingLocker<in TExecutingContext, TCachingData> where TExecutingContext : FilterContext
     {

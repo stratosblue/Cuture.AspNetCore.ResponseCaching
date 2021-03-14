@@ -30,10 +30,7 @@ namespace ResponseCaching.Test.WebHost
         {
             services.AddResponseCaching();
 
-            //在系统环境变量中设置 `ResponseCache_Test_Redis` 为测试使用的 Redis 连接字符串
-
-            var redisConfigureString = Environment.GetEnvironmentVariable("ResponseCache_Test_Redis");
-
+            var redisConfigureString = Configuration.GetValue<string>("ResponseCache_Test_Redis");
             services.AddCaching(Configuration.GetSection("Caching:ResponseCaching"))
                     .UseRedisResponseCache(redisConfigureString, Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
                     .AddDiagnosticDebugLogger();

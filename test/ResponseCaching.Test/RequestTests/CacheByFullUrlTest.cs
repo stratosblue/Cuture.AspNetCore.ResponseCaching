@@ -17,12 +17,12 @@ namespace ResponseCaching.Test.RequestTests
         protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
         {
             return new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
-                () => $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/url-cache?page=2&pageSize=5".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/url-cache?page=3&pageSize=5".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t=1".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t=1&_t1=0".ToHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/url-cache?page=2&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/url-cache?page=3&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t=1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t=1&_t1=0".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
             };
         }
     }
