@@ -38,13 +38,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IResponseCacheDeterminer, DefaultResponseCacheDeterminer>();
 
-            services.TryAddTransient<IActionSingleResourceExecutingLocker, DefaultActionSingleResourceExecutingLocker>();
-            services.TryAddTransient<ICacheKeySingleResourceExecutingLocker, DefaultResourceExecutingLocker>();
-            services.TryAddTransient<IResourceExecutingLocker, DefaultResourceExecutingLocker>();
+            services.TryAddSingleton<IActionSingleResourceExecutingLocker, DefaultActionSingleResourceExecutingLocker>();
+            services.TryAddSingleton<ICacheKeySingleResourceExecutingLocker, DefaultResourceExecutingLocker>();
 
-            services.TryAddTransient<IActionSingleActionExecutingLocker, DefaultActionSingleActionExecutingLocker>();
-            services.TryAddTransient<ICacheKeySingleActionExecutingLocker, DefaultActionExecutingLocker>();
-            services.TryAddTransient<IActionExecutingLocker, DefaultActionExecutingLocker>();
+            services.TryAddSingleton<IActionSingleActionExecutingLocker, DefaultActionSingleActionExecutingLocker>();
+            services.TryAddSingleton<ICacheKeySingleActionExecutingLocker, DefaultActionExecutingLocker>();
 
             services.TryAddSingleton(serviceProvider => new CachingDiagnostics(serviceProvider));
             services.TryAddSingleton<CachingDiagnosticsAccessor>();
