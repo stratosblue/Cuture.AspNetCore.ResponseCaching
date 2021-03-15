@@ -49,9 +49,15 @@ namespace ResponseCaching.Test.RequestTests
                 }
             }
 
+            var tasks = Array(ReRequestTimes).Select(m => InternalRunAsync(funcs)).ToArray();
+
+            await Task.WhenAll(tasks);
+
+            var allValues = tasks.Select(m => m.Result).ToArray();
+
             for (int time = 0; time < ReRequestTimes; time++)
             {
-                var values = await InternalRunAsync(funcs);
+                var values = allValues[time];
 
                 Assert.AreEqual(data.Length, values.Length);
 
