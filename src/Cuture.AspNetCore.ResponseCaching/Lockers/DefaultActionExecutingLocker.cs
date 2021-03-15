@@ -26,9 +26,17 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
         public void Dispose() => _localCacheableLockPool.Dispose();
 
         /// <inheritdoc/>
-        public Task ProcessCacheWithLockAsync(string cacheKey, ActionExecutingContext executingContext, Func<IActionResult, Task> cacheAvailableFunc, Func<Task<IActionResult?>> cacheUnAvailableFunc)
+        public async Task ProcessCacheWithLockAsync(string cacheKey, ActionExecutingContext executingContext, Func<IActionResult, Task> cacheAvailableFunc, Func<Task<IActionResult?>> cacheUnAvailableFunc)
         {
-            return _localCacheableLockPool.GetLock(cacheKey).LockRunAsync(cacheAvailableFunc, cacheUnAvailableFunc, executingContext.HttpContext.RequestAborted);
+            var @lock = _localCacheableLockPool.GetLock(cacheKey);
+            try
+            {
+                await @lock.LockRunAsync(cacheAvailableFunc, cacheUnAvailableFunc, executingContext.HttpContext.RequestAborted);
+            }
+            finally
+            {
+                _localCacheableLockPool.Return(cacheKey, @lock);
+            }
         }
 
         #endregion Public 方法

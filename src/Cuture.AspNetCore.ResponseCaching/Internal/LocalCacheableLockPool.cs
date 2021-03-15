@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -11,12 +11,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
     /// </summary>
     /// <typeparam name="TKey">key类型</typeparam>
     /// <typeparam name="TPayload">缓存内容类型</typeparam>
-    public sealed class LocalCacheableLockPool<TKey, TPayload> : IDisposable where TPayload : class where TKey : notnull
+    internal sealed class LocalCacheableLockPool<TKey, TPayload> : IDisposable where TPayload : class where TKey : notnull
     {
         #region Private 字段
 
         private readonly Func<LocalCacheableLock<TPayload>> _lockFactory;
-        private ConcurrentDictionary<TKey, Lazy<LockState<TPayload>>> _allLockStates = new ConcurrentDictionary<TKey, Lazy<LockState<TPayload>>>();
+        private Dictionary<TKey, LocalCacheableLock<TPayload>> _allLocks = new();
         private bool _isDisposed = false;
 
         #endregion Private 字段
@@ -37,46 +37,6 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         #region Public 方法
 
         /// <summary>
-        /// 清理锁字典内的空项
-        /// </summary>
-        public void Clean()
-        {
-            CheckDisposed();
-
-            lock (_allLockStates)
-            {
-                var tmpLockStates = _allLockStates.ToImmutableArray();
-                foreach (var item in tmpLockStates)
-                {
-                    if (!item.Value.IsValueCreated)
-                    {
-                        continue;
-                    }
-                    var lockState = item.Value.Value;
-                    bool lockTaken = false;
-                    try
-                    {
-                        lockState.UseLock.Enter(ref lockTaken);
-
-                        var lockWeakReference = lockState.WeakReference;
-                        if (!lockWeakReference.TryGetTarget(out var _))
-                        {
-                            lockState.InvalidMarked = true;
-                            _allLockStates.TryRemove(item.Key, out var _);
-                        }
-                    }
-                    finally
-                    {
-                        if (lockTaken)
-                        {
-                            lockState.UseLock.Exit(false);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         ///
         /// </summary>
         public void Dispose()
@@ -87,20 +47,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
             }
             _isDisposed = true;
 
-            var all = _allLockStates;
-            _allLockStates = null!;
+            var all = _allLocks;
+            _allLocks = null!;
             var tmpLockStates = all.ToImmutableArray();
             foreach (var item in tmpLockStates)
             {
-                if (!item.Value.IsValueCreated)
-                {
-                    continue;
-                }
-
-                if (item.Value.Value.WeakReference.TryGetTarget(out var @lock))
-                {
-                    @lock.Dispose();
-                }
+                item.Value.Dispose();
             }
         }
 
@@ -113,42 +65,41 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         {
             CheckDisposed();
 
-            var lazyLockState = _allLockStates.GetOrAdd(key, (innerKey) =>
+            LocalCacheableLock<TPayload> @lock;
+            lock (_allLocks)
             {
-                return new Lazy<LockState<TPayload>>(() => new LockState<TPayload>(new WeakReference<LocalCacheableLock<TPayload>>(_lockFactory())));
-            });
-
-            var lockState = lazyLockState.Value;
-
-            bool lockTaken = false;
-            try
-            {
-                lockState.UseLock.Enter(ref lockTaken);
-
-                if (lockState.InvalidMarked)
-                {
-                    if (lockTaken)
-                    {
-                        lockState.UseLock.Exit(false);
-                    }
-                    lockTaken = false;
-                    return GetLock(key);
-                }
-
-                var lockWeakReference = lockState.WeakReference;
-                if (!lockWeakReference.TryGetTarget(out var @lock))
+                if (!_allLocks.TryGetValue(key, out @lock!))
                 {
                     @lock = _lockFactory();
-                    lockWeakReference.SetTarget(@lock);
+                    _allLocks.Add(key, @lock);
                 }
-                return @lock;
+                Interlocked.Add(ref @lock.ReferenceCount, 1);
             }
-            finally
+
+            return @lock;
+        }
+
+        public void Return(TKey key, LocalCacheableLock<TPayload> item)
+        {
+            if (Interlocked.Add(ref item.ReferenceCount, -1) == 0)
             {
-                if (lockTaken)
+                lock (_allLocks)
                 {
-                    lockState.UseLock.Exit(false);
+                    if (_allLocks.TryGetValue(key, out item!))
+                    {
+                        if (item is not null
+                           && item.ReferenceCount == 0)
+                        {
+                            _allLocks.Remove(key);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
                 }
+
+                item?.Dispose();
             }
         }
 
@@ -166,47 +117,5 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         }
 
         #endregion Private 方法
-    }
-
-    /// <summary>
-    /// 锁状态
-    /// </summary>
-    internal class LockState<TPayload> where TPayload : class
-    {
-        #region Public 字段
-
-        /// <summary>
-        /// 无效标记，不应该继续使用该对象
-        /// </summary>
-        public volatile bool InvalidMarked;
-
-        /// <summary>
-        /// 使用锁
-        /// </summary>
-        public SpinLock UseLock = new SpinLock(false);
-
-        #endregion Public 字段
-
-        #region Public 属性
-
-        /// <summary>
-        /// 弱引用
-        /// </summary>
-        public WeakReference<LocalCacheableLock<TPayload>> WeakReference { get; set; }
-
-        #endregion Public 属性
-
-        #region Public 构造函数
-
-        /// <summary>
-        /// 锁状态
-        /// </summary>
-        /// <param name="weakReference"></param>
-        public LockState(WeakReference<LocalCacheableLock<TPayload>> weakReference)
-        {
-            WeakReference = weakReference;
-        }
-
-        #endregion Public 构造函数
     }
 }

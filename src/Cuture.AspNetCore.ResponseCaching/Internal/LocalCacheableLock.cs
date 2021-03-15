@@ -9,7 +9,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
     /// 可本地缓存锁
     /// </summary>
     /// <typeparam name="TPayload"></typeparam>
-    public class LocalCacheableLock<TPayload> : IDisposable where TPayload : class
+    internal class LocalCacheableLock<TPayload> : IDisposable where TPayload : class
     {
         #region Private 字段
 
@@ -36,6 +36,15 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         private long _localCachedPayloadExpireTime;
 
         #endregion Private 字段
+
+        #region Internal 字段
+
+        /// <summary>
+        /// 引用计数
+        /// </summary>
+        public int ReferenceCount = 0;
+
+        #endregion Internal 字段
 
         #region Public 构造函数
 
