@@ -38,6 +38,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IResponseCacheDeterminer, DefaultResponseCacheDeterminer>();
 
+            services.TryAddSingleton<IExecutingLockerProvider, DefaultExecutingLockerProvider>();
+
             services.TryAddSingleton<IActionSingleResourceExecutingLocker, DefaultActionSingleResourceExecutingLocker>();
             services.TryAddSingleton<ICacheKeySingleResourceExecutingLocker, DefaultResourceExecutingLocker>();
 

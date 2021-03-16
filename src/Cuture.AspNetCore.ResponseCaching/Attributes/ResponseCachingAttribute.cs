@@ -397,7 +397,7 @@ namespace Microsoft.AspNetCore.Mvc
                         };
                         var executingLocker = executingLockerType is null
                                                 ? null
-                                                : serviceProvider.GetRequiredService(executingLockerType) as IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>;
+                                                : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker(executingLockerType, string.Empty) as IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>;
                         var responseCachingContext = new ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry>(this,
                                                                                                                               cacheKeyGenerator,
                                                                                                                               executingLocker!,
@@ -417,7 +417,7 @@ namespace Microsoft.AspNetCore.Mvc
                         };
                         var executingLocker = executingLockerType is null
                                                 ? null
-                                                : serviceProvider.GetRequiredService(executingLockerType) as IRequestExecutingLocker<ActionExecutingContext, IActionResult>;
+                                                : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker(executingLockerType, string.Empty) as IRequestExecutingLocker<ActionExecutingContext, IActionResult>;
                         var responseCachingContext = new ResponseCachingContext<ActionExecutingContext, IActionResult>(this,
                                                                                                                        cacheKeyGenerator,
                                                                                                                        executingLocker!,
