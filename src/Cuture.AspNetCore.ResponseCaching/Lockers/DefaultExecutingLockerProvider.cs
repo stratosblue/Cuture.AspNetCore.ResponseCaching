@@ -14,13 +14,13 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         #region Public 构造函数
 
-        public DefaultExecutingLockerProvider()
+        public DefaultExecutingLockerProvider(IServiceProvider serviceProvider)
         {
-            _lockerCreatorMap.Add(typeof(IActionSingleResourceExecutingLocker), new DefaultActionSingleResourceExecutingLockerCreator());
-            _lockerCreatorMap.Add(typeof(ICacheKeySingleResourceExecutingLocker), new DefaultResourceExecutingLockerCreator());
+            _lockerCreatorMap.Add(typeof(IActionSingleResourceExecutingLocker), new DefaultActionSingleResourceExecutingLockerCreator(serviceProvider));
+            _lockerCreatorMap.Add(typeof(ICacheKeySingleResourceExecutingLocker), new DefaultResourceExecutingLockerCreator(serviceProvider));
 
-            _lockerCreatorMap.Add(typeof(IActionSingleActionExecutingLocker), new DefaultActionSingleActionExecutingLockerCreator());
-            _lockerCreatorMap.Add(typeof(ICacheKeySingleActionExecutingLocker), new DefaultActionExecutingLockerCreator());
+            _lockerCreatorMap.Add(typeof(IActionSingleActionExecutingLocker), new DefaultActionSingleActionExecutingLockerCreator(serviceProvider));
+            _lockerCreatorMap.Add(typeof(ICacheKeySingleActionExecutingLocker), new DefaultActionExecutingLockerCreator(serviceProvider));
         }
 
         #endregion Public 构造函数

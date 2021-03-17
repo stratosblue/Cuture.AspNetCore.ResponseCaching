@@ -1,14 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+
+using Cuture.AspNetCore.ResponseCaching.Internal;
+using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ObjectPool;
+using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching.Lockers
 {
     internal class DefaultActionExecutingLockerCreator : ExecutingLockerCreator
     {
+        #region Public 构造函数
+
+        public DefaultActionExecutingLockerCreator(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+        }
+
+        #endregion Public 构造函数
+
         #region Protected 方法
 
         protected override object CreateLocker()
         {
-            return new DefaultActionExecutingLocker();
+            return new DefaultActionExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateRunLockSemaphorePool<IActionResult>());
         }
 
         #endregion Protected 方法
@@ -16,11 +34,19 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
     internal class DefaultActionSingleActionExecutingLockerCreator : ExecutingLockerCreator
     {
+        #region Public 构造函数
+
+        public DefaultActionSingleActionExecutingLockerCreator(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+        }
+
+        #endregion Public 构造函数
+
         #region Protected 方法
 
         protected override object CreateLocker()
         {
-            return new DefaultActionSingleActionExecutingLocker();
+            return new DefaultActionSingleActionExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateRunLockSemaphorePool<IActionResult>());
         }
 
         #endregion Protected 方法
@@ -28,11 +54,19 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
     internal class DefaultActionSingleResourceExecutingLockerCreator : ExecutingLockerCreator
     {
+        #region Public 构造函数
+
+        public DefaultActionSingleResourceExecutingLockerCreator(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+        }
+
+        #endregion Public 构造函数
+
         #region Protected 方法
 
         protected override object CreateLocker()
         {
-            return new DefaultActionSingleResourceExecutingLocker();
+            return new DefaultActionSingleResourceExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateRunLockSemaphorePool<ResponseCacheEntry>());
         }
 
         #endregion Protected 方法
@@ -40,11 +74,19 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
     internal class DefaultResourceExecutingLockerCreator : ExecutingLockerCreator
     {
+        #region Public 构造函数
+
+        public DefaultResourceExecutingLockerCreator(IServiceProvider serviceProvider) : base(serviceProvider)
+        {
+        }
+
+        #endregion Public 构造函数
+
         #region Protected 方法
 
         protected override object CreateLocker()
         {
-            return new DefaultResourceExecutingLocker();
+            return new DefaultResourceExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateRunLockSemaphorePool<ResponseCacheEntry>());
         }
 
         #endregion Protected 方法
@@ -57,6 +99,21 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
         private readonly Dictionary<string, object> _lockers = new();
 
         #endregion Private 字段
+
+        #region Protected 属性
+
+        protected IServiceProvider ServiceProvider { get; }
+
+        #endregion Protected 属性
+
+        #region Public 构造函数
+
+        public ExecutingLockerCreator(IServiceProvider serviceProvider)
+        {
+            ServiceProvider = serviceProvider;
+        }
+
+        #endregion Public 构造函数
 
         #region Public 方法
 
@@ -79,6 +136,16 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
         #region Protected 方法
 
         protected abstract object CreateLocker();
+
+        protected ExecutionLockStatePool<TStatePayload> CreateRunLockSemaphorePool<TStatePayload>() where TStatePayload : class
+        {
+            return new ExecutionLockStatePool<TStatePayload>(RequiredService<IDirectBoundedObjectPool<SemaphoreSlim>>(),
+                                                             RequiredService<IRecyclePool<SemaphoreSlim>>());
+        }
+
+        protected IOptions<TOptions> RequiredOptions<TOptions>() where TOptions : class, new() => ServiceProvider.GetRequiredService<IOptions<TOptions>>();
+
+        protected TService RequiredService<TService>() => ServiceProvider.GetRequiredService<TService>();
 
         #endregion Protected 方法
     }

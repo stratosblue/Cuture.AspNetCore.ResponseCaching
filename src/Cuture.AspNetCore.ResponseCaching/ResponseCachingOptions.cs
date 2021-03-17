@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching
@@ -17,6 +18,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         private CacheKeyStrictMode _defaultStrictMode = CacheKeyStrictMode.Ignore;
         private int _maxCacheableResponseLength = ResponseCachingConstants.DefaultMaxCacheableResponseLength;
         private int _maxCacheKeyLength = ResponseCachingConstants.DefaultMaxCacheKeyLength;
+        private IMemoryCache _resultLocalCache = CreatedDefaultResultLocalCache();
 
         #endregion Private 字段
 
@@ -57,6 +59,11 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         /// <summary>
+        /// 锁定执行时，默认的本地缓存可用时间（毫秒）
+        /// </summary>
+        public uint DefaultLocalCacheAvailableMilliseconds { get; set; } = 1500;
+
+        /// <summary>
         /// 默认缓存键的严格模式
         /// </summary>
         public CacheKeyStrictMode DefaultStrictMode
@@ -76,6 +83,27 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 是否启用
         /// </summary>
         public bool Enable { get; set; } = true;
+
+        /// <summary>
+        /// 锁定执行时，响应值本地缓存使用的 <see cref="IMemoryCache"/>
+        /// <para/>
+        /// 不设置或置空时将会使用<see cref="MemoryCache"/>构造一个，其参数为默认的<see cref="MemoryCacheOptions"/>
+        /// </summary>
+        public IMemoryCache LockedExecutionLocalResultCache
+        {
+            get => _resultLocalCache;
+            set
+            {
+                if (value is null)
+                {
+                    _resultLocalCache = CreatedDefaultResultLocalCache();
+                }
+                else
+                {
+                    _resultLocalCache = value;
+                }
+            }
+        }
 
         /// <summary>
         /// 默认的最大可缓存响应长度
@@ -113,5 +141,14 @@ namespace Cuture.AspNetCore.ResponseCaching
         public ResponseCachingOptions Value => this;
 
         #endregion Public 属性
+
+        #region Private 方法
+
+        private static IMemoryCache CreatedDefaultResultLocalCache()
+        {
+            return new MemoryCache(new MemoryCacheOptions());
+        }
+
+        #endregion Private 方法
     }
 }
