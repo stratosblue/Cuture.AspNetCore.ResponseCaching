@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
@@ -68,6 +70,11 @@ namespace Cuture.AspNetCore.ResponseCaching
         public int MaxCacheKeyLength { get; }
 
         /// <summary>
+        /// 无法使用锁执行请求时（Semaphore池用尽）的回调
+        /// </summary>
+        public Func<string, FilterContext, Task> OnCannotExecutionThroughLock { get; }
+
+        /// <summary>
         /// 响应缓存容器
         /// </summary>
         public IResponseCache ResponseCache { get; }
@@ -110,6 +117,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             ExecutingLocker = executingLocker;
             ResponseCache = responseCache ?? throw new ArgumentNullException(nameof(responseCache));
             CacheDeterminer = cacheDeterminer ?? throw new ArgumentNullException(nameof(cacheDeterminer));
+            OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultCannotExecutionThroughLockCallback.SetStatus429;
             Duration = cachingAttribute.Duration > 1 ? cachingAttribute.Duration : throw new ArgumentOutOfRangeException($"{nameof(cachingAttribute.Duration)}  can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} seconds");
             DumpStreamFactory = new DefaultDumpStreamFactory(_cachingAttribute.DumpCapacity);
 

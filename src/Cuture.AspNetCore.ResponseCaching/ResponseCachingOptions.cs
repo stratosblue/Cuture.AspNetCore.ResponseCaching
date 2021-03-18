@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
@@ -34,7 +36,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value == CacheStoreLocation.Default)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(DefaultCacheStoreLocation),$"不能为 {nameof(CacheStoreLocation.Default)}");
+                    throw new ArgumentOutOfRangeException(nameof(DefaultCacheStoreLocation), $"不能为 {nameof(CacheStoreLocation.Default)}");
                 }
                 _defaultCacheStoreLocation = value;
             }
@@ -136,6 +138,13 @@ namespace Cuture.AspNetCore.ResponseCaching
                 _maxCacheKeyLength = value;
             }
         }
+
+        /// <summary>
+        /// 无法使用锁执行请求时（Semaphore池用尽）的回调
+        /// <para/>
+        /// 默认只会返回状态429
+        /// </summary>
+        public Func<string, FilterContext, Task>? OnCannotExecutionThroughLock { get; }
 
         /// <inheritdoc/>
         public ResponseCachingOptions Value => this;
