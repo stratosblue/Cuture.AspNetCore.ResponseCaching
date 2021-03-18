@@ -44,8 +44,7 @@ namespace Microsoft.Extensions.ObjectPool
         /// <inheritdoc cref="DefaultBoundedObjectPool{T}"/>
         /// </summary>
         /// <param name="lifecycleExecutor">对象生命周期执行器</param>
-        /// <param name="poolMaximum">最大对象数量</param>
-        /// <param name="minimumRetained">最小保留对象数量</param>
+        /// <param name="options">配置选项</param>
         public DefaultBoundedObjectPool(IObjectLifecycleExecutor<T> lifecycleExecutor, BoundedObjectPoolOptions options)
         {
             _lifecycleExecutor = lifecycleExecutor ?? throw new ArgumentNullException(nameof(lifecycleExecutor));

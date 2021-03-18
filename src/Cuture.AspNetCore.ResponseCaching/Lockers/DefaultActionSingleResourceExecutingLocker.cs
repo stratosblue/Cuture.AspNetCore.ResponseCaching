@@ -23,7 +23,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
         #region Public 属性
 
         /// <inheritdoc/>
-        public bool IsShared { get; private set; }
+        public bool IsShared { get; private set; } = true;
 
         #endregion Public 属性
 

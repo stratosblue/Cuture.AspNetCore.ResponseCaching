@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Cuture.AspNetCore.ResponseCaching.Lockers
 {
-    public class DefaultExecutingLockerProvider : IExecutingLockerProvider
+    internal class DefaultExecutingLockerProvider : IExecutingLockerProvider
     {
         #region Private 字段
 
