@@ -20,6 +20,13 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         #endregion Private 字段
 
+        #region Public 属性
+
+        /// <inheritdoc/>
+        public bool IsShared { get; private set; }
+
+        #endregion Public 属性
+
         #region Public 构造函数
 
         public DefaultActionSingleResourceExecutingLocker(IOptions<ResponseCachingOptions> options, ExecutionLockStatePool<ResponseCacheEntry> executionLockStatePool) : base(options)

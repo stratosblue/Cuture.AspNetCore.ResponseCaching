@@ -59,7 +59,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         private readonly IDirectBoundedObjectPool<SemaphoreSlim> _semaphorePool;
         private readonly IRecyclePool<SemaphoreSlim> _semaphoreRecyclePool;
         private Dictionary<string, ExecutionLockState<TStatePayload>> _allLockState = new();
-        private bool _isDisposed = false;
+        private bool _disposedValue;
 
         #endregion Private 字段
 
@@ -75,28 +75,6 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         #endregion Public 构造函数
 
         #region Public 方法
-
-        /// <summary>
-        ///
-        /// </summary>
-        public void Dispose()
-        {
-            if (_isDisposed)
-            {
-                return;
-            }
-            _isDisposed = true;
-
-            var all = _allLockState;
-            _allLockState = null!;
-            var tmpLockStates = all.ToImmutableArray();
-            foreach (var item in tmpLockStates)
-            {
-                var semaphore = item.Value.Lock;
-                item.Value.Lock = null!;
-                _semaphoreRecyclePool.Return(semaphore);
-            }
-        }
 
         /// <summary>
         /// 获取锁
@@ -156,11 +134,43 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CheckDisposed()
         {
-            if (_isDisposed)
+            if (_disposedValue)
             {
                 throw new ObjectDisposedException(nameof(ExecutionLockStatePool<TStatePayload>));
             }
         }
+
+        #region Dispose
+
+        ~ExecutionLockStatePool()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                var all = _allLockState;
+                _allLockState = null!;
+                var tmpLockStates = all.ToImmutableArray();
+                foreach (var item in tmpLockStates)
+                {
+                    var semaphore = item.Value.Lock;
+                    item.Value.Lock = null!;
+                    _semaphoreRecyclePool.Return(semaphore);
+                }
+                _disposedValue = true;
+            }
+        }
+
+        #endregion Dispose
 
         #endregion Private 方法
     }

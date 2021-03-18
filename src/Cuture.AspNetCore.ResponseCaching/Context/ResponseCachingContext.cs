@@ -16,11 +16,12 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     /// <typeparam name="TFilterContext">FilterContext</typeparam>
     /// <typeparam name="TLocalCachingData">本地缓存类型</typeparam>
-    public class ResponseCachingContext<TFilterContext, TLocalCachingData> where TFilterContext : FilterContext
+    public class ResponseCachingContext<TFilterContext, TLocalCachingData> : IDisposable where TFilterContext : FilterContext
     {
         #region Private 字段
 
         private readonly ResponseCachingAttribute _cachingAttribute;
+        private bool _disposedValue;
 
         #endregion Private 字段
 
@@ -76,7 +77,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Public 构造函数
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="cachingAttribute"></param>
         /// <param name="cacheKeyGenerator"></param>
@@ -102,7 +103,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                                             ? MaxCacheableResponseLength
                                             : MaxCacheableResponseLength == -1
                                                 ? options.MaxCacheableResponseLength
-                                                : throw new ArgumentOutOfRangeException($"Unavailable value of {nameof(MaxCacheableResponseLength)}");
+                                                : throw new ArgumentOutOfRangeException(nameof(MaxCacheableResponseLength), $"Unavailable value");
             MaxCacheKeyLength = options.MaxCacheKeyLength;
 
             KeyGenerator = cacheKeyGenerator ?? throw new ArgumentNullException(nameof(cacheKeyGenerator));
@@ -116,5 +117,34 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         #endregion Public 构造函数
+
+        #region Dispose
+
+        ~ResponseCachingContext()
+        {
+            Dispose(disposing: false);
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (ExecutingLocker is not null
+                    && !ExecutingLocker.IsShared)
+                {
+                    ExecutingLocker.Dispose();
+                }
+                _disposedValue = true;
+            }
+        }
+
+        #endregion Dispose
     }
 }

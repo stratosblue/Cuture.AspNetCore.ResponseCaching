@@ -34,7 +34,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value == CacheStoreLocation.Default)
                 {
-                    throw new ArgumentOutOfRangeException($"{nameof(DefaultCacheStoreLocation)} 不能为 {nameof(CacheStoreLocation.Default)}");
+                    throw new ArgumentOutOfRangeException(nameof(DefaultCacheStoreLocation),$"不能为 {nameof(CacheStoreLocation.Default)}");
                 }
                 _defaultCacheStoreLocation = value;
             }
@@ -52,7 +52,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value == ExecutingLockMode.Default)
                 {
-                    throw new ArgumentOutOfRangeException($"{nameof(DefaultExecutingLockMode)} 不能为 {nameof(ExecutingLockMode.Default)}");
+                    throw new ArgumentOutOfRangeException(nameof(DefaultExecutingLockMode), $"不能为 {nameof(ExecutingLockMode.Default)}");
                 }
                 _defaultLockMode = value;
             }
@@ -73,7 +73,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value == CacheKeyStrictMode.Default)
                 {
-                    throw new ArgumentOutOfRangeException($"{nameof(DefaultStrictMode)} 不能为 {nameof(CacheKeyStrictMode.Default)}");
+                    throw new ArgumentOutOfRangeException(nameof(DefaultStrictMode), $"不能为 {nameof(CacheKeyStrictMode.Default)}");
                 }
                 _defaultStrictMode = value;
             }
@@ -131,7 +131,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value < 2)
                 {
-                    throw new ArgumentOutOfRangeException($"{nameof(MaxCacheKeyLength)} 不能小于 2");
+                    throw new ArgumentOutOfRangeException(nameof(MaxCacheKeyLength), "不能小于 2");
                 }
                 _maxCacheKeyLength = value;
             }

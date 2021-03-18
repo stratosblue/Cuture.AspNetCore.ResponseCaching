@@ -24,7 +24,7 @@ namespace Microsoft.AspNetCore.Mvc
     {
         #region Private 字段
 
-        private SpinLock _createInstanceLock = new SpinLock(false);
+        private SpinLock _createInstanceLock = new(false);
 
         private int _dumpCapacity = ResponseCachingConstants.DefaultDumpCapacity;
         private IFilterMetadata? _filterMetadata;
@@ -276,7 +276,7 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 if (locked)
                 {
-                    _createInstanceLock.Exit();
+                    _createInstanceLock.Exit(false);
                 }
             }
         }

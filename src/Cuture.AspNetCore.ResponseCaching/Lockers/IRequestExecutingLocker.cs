@@ -13,14 +13,18 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
     /// <summary>
     /// http请求执行锁定器
     /// </summary>
-    public interface IRequestExecutingLocker<in TExecutingContext, TCachingData> where TExecutingContext : FilterContext
+    public interface IRequestExecutingLocker<in TExecutingContext, TCachingData> : IDisposable where TExecutingContext : FilterContext
     {
-        #region Public 方法
+        #region Public 属性
 
         /// <summary>
-        /// 释放相关资源
+        /// 是否是共享的
         /// </summary>
-        void Dispose();
+        bool IsShared { get; }
+
+        #endregion Public 属性
+
+        #region Public 方法
 
         /// <summary>
         /// 使用锁执行并处理缓存
