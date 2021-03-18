@@ -12,7 +12,7 @@
         /// 创建对象
         /// </summary>
         /// <returns></returns>
-        T Create();
+        T? Create();
 
         /// <summary>
         /// 销毁对象

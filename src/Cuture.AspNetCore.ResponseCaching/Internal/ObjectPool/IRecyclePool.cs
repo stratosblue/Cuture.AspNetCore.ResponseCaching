@@ -1,7 +1,5 @@
 ﻿namespace Microsoft.Extensions.ObjectPool
 {
-    //HACK 目前定义为内部接口，不允许外部手动返还对象。是否该放宽限制
-
     /// <summary>
     /// 回收池
     /// </summary>

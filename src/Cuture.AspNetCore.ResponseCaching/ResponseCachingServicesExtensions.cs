@@ -11,6 +11,7 @@ using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
@@ -43,15 +44,32 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IExecutingLockerProvider, DefaultExecutingLockerProvider>();
 
-            var semaphorePool = BoundedObjectPool.Create(new SinglePassSemaphoreLifecycleExecutor(), new BoundedObjectPoolOptions()
+            var boundedObjectPoolOptions = new BoundedObjectPoolOptions()
             {
                 MaximumPooled = short.MaxValue >> 2,
                 MinimumRetained = short.MaxValue >> 4,
                 RecycleInterval = TimeSpan.FromMinutes(4)
+            };
+
+            var semaphorePool = BoundedObjectPool.Create(new SinglePassSemaphoreLifecycleExecutor(), boundedObjectPoolOptions);
+
+            services.TryAddSingleton((INakedBoundedObjectPool<SemaphoreSlim>)semaphorePool);
+
+            services.TryAddSingleton(typeof(ExecutionLockStateLifecycleExecutor<>));
+
+            services.TryAddSingleton(services =>
+            {
+                var lifecycleExecutor = services.GetRequiredService<ExecutionLockStateLifecycleExecutor<IActionResult>>();
+                var pool = BoundedObjectPool.Create(lifecycleExecutor, boundedObjectPoolOptions);
+                return (INakedBoundedObjectPool<ExecutionLockState<IActionResult>>)pool;
             });
 
-            services.TryAddSingleton(semaphorePool as IDirectBoundedObjectPool<SemaphoreSlim>);
-            services.TryAddSingleton(semaphorePool as IRecyclePool<SemaphoreSlim>);
+            services.TryAddSingleton(services =>
+            {
+                var lifecycleExecutor = services.GetRequiredService<ExecutionLockStateLifecycleExecutor<ResponseCacheEntry>>();
+                var pool = BoundedObjectPool.Create(lifecycleExecutor, boundedObjectPoolOptions);
+                return (INakedBoundedObjectPool<ExecutionLockState<ResponseCacheEntry>>)pool;
+            });
 
             services.TryAddSingleton(serviceProvider => new CachingDiagnostics(serviceProvider));
             services.TryAddSingleton<CachingDiagnosticsAccessor>();

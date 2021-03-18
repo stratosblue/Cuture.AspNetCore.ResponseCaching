@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.ObjectPool
     /// 有限大小的对象池
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class DefaultBoundedObjectPool<T> : IBoundedObjectPool<T>, IDirectBoundedObjectPool<T>, IRecyclePool<T> where T : class
+    internal class DefaultBoundedObjectPool<T> : INakedBoundedObjectPool<T>, IBoundedObjectPool<T> where T : class
     {
         #region Private 字段
 

@@ -56,8 +56,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
     {
         #region Private 字段
 
-        private readonly IDirectBoundedObjectPool<SemaphoreSlim> _semaphorePool;
-        private readonly IRecyclePool<SemaphoreSlim> _semaphoreRecyclePool;
+        private readonly INakedBoundedObjectPool<ExecutionLockState<TStatePayload>> _lockStatePool;
         private Dictionary<string, ExecutionLockState<TStatePayload>> _allLockState = new();
         private bool _disposedValue;
 
@@ -65,11 +64,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
 
         #region Public 构造函数
 
-        public ExecutionLockStatePool(IDirectBoundedObjectPool<SemaphoreSlim> semaphorePool,
-                                      IRecyclePool<SemaphoreSlim> semaphoreRecyclePool)
+        public ExecutionLockStatePool(INakedBoundedObjectPool<ExecutionLockState<TStatePayload>> lockStatePool)
         {
-            _semaphorePool = semaphorePool;
-            _semaphoreRecyclePool = semaphoreRecyclePool;
+            _lockStatePool = lockStatePool;
         }
 
         #endregion Public 构造函数
@@ -85,17 +82,16 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
         {
             CheckDisposed();
 
-            ExecutionLockState<TStatePayload> state;
+            ExecutionLockState<TStatePayload>? state;
             lock (_allLockState)
             {
-                if (!_allLockState.TryGetValue(key, out state!))
+                if (!_allLockState.TryGetValue(key, out state))
                 {
-                    var semaphore = _semaphorePool.Rent();
-                    if (semaphore is null)
+                    state = _lockStatePool.Rent();
+                    if (state is null)
                     {
                         return null;
                     }
-                    state = new ExecutionLockState<TStatePayload>(semaphore);
                     _allLockState.Add(key, state);
                 }
                 Interlocked.Add(ref state.ReferenceCount, 1);
@@ -123,7 +119,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
                         }
                     }
                 }
-                _semaphoreRecyclePool.Return(item.Lock);
+                _lockStatePool.Return(item);
             }
         }
 
@@ -162,9 +158,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
                 var tmpLockStates = all.ToImmutableArray();
                 foreach (var item in tmpLockStates)
                 {
-                    var semaphore = item.Value.Lock;
-                    item.Value.Lock = null!;
-                    _semaphoreRecyclePool.Return(semaphore);
+                    _lockStatePool.Return(item.Value);
                 }
                 _disposedValue = true;
             }

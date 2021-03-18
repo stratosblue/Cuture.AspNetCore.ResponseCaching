@@ -139,13 +139,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         protected ExecutionLockStatePool<TStatePayload> CreateRunLockSemaphorePool<TStatePayload>() where TStatePayload : class
         {
-            return new ExecutionLockStatePool<TStatePayload>(RequiredService<IDirectBoundedObjectPool<SemaphoreSlim>>(),
-                                                             RequiredService<IRecyclePool<SemaphoreSlim>>());
+            return new ExecutionLockStatePool<TStatePayload>(RequiredService<INakedBoundedObjectPool<ExecutionLockState<TStatePayload>>>());
         }
 
         protected IOptions<TOptions> RequiredOptions<TOptions>() where TOptions : class, new() => ServiceProvider.GetRequiredService<IOptions<TOptions>>();
 
-        protected TService RequiredService<TService>() => ServiceProvider.GetRequiredService<TService>();
+        protected TService RequiredService<TService>() where TService : notnull => ServiceProvider.GetRequiredService<TService>();
 
         #endregion Protected 方法
     }

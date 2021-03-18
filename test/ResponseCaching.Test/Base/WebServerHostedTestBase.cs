@@ -35,7 +35,10 @@ namespace ResponseCaching.Test.Base
         [TestCleanup]
         public virtual async Task CleanupAsync()
         {
-            await WebHost.StopAsync();
+            if (WebHost != null)
+            {
+                await WebHost.StopAsync();
+            }
         }
 
         protected virtual Task ConfigureWebHost(IHostBuilder hostBuilder) => Task.CompletedTask;
