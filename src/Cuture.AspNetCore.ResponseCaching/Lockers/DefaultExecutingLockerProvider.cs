@@ -27,7 +27,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         #region Public 方法
 
-        public object GetLocker(Type lockerType, string name)
+        public TTargetExecutingLocker GetLocker<TTargetExecutingLocker>(Type lockerType, string name)
         {
             Debug.WriteLine($"Get ExecutingLocker Type：{lockerType} - name：{name}");
 
@@ -36,7 +36,11 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
                 throw new ResponseCachingException($"没有找到指定类型的ExecutingLockerCreator：{lockerType}");
             }
 
-            return lockerCreator.CreateLocker(name);
+            if (lockerCreator.CreateLocker(name) is TTargetExecutingLocker executingLocker)
+            {
+                return executingLocker;
+            }
+            throw new ResponseCachingException($"无法使用类型 {lockerType} 获取到 {typeof(TTargetExecutingLocker)}");
         }
 
         #endregion Public 方法

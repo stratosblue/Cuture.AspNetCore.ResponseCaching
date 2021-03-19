@@ -8,6 +8,7 @@ using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +55,8 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var lockMode = attribute.LockMode == ExecutingLockMode.Default ? options.DefaultExecutingLockMode : attribute.LockMode;
 
+            var executingLockerName = GetExecutingLockerName(serviceProvider);
+
             switch (filterType)
             {
                 case FilterType.Resource:
@@ -66,7 +69,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                         };
                         var executingLocker = executingLockerType is null
                                                 ? null
-                                                : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker(executingLockerType, string.Empty) as IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>;
+                                                : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker<IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>>(executingLockerType, executingLockerName);
                         var responseCachingContext = new ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry>(attribute,
                                                                                                                               cacheKeyGenerator,
                                                                                                                               executingLocker!,
@@ -86,7 +89,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                         };
                         var executingLocker = executingLockerType is null
                                                 ? null
-                                                : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker(executingLockerType, string.Empty) as IRequestExecutingLocker<ActionExecutingContext, IActionResult>;
+                                                : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker<IRequestExecutingLocker<ActionExecutingContext, IActionResult>>(executingLockerType, executingLockerName);
                         var responseCachingContext = new ResponseCachingContext<ActionExecutingContext, IActionResult>(attribute,
                                                                                                                        cacheKeyGenerator,
                                                                                                                        executingLocker!,
@@ -202,6 +205,13 @@ namespace Cuture.AspNetCore.ResponseCaching
             var interceptor = serviceProvider.GetRequiredService(type);
 
             return interceptor as ICachingProcessInterceptor;
+        }
+
+        private static string GetExecutingLockerName(IServiceProvider serviceProvider)
+        {
+            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+            var executingLockerAttribute = httpContextAccessor.HttpContext.GetEndpoint().Metadata.GetMetadata<ExecutingLockerAttribute>();
+            return executingLockerAttribute?.Name ?? string.Empty;
         }
 
         /// <summary>

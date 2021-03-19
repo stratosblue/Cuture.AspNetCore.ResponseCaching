@@ -129,7 +129,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Dispose
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         ~ResponseCachingContext()
         {
@@ -144,7 +144,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)

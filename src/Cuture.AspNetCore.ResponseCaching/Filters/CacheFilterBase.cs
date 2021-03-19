@@ -123,7 +123,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         #region Dispose
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         ~CacheFilterBase()
         {
@@ -138,7 +138,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)

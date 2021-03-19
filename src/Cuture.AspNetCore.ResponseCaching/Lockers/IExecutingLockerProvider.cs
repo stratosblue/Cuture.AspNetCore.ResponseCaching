@@ -15,7 +15,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
         /// <param name="lockerType"></param>
         /// <param name="name"></param>
         /// <returns></returns>
-        object GetLocker(Type lockerType, string name);
+        TTargetExecutingLocker GetLocker<TTargetExecutingLocker>(Type lockerType, string name);
 
         #endregion Public 方法
     }
