@@ -12,7 +12,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     /// <summary>
     /// 缓存处理拦截器 - 缓存命中标记响应头
     /// </summary>
-    public class CacheHitStampCachingProcessInterceptor : CachingProcessInterceptor
+    internal class CacheHitStampCachingProcessInterceptor : CachingProcessInterceptor
     {
         #region Private 字段
 

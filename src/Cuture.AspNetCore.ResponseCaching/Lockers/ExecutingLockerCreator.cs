@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 
 using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -26,7 +25,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         protected override object CreateLocker()
         {
-            return new DefaultActionExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateRunLockSemaphorePool<IActionResult>());
+            return new DefaultActionExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateExecutionLockStatePool<IActionResult>());
         }
 
         #endregion Protected 方法
@@ -34,10 +33,17 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
     internal class DefaultActionSingleActionExecutingLockerCreator : ExecutingLockerCreator
     {
+        #region Private 字段
+
+        private readonly ExecutionLockStatePool<IActionResult> _executionLockStatePool;
+
+        #endregion Private 字段
+
         #region Public 构造函数
 
         public DefaultActionSingleActionExecutingLockerCreator(IServiceProvider serviceProvider) : base(serviceProvider)
         {
+            _executionLockStatePool = CreateExecutionLockStatePool<IActionResult>();
         }
 
         #endregion Public 构造函数
@@ -46,7 +52,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         protected override object CreateLocker()
         {
-            return new DefaultActionSingleActionExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateRunLockSemaphorePool<IActionResult>());
+            return new DefaultActionSingleActionExecutingLocker(RequiredOptions<ResponseCachingOptions>(), _executionLockStatePool);
         }
 
         #endregion Protected 方法
@@ -54,10 +60,17 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
     internal class DefaultActionSingleResourceExecutingLockerCreator : ExecutingLockerCreator
     {
+        #region Private 字段
+
+        private readonly ExecutionLockStatePool<ResponseCacheEntry> _executionLockStatePool;
+
+        #endregion Private 字段
+
         #region Public 构造函数
 
         public DefaultActionSingleResourceExecutingLockerCreator(IServiceProvider serviceProvider) : base(serviceProvider)
         {
+            _executionLockStatePool = CreateExecutionLockStatePool<ResponseCacheEntry>();
         }
 
         #endregion Public 构造函数
@@ -66,7 +79,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         protected override object CreateLocker()
         {
-            return new DefaultActionSingleResourceExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateRunLockSemaphorePool<ResponseCacheEntry>());
+            return new DefaultActionSingleResourceExecutingLocker(RequiredOptions<ResponseCachingOptions>(), _executionLockStatePool);
         }
 
         #endregion Protected 方法
@@ -86,7 +99,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         protected override object CreateLocker()
         {
-            return new DefaultResourceExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateRunLockSemaphorePool<ResponseCacheEntry>());
+            return new DefaultResourceExecutingLocker(RequiredOptions<ResponseCachingOptions>(), CreateExecutionLockStatePool<ResponseCacheEntry>());
         }
 
         #endregion Protected 方法
@@ -135,12 +148,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         #region Protected 方法
 
-        protected abstract object CreateLocker();
-
-        protected ExecutionLockStatePool<TStatePayload> CreateRunLockSemaphorePool<TStatePayload>() where TStatePayload : class
+        protected ExecutionLockStatePool<TStatePayload> CreateExecutionLockStatePool<TStatePayload>() where TStatePayload : class
         {
             return new ExecutionLockStatePool<TStatePayload>(RequiredService<INakedBoundedObjectPool<ExecutionLockState<TStatePayload>>>());
         }
+
+        protected abstract object CreateLocker();
 
         protected IOptions<TOptions> RequiredOptions<TOptions>() where TOptions : class, new() => ServiceProvider.GetRequiredService<IOptions<TOptions>>();
 

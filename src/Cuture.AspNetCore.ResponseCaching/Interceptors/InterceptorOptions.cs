@@ -1,6 +1,5 @@
 ﻿using System;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching.Interceptors

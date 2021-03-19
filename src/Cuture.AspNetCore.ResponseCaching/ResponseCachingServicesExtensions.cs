@@ -34,6 +34,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddOptions<InterceptorOptions>();
 
+            services.TryAddSingleton<IResponseCachingFilterBuilder, DefaultResponseCachingFilterBuilder>();
+
             services.TryAddSingleton<IMemoryResponseCache, DefaultMemoryResponseCache>();
 
             services.TryAddSingleton<FullPathAndQueryCacheKeyGenerator>();
