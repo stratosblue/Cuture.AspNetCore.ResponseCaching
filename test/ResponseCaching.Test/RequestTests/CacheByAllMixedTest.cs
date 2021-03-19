@@ -55,11 +55,15 @@ namespace ResponseCaching.Test.RequestTests
                                 {
                                     for (int pageSize_m = 7; pageSize_m < 15; pageSize_m += 4)
                                     {
+                                        var t_page_m = page_m;
+                                        var t_pageSize_m = pageSize_m;
+                                        var t_page_h = page_h;
+                                        var t_pageSize_h = pageSize_h;
                                         result.Add(() => url.CreateHttpRequest()
                                                             .UsePost()
-                                                            .WithJsonContent(new PageResultRequestDto() { Page = page_m, PageSize = pageSize_m })
-                                                            .AddHeader("page", page_h.ToString())
-                                                            .AddHeader("pageSize", pageSize_h.ToString())
+                                                            .WithJsonContent(new PageResultRequestDto() { Page = t_page_m, PageSize = t_pageSize_m })
+                                                            .AddHeader("page", t_page_h.ToString())
+                                                            .AddHeader("pageSize", t_pageSize_h.ToString())
                                                             .UseCookie(cookie)
                                                             .TryGetAsObjectAsync<WeatherForecast[]>());
                                     }

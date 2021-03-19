@@ -165,10 +165,17 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         {
             if (Context.ExecutingLocker != null)
             {
-                await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
-                                                                        context,
-                                                                        inActionResult => SetResultToContextWithInterceptorAsync(context, inActionResult),
-                                                                        () => ExecutingAndReplaceResponseStreamAsync(context, next, key));
+                var executed = await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
+                                                                                       context,
+                                                                                       inActionResult => SetResultToContextWithInterceptorAsync(context, inActionResult),
+                                                                                       () => ExecutingAndReplaceResponseStreamAsync(context, next, key));
+                if (!executed)
+                {
+                    CachingDiagnostics.CannotExecutionThroughLock(key, context, Context);
+
+                    await Context.OnCannotExecutionThroughLock(key, context);
+                    return;
+                }
             }
             else
             {

@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -30,6 +34,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddOptions<InterceptorOptions>();
 
+            services.TryAddSingleton<IResponseCachingFilterBuilder, DefaultResponseCachingFilterBuilder>();
+
             services.TryAddSingleton<IMemoryResponseCache, DefaultMemoryResponseCache>();
 
             services.TryAddSingleton<FullPathAndQueryCacheKeyGenerator>();
@@ -38,11 +44,34 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IResponseCacheDeterminer, DefaultResponseCacheDeterminer>();
 
-            services.TryAddSingleton<IActionSingleResourceExecutingLocker, DefaultActionSingleResourceExecutingLocker>();
-            services.TryAddSingleton<ICacheKeySingleResourceExecutingLocker, DefaultResourceExecutingLocker>();
+            services.TryAddSingleton<IExecutingLockerProvider, DefaultExecutingLockerProvider>();
 
-            services.TryAddSingleton<IActionSingleActionExecutingLocker, DefaultActionSingleActionExecutingLocker>();
-            services.TryAddSingleton<ICacheKeySingleActionExecutingLocker, DefaultActionExecutingLocker>();
+            var boundedObjectPoolOptions = new BoundedObjectPoolOptions()
+            {
+                MaximumPooled = short.MaxValue >> 2,
+                MinimumRetained = short.MaxValue >> 4,
+                RecycleInterval = TimeSpan.FromMinutes(4)
+            };
+
+            var semaphorePool = BoundedObjectPool.Create(new SinglePassSemaphoreLifecycleExecutor(), boundedObjectPoolOptions);
+
+            services.TryAddSingleton((INakedBoundedObjectPool<SemaphoreSlim>)semaphorePool);
+
+            services.TryAddSingleton(typeof(ExecutionLockStateLifecycleExecutor<>));
+
+            services.TryAddSingleton(services =>
+            {
+                var lifecycleExecutor = services.GetRequiredService<ExecutionLockStateLifecycleExecutor<IActionResult>>();
+                var pool = BoundedObjectPool.Create(lifecycleExecutor, boundedObjectPoolOptions);
+                return (INakedBoundedObjectPool<ExecutionLockState<IActionResult>>)pool;
+            });
+
+            services.TryAddSingleton(services =>
+            {
+                var lifecycleExecutor = services.GetRequiredService<ExecutionLockStateLifecycleExecutor<ResponseCacheEntry>>();
+                var pool = BoundedObjectPool.Create(lifecycleExecutor, boundedObjectPoolOptions);
+                return (INakedBoundedObjectPool<ExecutionLockState<ResponseCacheEntry>>)pool;
+            });
 
             services.TryAddSingleton(serviceProvider => new CachingDiagnostics(serviceProvider));
             services.TryAddSingleton<CachingDiagnosticsAccessor>();

@@ -5,7 +5,7 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// <summary>
     /// 默认转储Stream工厂
     /// </summary>
-    public class DefaultDumpStreamFactory : IDumpStreamFactory
+    internal class DefaultDumpStreamFactory : IDumpStreamFactory
     {
         #region Public 属性
 
@@ -32,7 +32,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Public 方法
 
         /// <inheritdoc/>
-        public MemoryStream Create() => new MemoryStream(InitialCapacity);
+        public MemoryStream Create() => new(InitialCapacity);
 
         #endregion Public 方法
     }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
@@ -16,11 +18,12 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     /// <typeparam name="TFilterContext">FilterContext</typeparam>
     /// <typeparam name="TLocalCachingData">本地缓存类型</typeparam>
-    public class ResponseCachingContext<TFilterContext, TLocalCachingData> where TFilterContext : FilterContext
+    public class ResponseCachingContext<TFilterContext, TLocalCachingData> : IDisposable where TFilterContext : FilterContext
     {
         #region Private 字段
 
         private readonly ResponseCachingAttribute _cachingAttribute;
+        private bool _disposedValue;
 
         #endregion Private 字段
 
@@ -67,6 +70,11 @@ namespace Cuture.AspNetCore.ResponseCaching
         public int MaxCacheKeyLength { get; }
 
         /// <summary>
+        /// 无法使用锁执行请求时（Semaphore池用尽）的回调
+        /// </summary>
+        public Func<string, FilterContext, Task> OnCannotExecutionThroughLock { get; }
+
+        /// <summary>
         /// 响应缓存容器
         /// </summary>
         public IResponseCache ResponseCache { get; }
@@ -76,7 +84,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Public 构造函数
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="cachingAttribute"></param>
         /// <param name="cacheKeyGenerator"></param>
@@ -102,13 +110,14 @@ namespace Cuture.AspNetCore.ResponseCaching
                                             ? MaxCacheableResponseLength
                                             : MaxCacheableResponseLength == -1
                                                 ? options.MaxCacheableResponseLength
-                                                : throw new ArgumentOutOfRangeException($"Unavailable value of {nameof(MaxCacheableResponseLength)}");
+                                                : throw new ArgumentOutOfRangeException(nameof(MaxCacheableResponseLength), $"Unavailable value");
             MaxCacheKeyLength = options.MaxCacheKeyLength;
 
             KeyGenerator = cacheKeyGenerator ?? throw new ArgumentNullException(nameof(cacheKeyGenerator));
             ExecutingLocker = executingLocker;
             ResponseCache = responseCache ?? throw new ArgumentNullException(nameof(responseCache));
             CacheDeterminer = cacheDeterminer ?? throw new ArgumentNullException(nameof(cacheDeterminer));
+            OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultCannotExecutionThroughLockCallback.SetStatus429;
             Duration = cachingAttribute.Duration > 1 ? cachingAttribute.Duration : throw new ArgumentOutOfRangeException($"{nameof(cachingAttribute.Duration)}  can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} seconds");
             DumpStreamFactory = new DefaultDumpStreamFactory(_cachingAttribute.DumpCapacity);
 
@@ -116,5 +125,41 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         #endregion Public 构造函数
+
+        #region Dispose
+
+        /// <summary>
+        ///
+        /// </summary>
+        ~ResponseCachingContext()
+        {
+            Dispose(disposing: false);
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (ExecutingLocker is not null
+                    && !ExecutingLocker.IsShared)
+                {
+                    ExecutingLocker.Dispose();
+                }
+                _disposedValue = true;
+            }
+        }
+
+        #endregion Dispose
     }
 }

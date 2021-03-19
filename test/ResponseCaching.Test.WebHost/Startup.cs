@@ -32,14 +32,14 @@ namespace ResponseCaching.Test.WebHost
 
             var redisConfigureString = Configuration.GetValue<string>("ResponseCache_Test_Redis");
             services.AddCaching(Configuration.GetSection("Caching:ResponseCaching"))
-                    .UseRedisResponseCache(redisConfigureString, Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
+                    //.UseRedisResponseCache(redisConfigureString, Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
                     .AddDiagnosticDebugLogger();
 
             //HACK 清理缓存，避免影响测试 -- 连接字符串需要添加 allowAdmin=true
-            {
-                var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfigureString);
-                connectionMultiplexer.GetServer(redisConfigureString.Split(',')[0]).FlushAllDatabases();
-            }
+            //{
+            //    var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfigureString);
+            //    connectionMultiplexer.GetServer(redisConfigureString.Split(',')[0]).FlushAllDatabases();
+            //}
 
             services.AddControllers();
 

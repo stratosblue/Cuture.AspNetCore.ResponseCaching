@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching
@@ -17,6 +20,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         private CacheKeyStrictMode _defaultStrictMode = CacheKeyStrictMode.Ignore;
         private int _maxCacheableResponseLength = ResponseCachingConstants.DefaultMaxCacheableResponseLength;
         private int _maxCacheKeyLength = ResponseCachingConstants.DefaultMaxCacheKeyLength;
+        private IMemoryCache _resultLocalCache = CreatedDefaultResultLocalCache();
 
         #endregion Private 字段
 
@@ -32,7 +36,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value == CacheStoreLocation.Default)
                 {
-                    throw new ArgumentOutOfRangeException($"{nameof(DefaultCacheStoreLocation)} 不能为 {nameof(CacheStoreLocation.Default)}");
+                    throw new ArgumentOutOfRangeException(nameof(DefaultCacheStoreLocation), $"不能为 {nameof(CacheStoreLocation.Default)}");
                 }
                 _defaultCacheStoreLocation = value;
             }
@@ -50,11 +54,16 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value == ExecutingLockMode.Default)
                 {
-                    throw new ArgumentOutOfRangeException($"{nameof(DefaultExecutingLockMode)} 不能为 {nameof(ExecutingLockMode.Default)}");
+                    throw new ArgumentOutOfRangeException(nameof(DefaultExecutingLockMode), $"不能为 {nameof(ExecutingLockMode.Default)}");
                 }
                 _defaultLockMode = value;
             }
         }
+
+        /// <summary>
+        /// 锁定执行时，默认的本地缓存可用时间（毫秒）
+        /// </summary>
+        public uint DefaultLocalCacheAvailableMilliseconds { get; set; } = 1500;
 
         /// <summary>
         /// 默认缓存键的严格模式
@@ -66,7 +75,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value == CacheKeyStrictMode.Default)
                 {
-                    throw new ArgumentOutOfRangeException($"{nameof(DefaultStrictMode)} 不能为 {nameof(CacheKeyStrictMode.Default)}");
+                    throw new ArgumentOutOfRangeException(nameof(DefaultStrictMode), $"不能为 {nameof(CacheKeyStrictMode.Default)}");
                 }
                 _defaultStrictMode = value;
             }
@@ -76,6 +85,27 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 是否启用
         /// </summary>
         public bool Enable { get; set; } = true;
+
+        /// <summary>
+        /// 锁定执行时，响应值本地缓存使用的 <see cref="IMemoryCache"/>
+        /// <para/>
+        /// 不设置或置空时将会使用<see cref="MemoryCache"/>构造一个，其参数为默认的<see cref="MemoryCacheOptions"/>
+        /// </summary>
+        public IMemoryCache LockedExecutionLocalResultCache
+        {
+            get => _resultLocalCache;
+            set
+            {
+                if (value is null)
+                {
+                    _resultLocalCache = CreatedDefaultResultLocalCache();
+                }
+                else
+                {
+                    _resultLocalCache = value;
+                }
+            }
+        }
 
         /// <summary>
         /// 默认的最大可缓存响应长度
@@ -103,15 +133,31 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 if (value < 2)
                 {
-                    throw new ArgumentOutOfRangeException($"{nameof(MaxCacheKeyLength)} 不能小于 2");
+                    throw new ArgumentOutOfRangeException(nameof(MaxCacheKeyLength), "不能小于 2");
                 }
                 _maxCacheKeyLength = value;
             }
         }
 
+        /// <summary>
+        /// 无法使用锁执行请求时（Semaphore池用尽）的回调
+        /// <para/>
+        /// 默认只会返回状态429
+        /// </summary>
+        public Func<string, FilterContext, Task>? OnCannotExecutionThroughLock { get; }
+
         /// <inheritdoc/>
         public ResponseCachingOptions Value => this;
 
         #endregion Public 属性
+
+        #region Private 方法
+
+        private static IMemoryCache CreatedDefaultResultLocalCache()
+        {
+            return new MemoryCache(new MemoryCacheOptions());
+        }
+
+        #endregion Private 方法
     }
 }

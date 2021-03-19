@@ -14,11 +14,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
     /// <summary>
     /// CacheFilter基类
     /// </summary>
-    public abstract class CacheFilterBase<TFilterExecutingContext, TLocalCachingData> where TFilterExecutingContext : FilterContext
+    public abstract class CacheFilterBase<TFilterExecutingContext, TLocalCachingData> : IDisposable where TFilterExecutingContext : FilterContext
     {
         #region Private 字段
 
         private readonly CachingDiagnosticsAccessor _cachingDiagnosticsAccessor;
+        private bool _disposedValue;
 
         #endregion Private 字段
 
@@ -118,5 +119,37 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         }
 
         #endregion Protected 方法
+
+        #region Dispose
+
+        /// <summary>
+        ///
+        /// </summary>
+        ~CacheFilterBase()
+        {
+            Dispose(disposing: false);
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                Context.Dispose();
+                _disposedValue = true;
+            }
+        }
+
+        #endregion Dispose
     }
 }

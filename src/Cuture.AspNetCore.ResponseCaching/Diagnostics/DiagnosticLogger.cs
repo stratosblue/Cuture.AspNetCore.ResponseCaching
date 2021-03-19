@@ -13,7 +13,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
     {
         #region Private 字段
 
-        private readonly ILogger<CachingDiagnostics> _logger;
+        private readonly ILogger _logger;
 
         #endregion Private 字段
 

@@ -13,14 +13,18 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
     /// <summary>
     /// http请求执行锁定器
     /// </summary>
-    public interface IRequestExecutingLocker<in TExecutingContext, TCachingData> where TExecutingContext : FilterContext
+    public interface IRequestExecutingLocker<in TExecutingContext, TCachingData> : IDisposable where TExecutingContext : FilterContext
     {
-        #region Public 方法
+        #region Public 属性
 
         /// <summary>
-        /// 释放相关资源
+        /// 是否是共享的
         /// </summary>
-        void Dispose();
+        bool IsShared { get; }
+
+        #endregion Public 属性
+
+        #region Public 方法
 
         /// <summary>
         /// 使用锁执行并处理缓存
@@ -29,8 +33,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
         /// <param name="executingContext">执行上下文</param>
         /// <param name="cacheAvailableFunc">缓存可用时的委托</param>
         /// <param name="cacheUnAvailableFunc">缓存不可用时的委托</param>
-        /// <returns></returns>
-        Task ProcessCacheWithLockAsync(string cacheKey, TExecutingContext executingContext, Func<TCachingData, Task> cacheAvailableFunc, Func<Task<TCachingData?>> cacheUnAvailableFunc);
+        /// <returns>是否已加锁执行<para/>true：是，已执行后续委托<para/>false：否，由于某些原因，没有执行后续委托</returns>
+        Task<bool> ProcessCacheWithLockAsync(string cacheKey, TExecutingContext executingContext, Func<TCachingData, Task> cacheAvailableFunc, Func<Task<TCachingData?>> cacheUnAvailableFunc);
 
         #endregion Public 方法
     }

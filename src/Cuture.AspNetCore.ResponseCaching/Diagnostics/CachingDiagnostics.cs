@@ -77,6 +77,16 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
             Logger.LogWarning("CacheKey is too long to cache. maxLength: {0} key: {1}", maxAvailableLength, key);
         }
 
+        /// <inheritdoc cref="CannotExecutionThroughLockEventData"/>
+        public void CannotExecutionThroughLock(string key, FilterContext filterContext, object context)
+        {
+            if (DiagnosticSource != null
+                && DiagnosticSource.IsEnabled(CannotExecutionThroughLockEventData.EventName))
+            {
+                DiagnosticSource.Write(CannotExecutionThroughLockEventData.EventName, new CannotExecutionThroughLockEventData(key, filterContext, context));
+            }
+        }
+
         /// <inheritdoc cref="EndProcessingCacheEventData"/>
         public void EndProcessingCache(FilterContext filterContext, object context)
         {

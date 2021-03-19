@@ -259,4 +259,30 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
             FilterContext = filterContext;
         }
     }
+
+    /// <summary>
+    /// 无法使用锁执行请求
+    /// </summary>
+    public class CannotExecutionThroughLockEventData : ResponseCachingEventData
+    {
+        /// <summary>
+        /// <inheritdoc cref="CannotExecutionThroughLockEventData"/>名称
+        /// </summary>
+        public const string EventName = DiagnosticName + ".CannotExecutionThroughLock";
+
+        /// <summary>
+        /// key
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <inheritdoc cref="Microsoft.AspNetCore.Mvc.Filters.FilterContext"/>
+        public FilterContext FilterContext { get; }
+
+        /// <inheritdoc cref="CannotExecutionThroughLockEventData"/>
+        public CannotExecutionThroughLockEventData(string key, FilterContext filterContext, object context) : base(context)
+        {
+            Key = key;
+            FilterContext = filterContext;
+        }
+    }
 }
