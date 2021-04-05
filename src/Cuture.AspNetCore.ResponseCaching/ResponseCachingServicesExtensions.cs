@@ -73,6 +73,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton(serviceProvider => new CachingDiagnostics(serviceProvider));
             services.TryAddSingleton<CachingDiagnosticsAccessor>();
 
+            services.TryAddSingleton<IHotDataCacheProvider, DefaultHotDataCacheProvider>();
+
             services.AddHttpContextAccessor();
 
             return new ResponseCachingBuilder(services);

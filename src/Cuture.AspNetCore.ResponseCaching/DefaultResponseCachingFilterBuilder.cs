@@ -209,9 +209,18 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         private static string GetExecutingLockerName(IServiceProvider serviceProvider)
         {
-            var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            var executingLockerAttribute = httpContextAccessor.HttpContext.GetEndpoint().Metadata.GetMetadata<ExecutingLockerAttribute>();
+            var executingLockerAttribute = GetHttpContextMetadata<ExecutingLockerAttribute>(serviceProvider);
             return executingLockerAttribute?.Name ?? string.Empty;
+        }
+
+        private static T? GetHttpContextMetadata<T>(IServiceProvider serviceProvider) where T : class
+        {
+            var endpoint = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetEndpoint();
+            if (endpoint is null)
+            {
+                throw new ResponseCachingException("Cannot access Endpoint by IHttpContextAccessor.");
+            }
+            return endpoint.Metadata.GetMetadata<T>();
         }
 
         /// <summary>
@@ -226,12 +235,31 @@ namespace Cuture.AspNetCore.ResponseCaching
                                                                 ? options.DefaultCacheStoreLocation
                                                                 : attribute.StoreLocation;
 
-            return storeLocation switch
+            switch (storeLocation)
             {
-                CacheStoreLocation.Distributed => serviceProvider.GetRequiredService<IDistributedResponseCache>(),
-                CacheStoreLocation.Memory => serviceProvider.GetRequiredService<IMemoryResponseCache>(),
-                _ => throw new ArgumentOutOfRangeException($"UnSupport cache location {storeLocation}"),
-            };
+                case CacheStoreLocation.Distributed:
+                    {
+                        var responseCache = serviceProvider.GetRequiredService<IDistributedResponseCache>();
+                        var hotDataCacheBuilder = GetHttpContextMetadata<IHotDataCacheBuilder>(serviceProvider);
+                        if (hotDataCacheBuilder is not null)
+                        {
+                            var hotDataCache = hotDataCacheBuilder.Build(serviceProvider);
+                            if (hotDataCache is null)
+                            {
+                                throw new ResponseCachingException($"The data cache {hotDataCacheBuilder.GetType()} provided is null.");
+                            }
+                            return new ResponseCacheHotDataCacheWrapper(responseCache, hotDataCache);
+                        }
+
+                        return responseCache;
+                    }
+                case CacheStoreLocation.Memory:
+                    return serviceProvider.GetRequiredService<IMemoryResponseCache>();
+
+                case CacheStoreLocation.Default:
+                default:
+                    throw new ArgumentException($"UnSupport cache location {storeLocation}");
+            }
         }
 
         /// <summary>
