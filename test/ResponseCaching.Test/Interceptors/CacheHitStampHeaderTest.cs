@@ -75,6 +75,7 @@ namespace ResponseCaching.Test.Interceptors
         public async Task Check()
         {
             await CheckRequestsAsync(GetRequestTasks(), httpResult => CheckNoCacheHeader(httpResult));
+            await Task.Delay(100);
             for (int i = 0; i < 5; i++)
             {
                 await CheckRequestsAsync(GetRequestTasks(), httpResult => CheckHasCacheHeader(httpResult));

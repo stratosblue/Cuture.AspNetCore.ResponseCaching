@@ -1,6 +1,4 @@
-﻿using System;
-
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
 {
@@ -11,7 +9,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
     {
         #region Private 字段
 
-        private readonly IBoundedMemoryCache<string, HotResponseCacheEntryWrapper> _boundedMemoryCache;
+        private readonly IBoundedMemoryCache<string, ResponseCacheEntry> _boundedMemoryCache;
 
         #endregion Private 字段
 
@@ -23,7 +21,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// <param name="capacity">容量</param>
         public LRUHotDataCache(int capacity)
         {
-            _boundedMemoryCache = BoundedMemoryCache.CreateLRU<string, HotResponseCacheEntryWrapper>(capacity);
+            _boundedMemoryCache = BoundedMemoryCache.CreateLRU<string, ResponseCacheEntry>(capacity);
         }
 
         #endregion Public 构造函数
@@ -40,20 +38,20 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         {
             if (_boundedMemoryCache.TryGet(key, out var result))
             {
-                if (result!.Expiration < DateTime.UtcNow)
+                if (result!.IsExpired())
                 {
                     _boundedMemoryCache.Remove(key);
                     return null;
                 }
-                return result.CacheEntry;
+                return result;
             }
             return null;
         }
 
         /// <inheritdoc/>
-        public void Set(string key, ResponseCacheEntry entry, int duration)
+        public void Set(string key, ResponseCacheEntry entry)
         {
-            _boundedMemoryCache.Add(key, new HotResponseCacheEntryWrapper(entry, DateTime.UtcNow.AddSeconds(duration)));
+            _boundedMemoryCache.Add(key, entry);
         }
 
         #endregion Public 方法

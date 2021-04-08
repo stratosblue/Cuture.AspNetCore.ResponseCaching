@@ -21,9 +21,8 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// </summary>
         /// <param name="key"></param>
         /// <param name="entry"></param>
-        /// <param name="duration">有效时长（秒）</param>
         /// <returns></returns>
-        void Set(string key, ResponseCacheEntry entry, int duration);
+        void Set(string key, ResponseCacheEntry entry);
 
         #endregion Public 方法
     }

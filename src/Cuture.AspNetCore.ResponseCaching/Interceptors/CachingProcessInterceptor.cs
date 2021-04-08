@@ -16,9 +16,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, int duration, Func<string, ResponseCacheEntry, int, Task<ResponseCacheEntry>> storeFunc)
+        public virtual Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, Func<string, ResponseCacheEntry, Task<ResponseCacheEntry>> storeFunc)
         {
-            return storeFunc(key, entry, duration);
+            return storeFunc(key, entry);
         }
 
         /// <inheritdoc/>

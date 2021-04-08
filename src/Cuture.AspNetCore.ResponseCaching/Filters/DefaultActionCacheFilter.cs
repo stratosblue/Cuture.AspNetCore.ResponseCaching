@@ -84,9 +84,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
 
                         if (responseBody.Length <= Context.MaxCacheableResponseLength)
                         {
-                            var cacheEntry = new ResponseCacheEntry(executingContext.HttpContext.Response.ContentType, responseBody);
+                            var cacheEntry = new ResponseCacheEntry(executingContext.HttpContext.Response.ContentType, responseBody, Context.Duration);
 
-                            await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, Context.Duration, SetCacheAsync);
+                            await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, SetCacheAsync);
                         }
                         else
                         {

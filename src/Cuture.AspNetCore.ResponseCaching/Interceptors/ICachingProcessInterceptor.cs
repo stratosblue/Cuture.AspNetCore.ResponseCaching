@@ -21,10 +21,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// <param name="actionContext">Http请求方法的上下文<see cref="ActionContext"/></param>
         /// <param name="key">缓存key</param>
         /// <param name="entry">缓存项</param>
-        /// <param name="duration">缓存时长</param>
         /// <param name="storeFunc">进行缓存的方法委托</param>
         /// <returns></returns>
-        Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, int duration, Func<string, ResponseCacheEntry, int, Task<ResponseCacheEntry>> storeFunc);
+        Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, Func<string, ResponseCacheEntry, Task<ResponseCacheEntry>> storeFunc);
 
         /// <summary>
         /// 在缓存将写入响应时

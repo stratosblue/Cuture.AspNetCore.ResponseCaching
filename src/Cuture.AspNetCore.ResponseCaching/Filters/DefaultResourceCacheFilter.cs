@@ -133,7 +133,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                 dumpStream.Position = 0;
                 await dumpStream.CopyToAsync(originalBody);
 
-                cacheEntry = new ResponseCacheEntry(response.ContentType, dumpStream.ToArray().AsMemory());
+                cacheEntry = new ResponseCacheEntry(response.ContentType, dumpStream.ToArray().AsMemory(), Context.Duration);
             }
             finally
             {
@@ -144,7 +144,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             {
                 if (cacheEntry.Body.Length <= Context.MaxCacheableResponseLength)
                 {
-                    await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, Context.Duration, SetCacheAsync);
+                    await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, SetCacheAsync);
                 }
                 else
                 {

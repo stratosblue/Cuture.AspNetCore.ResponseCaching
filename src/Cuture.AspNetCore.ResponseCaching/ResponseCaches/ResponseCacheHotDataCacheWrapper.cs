@@ -35,20 +35,28 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         }
 
         /// <inheritdoc/>
-        public Task<ResponseCacheEntry?> GetAsync(string key)
+        public async Task<ResponseCacheEntry?> GetAsync(string key)
         {
-            if (_hotDataCache.Get(key) is ResponseCacheEntry cacheEntry)
+            //HACK 此处未加锁，并发访问会穿透本地缓存
+            var cacheEntry = _hotDataCache.Get(key);
+            if (cacheEntry is not null
+                && !cacheEntry.IsExpired())
             {
-                return Task.FromResult(cacheEntry)!;
+                return cacheEntry;
             }
-            return _distributedCache.GetAsync(key);
+            cacheEntry = await _distributedCache.GetAsync(key);
+            if (cacheEntry is not null)
+            {
+                _hotDataCache.Set(key, cacheEntry);
+            }
+            return cacheEntry;
         }
 
         /// <inheritdoc/>
-        public Task SetAsync(string key, ResponseCacheEntry entry, int duration)
+        public Task SetAsync(string key, ResponseCacheEntry entry)
         {
-            _hotDataCache.Set(key, entry, duration);
-            return _distributedCache.SetAsync(key, entry, duration);
+            _hotDataCache.Set(key, entry);
+            return _distributedCache.SetAsync(key, entry);
         }
 
         #endregion Public 方法

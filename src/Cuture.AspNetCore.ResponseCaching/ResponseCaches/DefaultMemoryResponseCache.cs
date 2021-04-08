@@ -46,9 +46,9 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         }
 
         /// <inheritdoc/>
-        public Task SetAsync(string key, ResponseCacheEntry entry, int duration)
+        public Task SetAsync(string key, ResponseCacheEntry entry)
         {
-            _memoryCache.Set(key, entry, TimeSpan.FromSeconds(duration));
+            _memoryCache.Set(key, entry, entry.GetAbsoluteExpirationDateTimeOffset());
             return Task.CompletedTask;
         }
 

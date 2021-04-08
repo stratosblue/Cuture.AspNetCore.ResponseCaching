@@ -33,13 +33,14 @@ namespace ResponseCaching.Test.ResponseCaches
         [TestMethod]
         public async Task GetSetResponseEntry()
         {
+            //注意：redis所在系统时间与运行测试所在系统时间有误差时，会导致测试无法通过
             var duration = 1;
             var key = "ResponseCacheTestKey";
             var contentType = "application/json; charset=utf-8";
             var body = Encoding.UTF8.GetBytes(SimResponseContent);
-            var entry = new ResponseCacheEntry(contentType, body);
+            var entry = new ResponseCacheEntry(contentType, body, duration);
 
-            await ResponseCache.SetAsync(key, entry, duration);
+            await ResponseCache.SetAsync(key, entry);
 
             var cachedEntry = await ResponseCache.GetAsync(key);
 
@@ -55,6 +56,7 @@ namespace ResponseCaching.Test.ResponseCaches
         [TestMethod]
         public async Task ParallelGetSetResponseEntry()
         {
+            //注意：redis所在系统时间与运行测试所在系统时间有误差时，会导致测试无法通过
             var duration = 1;
 
             var tasks = Enumerable.Range(0, 500).Select(async index =>
@@ -62,9 +64,9 @@ namespace ResponseCaching.Test.ResponseCaches
                 var key = $"ResponseCacheTestKey_{index}";
                 var contentType = $"application/json; charset=utf-8; idx={index}";
                 var body = Encoding.UTF8.GetBytes($"{SimResponseContent}_{index}");
-                var entry = new ResponseCacheEntry(contentType, body);
+                var entry = new ResponseCacheEntry(contentType, body, duration);
 
-                await ResponseCache.SetAsync(key, entry, duration);
+                await ResponseCache.SetAsync(key, entry);
 
                 var cachedEntry = await ResponseCache.GetAsync(key);
 

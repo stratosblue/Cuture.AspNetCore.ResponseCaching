@@ -65,12 +65,11 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// </summary>
         /// <param name="key"></param>
         /// <param name="cacheEntry"></param>
-        /// <param name="duration"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected async Task<ResponseCacheEntry> SetCacheAsync(string key, ResponseCacheEntry cacheEntry, int duration)
+        protected async Task<ResponseCacheEntry> SetCacheAsync(string key, ResponseCacheEntry cacheEntry)
         {
-            await ResponseCache.SetAsync(key, cacheEntry, duration);
+            await ResponseCache.SetAsync(key, cacheEntry);
             return cacheEntry;
         }
 

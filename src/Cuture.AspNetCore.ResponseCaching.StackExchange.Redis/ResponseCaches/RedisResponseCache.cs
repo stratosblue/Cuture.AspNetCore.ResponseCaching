@@ -72,23 +72,24 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
             {
                 return null;
             }
-            if ((long)redisValues[2] < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+            var expire = (long)redisValues[2];
+            if (expire < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
             {
                 return null;
             }
-            return new ResponseCacheEntry(redisValues[0], redisValues[1]);
+            return new ResponseCacheEntry(redisValues[0], redisValues[1], expire);
         }
 
         /// <inheritdoc/>
-        public async Task SetAsync(string key, ResponseCacheEntry entry, int duration)
+        public async Task SetAsync(string key, ResponseCacheEntry entry)
         {
             RedisKey redisKey = key;
             await _database.HashSetAsync(redisKey, new[] {
                 new HashEntry(_contenTypeFieldName, entry.ContentType),
                 new HashEntry(_bodyFieldName, entry.Body),
-                new HashEntry(_expireFieldName, DateTimeOffset.UtcNow.AddSeconds(duration).ToUnixTimeSeconds()),
+                new HashEntry(_expireFieldName, entry.Expire),
             });
-            _ = _database.KeyExpireAsync(redisKey, TimeSpan.FromSeconds(duration));
+            _ = _database.KeyExpireAsync(redisKey, DateTimeOffset.FromUnixTimeMilliseconds(entry.Expire).UtcDateTime);
         }
 
         #endregion Public 方法
