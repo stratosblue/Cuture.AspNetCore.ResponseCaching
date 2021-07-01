@@ -14,6 +14,7 @@ namespace Microsoft.Extensions.ObjectPool
     {
         #region Private 字段
 
+        private readonly CancellationTokenSource _cleanTaskCancellationTokenSource;
         private readonly IObjectLifecycleExecutor<T> _lifecycleExecutor;
         private readonly int _maximumPooled;
         private readonly int _minimumRetained;
@@ -21,7 +22,6 @@ namespace Microsoft.Extensions.ObjectPool
         private readonly IPoolReductionPolicy _poolReductionPolicy;
         private readonly TimeSpan _recycleInterval;
         private readonly object _syncRoot = new();
-        private CancellationTokenSource _cleanTaskCancellationTokenSource;
         private bool _disposedValue;
         private long _lastCreateObjectTime = DateTimeOffset.UtcNow.Ticks;
         private volatile int _objectCount = 0;
@@ -64,7 +64,7 @@ namespace Microsoft.Extensions.ObjectPool
             }
             if (options.MaximumPooled < options.MinimumRetained)
             {
-                throw new ArgumentException($"{nameof(options.MaximumPooled)} must be larger than {nameof(options.MinimumRetained)}.", nameof(options.MaximumPooled));
+                throw new ArgumentException($"{nameof(options.MaximumPooled)} must be larger than {nameof(options.MinimumRetained)}.", nameof(options));
             }
             if (options.RecycleInterval < TimeSpan.Zero)
             {
@@ -150,9 +150,15 @@ namespace Microsoft.Extensions.ObjectPool
                 {
                 }
 
-                _cleanTaskCancellationTokenSource.Cancel(true);
-                _cleanTaskCancellationTokenSource.Dispose();
-                _cleanTaskCancellationTokenSource = null!;
+                try
+                {
+                    _cleanTaskCancellationTokenSource.Cancel();
+                }
+                catch { }
+                finally
+                {
+                    _cleanTaskCancellationTokenSource.Dispose();
+                }
 
                 _disposedValue = true;
             }

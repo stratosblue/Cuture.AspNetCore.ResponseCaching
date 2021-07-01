@@ -38,6 +38,9 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #region Semaphore
 
+        /// <summary>
+        /// 信号池的最大大小
+        /// </summary>
         public int MaximumSemaphorePooled
         {
             get => _maximumSemaphorePooled;
@@ -51,6 +54,9 @@ namespace Cuture.AspNetCore.ResponseCaching
             }
         }
 
+        /// <summary>
+        /// 信号池的最小保留大小
+        /// </summary>
         public int MinimumSemaphoreRetained
         {
             get => _minimumSemaphoreRetained;
@@ -64,6 +70,9 @@ namespace Cuture.AspNetCore.ResponseCaching
             }
         }
 
+        /// <summary>
+        /// 信号池的回收间隔
+        /// </summary>
         public TimeSpan SemaphoreRecycleInterval
         {
             get => _semaphoreRecycleInterval;
@@ -81,6 +90,9 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #region LockState
 
+        /// <summary>
+        /// 锁定内容的回收间隔
+        /// </summary>
         public TimeSpan LockStateRecycleInterval
         {
             get => _lockStateRecycleInterval;
@@ -94,6 +106,9 @@ namespace Cuture.AspNetCore.ResponseCaching
             }
         }
 
+        /// <summary>
+        /// 最大锁定内容池大小
+        /// </summary>
         public int MaximumLockStatePooled
         {
             get => _maximumLockStatePooled;
@@ -107,6 +122,9 @@ namespace Cuture.AspNetCore.ResponseCaching
             }
         }
 
+        /// <summary>
+        /// 最小锁定内容池保留大小
+        /// </summary>
         public int MinimumLockStateRetained
         {
             get => _minimumLockStateRetained;
@@ -122,16 +140,19 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #endregion LockState
 
+        /// <inheritdoc/>
         public ResponseCachingExecutingLockOptions Value => this;
 
         #endregion Public 属性
 
         #region Public 构造函数
 
+        /// <inheritdoc cref="ResponseCachingExecutingLockOptions"/>
         public ResponseCachingExecutingLockOptions()
         {
         }
 
+        /// <inheritdoc cref="ResponseCachingExecutingLockOptions"/>
         public ResponseCachingExecutingLockOptions(ILogger<ResponseCachingExecutingLockOptions> logger)
         {
             _logger = logger;

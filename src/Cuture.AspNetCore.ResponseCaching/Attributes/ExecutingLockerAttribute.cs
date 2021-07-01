@@ -14,6 +14,9 @@ namespace Microsoft.AspNetCore.Mvc
     {
         #region Public 属性
 
+        /// <summary>
+        /// ExecutingLocker 名称
+        /// </summary>
         public string Name { get; set; }
 
         #endregion Public 属性

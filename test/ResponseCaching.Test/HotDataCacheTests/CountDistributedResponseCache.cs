@@ -19,7 +19,7 @@ namespace ResponseCaching.Test.RequestTests
 
         #region Public 方法
 
-        public int Count(string? key)
+        public int Count(string key)
         {
             if (string.IsNullOrEmpty(key))
             {

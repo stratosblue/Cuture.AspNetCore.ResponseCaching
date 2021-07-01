@@ -191,6 +191,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 获取<see cref="ICachingProcessInterceptor"/>
         /// </summary>
         /// <param name="serviceProvider"></param>
+        /// <param name="attribute"></param>
         /// <returns></returns>
         private static ICachingProcessInterceptor? GetCachingProcessInterceptor(IServiceProvider serviceProvider, ResponseCachingAttribute attribute)
         {
@@ -227,6 +228,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 获取响应缓存容器
         /// </summary>
         /// <param name="serviceProvider"></param>
+        /// <param name="attribute"></param>
         /// <param name="options"></param>
         /// <returns></returns>
         private static IResponseCache GetResponseCache(IServiceProvider serviceProvider, ResponseCachingAttribute attribute, ResponseCachingOptions options)
@@ -266,6 +268,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 尝试获取自定义缓存键生成器
         /// </summary>
         /// <param name="serviceProvider"></param>
+        /// <param name="attribute"></param>
         /// <param name="filterType"></param>
         /// <returns></returns>
         private static ICacheKeyGenerator? TryGetCustomCacheKeyGenerator(IServiceProvider serviceProvider, ResponseCachingAttribute attribute, out FilterType filterType)
