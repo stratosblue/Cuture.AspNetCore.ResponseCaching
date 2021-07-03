@@ -9,7 +9,6 @@ using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching
 {
@@ -91,18 +90,16 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="executingLocker"></param>
         /// <param name="responseCache"></param>
         /// <param name="cacheDeterminer"></param>
-        /// <param name="optionsAccessor"></param>
+        /// <param name="options"></param>
         /// <param name="interceptorAggregator"></param>
         public ResponseCachingContext(ResponseCachingAttribute cachingAttribute,
                                       ICacheKeyGenerator cacheKeyGenerator,
                                       IRequestExecutingLocker<TFilterContext, TLocalCachingData> executingLocker,
                                       IResponseCache responseCache,
                                       IResponseCacheDeterminer cacheDeterminer,
-                                      IOptions<ResponseCachingOptions> optionsAccessor,
+                                      ResponseCachingOptions options,
                                       InterceptorAggregator interceptorAggregator)
         {
-            var options = optionsAccessor.Value;
-
             _cachingAttribute = cachingAttribute ?? throw new ArgumentNullException(nameof(cachingAttribute));
 
             MaxCacheableResponseLength = cachingAttribute.MaxCacheableResponseLength;

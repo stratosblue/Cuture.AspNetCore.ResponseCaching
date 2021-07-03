@@ -24,38 +24,36 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <inheritdoc/>
         public IFilterMetadata CreateFilter(IServiceProvider serviceProvider, object context)
         {
-            if (context is ResponseCachingAttribute attribute)
-            {
-            }
-            else
+            if (context is not ResponseCachingAttribute attribute)
             {
                 throw new ArgumentException($"{nameof(DefaultResponseCachingFilterBuilder)} only can build filter from {nameof(ResponseCachingAttribute)}", nameof(context));
             }
 
-            var optionsAccessor = serviceProvider.GetRequiredService<IOptions<ResponseCachingOptions>>();
-            var options = optionsAccessor.Value;
+            var buildContext = new FilterBuildContext(serviceProvider, attribute);
 
-            if (!options.Enable)
+            if (!buildContext.Options.Enable)
             {
                 return EmptyFilterMetadata.Instance;
             }
 
             CheckDuration(attribute.Duration);
 
-            IResponseCache responseCache = GetResponseCache(serviceProvider, attribute, options);
+            IResponseCache responseCache = GetResponseCache(buildContext);
 
-            ICacheKeyGenerator cacheKeyGenerator = TryGetCustomCacheKeyGenerator(serviceProvider, attribute, out FilterType filterType)
-                                                   ?? CreateCacheKeyGenerator(serviceProvider, attribute, options, out filterType);
+            ICacheKeyGenerator cacheKeyGenerator = TryGetCustomCacheKeyGenerator(buildContext, out FilterType filterType)
+                                                   ?? CreateCacheKeyGenerator(buildContext, out filterType);
 
             var cacheDeterminer = serviceProvider.GetRequiredService<IResponseCacheDeterminer>();
 
             var cachingDiagnosticsAccessor = serviceProvider.GetRequiredService<CachingDiagnosticsAccessor>();
 
-            var interceptorAggregator = new InterceptorAggregator(GetCachingProcessInterceptor(serviceProvider, attribute));
+            var interceptorAggregator = new InterceptorAggregator(GetCachingProcessInterceptor(buildContext));
 
-            var lockMode = attribute.LockMode == ExecutingLockMode.Default ? options.DefaultExecutingLockMode : attribute.LockMode;
+            var executingLockAttribute = buildContext.GetHttpContextMetadata<ExecutingLockAttribute>();
 
-            var executingLockerName = GetExecutingLockerName(serviceProvider);
+            var lockMode = executingLockAttribute?.LockMode ?? buildContext.Options.DefaultExecutingLockMode;
+
+            var executingLockerName = executingLockAttribute?.LockerName ?? string.Empty;
 
             switch (filterType)
             {
@@ -75,7 +73,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                                                                                                                               executingLocker!,
                                                                                                                               responseCache,
                                                                                                                               cacheDeterminer,
-                                                                                                                              optionsAccessor,
+                                                                                                                              buildContext.Options,
                                                                                                                               interceptorAggregator);
                         return new DefaultResourceCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
@@ -95,7 +93,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                                                                                                                        executingLocker!,
                                                                                                                        responseCache,
                                                                                                                        cacheDeterminer,
-                                                                                                                       optionsAccessor,
+                                                                                                                       buildContext.Options,
                                                                                                                        interceptorAggregator);
                         return new DefaultActionCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
@@ -119,14 +117,17 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <summary>
         /// 创建CacheKeyGenerator
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <param name="attribute"></param>
-        /// <param name="options"></param>
+        /// <param name="context"></param>
         /// <param name="filterType"></param>
         /// <returns></returns>
-        private static ICacheKeyGenerator CreateCacheKeyGenerator(IServiceProvider serviceProvider, ResponseCachingAttribute attribute, ResponseCachingOptions options, out FilterType filterType)
+        private static ICacheKeyGenerator CreateCacheKeyGenerator(FilterBuildContext context, out FilterType filterType)
         {
-            var strictMode = attribute.StrictMode == CacheKeyStrictMode.Default ? options.DefaultStrictMode : attribute.StrictMode;
+            var attribute = context.Attribute;
+
+            var strictMode = attribute.StrictMode == CacheKeyStrictMode.Default
+                                ? context.Options.DefaultStrictMode
+                                : attribute.StrictMode;
+
             filterType = FilterType.Resource;
 
             ICacheKeyGenerator cacheKeyGenerator;
@@ -134,7 +135,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             {
                 case CacheMode.FullPathAndQuery:
                     {
-                        cacheKeyGenerator = serviceProvider.GetRequiredService<FullPathAndQueryCacheKeyGenerator>();
+                        cacheKeyGenerator = context.GetRequiredService<FullPathAndQueryCacheKeyGenerator>();
                         break;
                     }
 
@@ -160,8 +161,8 @@ namespace Cuture.AspNetCore.ResponseCaching
                         if (attribute.VaryByModels != null)
                         {
                             var modelKeyParserType = attribute.ModelKeyParserType ?? typeof(DefaultModelKeyParser);
-                            var modelKeyParser = serviceProvider.GetRequiredService(modelKeyParserType) as IModelKeyParser;
-                            keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByModels, modelKeyParser!);
+                            var modelKeyParser = context.GetRequiredService<IModelKeyParser>(modelKeyParserType);
+                            keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByModels, modelKeyParser);
                             filterType = FilterType.Action;
                         }
 
@@ -176,7 +177,7 @@ namespace Cuture.AspNetCore.ResponseCaching
 
                 case CacheMode.PathUniqueness:
                     {
-                        cacheKeyGenerator = serviceProvider.GetRequiredService<RequestPathCacheKeyGenerator>();
+                        cacheKeyGenerator = context.GetRequiredService<RequestPathCacheKeyGenerator>();
                         break;
                     }
 
@@ -190,62 +191,38 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <summary>
         /// 获取<see cref="ICachingProcessInterceptor"/>
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <param name="attribute"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        private static ICachingProcessInterceptor? GetCachingProcessInterceptor(IServiceProvider serviceProvider, ResponseCachingAttribute attribute)
+        private static ICachingProcessInterceptor? GetCachingProcessInterceptor(FilterBuildContext context)
         {
-            var type = attribute.CachingProcessInterceptorType
-                            ?? serviceProvider.GetRequiredService<IOptions<InterceptorOptions>>().Value.CachingProcessInterceptorType;
+            var type = context.Attribute.CachingProcessInterceptorType
+                            ?? context.GetRequiredService<IOptions<InterceptorOptions>>().Value.CachingProcessInterceptorType;
 
-            if (type is null)
-            {
-                return null;
-            }
-
-            var interceptor = serviceProvider.GetRequiredService(type);
-
-            return interceptor as ICachingProcessInterceptor;
-        }
-
-        private static string GetExecutingLockerName(IServiceProvider serviceProvider)
-        {
-            var executingLockerAttribute = GetHttpContextMetadata<ExecutingLockerAttribute>(serviceProvider);
-            return executingLockerAttribute?.Name ?? string.Empty;
-        }
-
-        private static T? GetHttpContextMetadata<T>(IServiceProvider serviceProvider) where T : class
-        {
-            var endpoint = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetEndpoint();
-            if (endpoint is null)
-            {
-                throw new ResponseCachingException("Cannot access Endpoint by IHttpContextAccessor.");
-            }
-            return endpoint.Metadata.GetMetadata<T>();
+            return type is null
+                        ? null
+                        : context.GetRequiredService<ICachingProcessInterceptor>(type);
         }
 
         /// <summary>
         /// 获取响应缓存容器
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <param name="attribute"></param>
-        /// <param name="options"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        private static IResponseCache GetResponseCache(IServiceProvider serviceProvider, ResponseCachingAttribute attribute, ResponseCachingOptions options)
+        private static IResponseCache GetResponseCache(FilterBuildContext context)
         {
-            var storeLocation = attribute.StoreLocation == CacheStoreLocation.Default
-                                                                ? options.DefaultCacheStoreLocation
-                                                                : attribute.StoreLocation;
+            var storeLocation = context.Attribute.StoreLocation == CacheStoreLocation.Default
+                                    ? context.Options.DefaultCacheStoreLocation
+                                    : context.Attribute.StoreLocation;
 
             switch (storeLocation)
             {
                 case CacheStoreLocation.Distributed:
                     {
-                        var responseCache = serviceProvider.GetRequiredService<IDistributedResponseCache>();
-                        var hotDataCacheBuilder = GetHttpContextMetadata<IHotDataCacheBuilder>(serviceProvider);
+                        var responseCache = context.GetRequiredService<IDistributedResponseCache>();
+                        var hotDataCacheBuilder = context.GetHttpContextMetadata<IHotDataCacheBuilder>();
                         if (hotDataCacheBuilder is not null)
                         {
-                            var hotDataCache = hotDataCacheBuilder.Build(serviceProvider);
+                            var hotDataCache = hotDataCacheBuilder.Build(context.ServiceProvider);
                             if (hotDataCache is null)
                             {
                                 throw new ResponseCachingException($"The data cache {hotDataCacheBuilder.GetType()} provided is null.");
@@ -256,7 +233,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                         return responseCache;
                     }
                 case CacheStoreLocation.Memory:
-                    return serviceProvider.GetRequiredService<IMemoryResponseCache>();
+                    return context.GetRequiredService<IMemoryResponseCache>();
 
                 case CacheStoreLocation.Default:
                 default:
@@ -267,13 +244,14 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <summary>
         /// 尝试获取自定义缓存键生成器
         /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <param name="attribute"></param>
+        /// <param name="context"></param>
         /// <param name="filterType"></param>
         /// <returns></returns>
-        private static ICacheKeyGenerator? TryGetCustomCacheKeyGenerator(IServiceProvider serviceProvider, ResponseCachingAttribute attribute, out FilterType filterType)
+        private static ICacheKeyGenerator? TryGetCustomCacheKeyGenerator(FilterBuildContext context, out FilterType filterType)
         {
             filterType = FilterType.Resource;
+
+            var attribute = context.Attribute;
             if (attribute.CustomCacheKeyGeneratorType == null)
             {
                 return null;
@@ -284,7 +262,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                 throw new ArgumentException($"type of {attribute.CustomCacheKeyGeneratorType} must derives from {nameof(ICustomCacheKeyGenerator)}");
             }
 
-            ICustomCacheKeyGenerator cacheKeyGenerator = (ICustomCacheKeyGenerator)serviceProvider.GetRequiredService(attribute.CustomCacheKeyGeneratorType);
+            ICustomCacheKeyGenerator cacheKeyGenerator = context.GetRequiredService<ICustomCacheKeyGenerator>(attribute.CustomCacheKeyGeneratorType);
             filterType = cacheKeyGenerator.FilterType;
 
             if (cacheKeyGenerator is IResponseCachingAttributeSetter responseCachingAttributeSetter)
@@ -293,6 +271,64 @@ namespace Cuture.AspNetCore.ResponseCaching
             }
 
             return cacheKeyGenerator;
+        }
+
+        #endregion Private 方法
+    }
+
+    internal class FilterBuildContext
+    {
+        #region Private 字段
+
+        private Endpoint? _endpoint;
+
+        #endregion Private 字段
+
+        #region Public 属性
+
+        public ResponseCachingAttribute Attribute { get; }
+
+        public Endpoint Endpoint => _endpoint ?? GetEndpoint();
+
+        public ResponseCachingOptions Options { get; }
+
+        public IServiceProvider ServiceProvider { get; }
+
+        #endregion Public 属性
+
+        #region Public 构造函数
+
+        public FilterBuildContext(IServiceProvider serviceProvider, ResponseCachingAttribute attribute)
+        {
+            ServiceProvider = serviceProvider;
+            Attribute = attribute;
+
+            Options = serviceProvider.GetRequiredService<IOptions<ResponseCachingOptions>>().Value;
+        }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
+
+        public T? GetHttpContextMetadata<T>() where T : class => Endpoint.Metadata.GetMetadata<T>();
+
+        public T GetRequiredService<T>() where T : notnull => ServiceProvider.GetRequiredService<T>();
+
+        public T GetRequiredService<T>(Type type) => (T)ServiceProvider.GetRequiredService(type);
+
+        #endregion Public 方法
+
+        #region Private 方法
+
+        private Endpoint GetEndpoint()
+        {
+            var endpoint = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetEndpoint();
+            if (endpoint is null)
+            {
+                throw new ResponseCachingException("Cannot access Endpoint by IHttpContextAccessor.");
+            }
+            _endpoint = endpoint;
+            return endpoint;
         }
 
         #endregion Private 方法

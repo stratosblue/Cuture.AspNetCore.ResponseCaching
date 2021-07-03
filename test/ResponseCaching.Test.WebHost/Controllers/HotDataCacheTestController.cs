@@ -12,10 +12,10 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         [HttpGet]
         [HotDataCache(50, HotDataCachePolicy.LRU)]
-        [ResponseCaching(3, 
-            Mode = CacheMode.FullPathAndQuery, 
-            LockMode = ExecutingLockMode.CacheKeySingle, 
+        [ResponseCaching(3,
+            Mode = CacheMode.FullPathAndQuery,
             StoreLocation = CacheStoreLocation.Distributed)]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         public string Do(string input)
         {
             return "Inputed:" + input;

@@ -66,6 +66,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <para/>
         /// * 默认实现对 ActionFilter 的锁定效果不敢保证100%
         /// </summary>
+        [Obsolete("使用 ExecutingLockAttribute 替代此属性", true)]
         public ExecutingLockMode LockMode { get; set; } = ExecutingLockMode.Default;
 
         /// <summary>
@@ -222,6 +223,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="mode"></param>
         /// <param name="storeLocation"></param>
         /// <param name="lockMode"></param>
+        [Obsolete("使用 ExecutingLockAttribute 替代 ExecutingLockMode 设置", true)]
         public ResponseCachingAttribute(int duration, CacheMode mode, CacheStoreLocation storeLocation, ExecutingLockMode lockMode) : this(duration)
         {
             Mode = mode;
@@ -237,6 +239,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="storeLocation"></param>
         /// <param name="strictMode"></param>
         /// <param name="lockMode"></param>
+        [Obsolete("使用 ExecutingLockAttribute 替代 ExecutingLockMode 设置", true)]
         public ResponseCachingAttribute(int duration, CacheMode mode, CacheStoreLocation storeLocation, CacheKeyStrictMode strictMode, ExecutingLockMode lockMode) : this(duration)
         {
             Mode = mode;
@@ -262,8 +265,7 @@ namespace Microsoft.AspNetCore.Mvc
                 _createInstanceLock.Enter(ref locked);
                 if (_filterMetadata is null)
                 {
-                    var filterBuilder = serviceProvider.GetRequiredService<IResponseCachingFilterBuilder>();
-                    _filterMetadata = filterBuilder.CreateFilter(serviceProvider, this);
+                    _filterMetadata = CreateFilter(serviceProvider);
                 }
                 return _filterMetadata;
             }
@@ -277,5 +279,20 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         #endregion Public 方法
+
+        #region Protected 方法
+
+        /// <summary>
+        /// 创建Filter（线程安全）
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns></returns>
+        protected virtual IFilterMetadata CreateFilter(IServiceProvider serviceProvider)
+        {
+            var filterBuilder = serviceProvider.GetRequiredService<IResponseCachingFilterBuilder>();
+            return filterBuilder.CreateFilter(serviceProvider, this);
+        }
+
+        #endregion Protected 方法
     }
 }

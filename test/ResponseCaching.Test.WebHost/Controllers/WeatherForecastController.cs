@@ -35,7 +35,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         [HttpGet]
         [ActionName("path-cache")]
-        [CacheByPath(Duration, LockMode = ExecutingLockMode.CacheKeySingle)]
+        [CacheByPath(Duration)]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByPathGet()
         {
             _logger.LogInformation("{0} : {1}", DateTime.Now, "path-cache");
@@ -44,7 +45,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         [HttpPost]
         [ActionName("path-cache")]
-        [CacheByPath(Duration, LockMode = ExecutingLockMode.CacheKeySingle)]
+        [CacheByPath(Duration)]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByPathPost()
         {
             _logger.LogInformation("{0} : {1}", DateTime.Now, "path-cache");
@@ -53,7 +55,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         [HttpGet]
         [ActionName("url-cache")]
-        [CacheByFullUrl(Duration, LockMode = ExecutingLockMode.ActionSingle)]
+        [CacheByFullUrl(Duration)]
+        [ExecutingLock(ExecutingLockMode.ActionSingle)]
         public IEnumerable<WeatherForecast> CacheByFullUrl([Required] int page, [Required] int pageSize)
         {
             _logger.LogInformation("{0} : {1}", DateTime.Now, "url-cache");
@@ -62,7 +65,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         [HttpGet]
         [ActionName("get-q")]
-        [CacheByQuery(Duration, "page", "pageSize", LockMode = ExecutingLockMode.CacheKeySingle)]
+        [CacheByQuery(Duration, "page", "pageSize")]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByQuery([Required] int page, [Required] int pageSize)
         {
             _logger.LogInformation("{0} : {1}", DateTime.Now, "get-q");
@@ -71,7 +75,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         [HttpPost]
         [ActionName("get-f")]
-        [CacheByForm(Duration, "page", "pageSize", LockMode = ExecutingLockMode.CacheKeySingle)]
+        [CacheByForm(Duration, "page", "pageSize")]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByForm()
         {
             int page = int.Parse(Request.Form["page"]);
@@ -83,8 +88,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
         [HttpGet]
         [ActionName("get-h")]
         [CacheByHeader(Duration,
-                       "page", "pageSize",
-                       LockMode = ExecutingLockMode.CacheKeySingle)]
+                       "page", "pageSize")]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByHeader()
         {
             int page = int.Parse(Request.Headers["page"]);
@@ -96,9 +101,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
         [HttpPost]
         [ActionName("get-m")]
         [CacheByModel(Duration,
-                      "input",
-                      LockMode = ExecutingLockMode.ActionSingle)]
-        [ExecutingLocker("model")]
+                      "input")]
+        [ExecutingLock("model", ExecutingLockMode.ActionSingle)]
         public IEnumerable<WeatherForecast> CacheByModel(PageResultRequestDto input)
         {
             int page = input.Page;
@@ -111,8 +115,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
         [AuthorizeMixed]
         [ActionName("get-at-q")]
         [CacheByQuery(Duration,
-                      "page", "pageSize",
-                      LockMode = ExecutingLockMode.CacheKeySingle)]
+                      "page", "pageSize")]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByQueryWithAuthorize([Required] int page, [Required] int pageSize)
         {
             _logger.LogInformation("{0} : {1}", DateTime.Now, "get-at-q");
@@ -127,8 +131,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
                          VaryByClaims = new[] { "id", "sid" },
                          VaryByHeaders = new[] { "page", "pageSize" },
                          VaryByQueryKeys = new[] { "page", "pageSize" },
-                         VaryByModels = new[] { "input" },
-                         LockMode = ExecutingLockMode.CacheKeySingle)]
+                         VaryByModels = new[] { "input" })]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         public IEnumerable<WeatherForecast> CacheByAllMixed([Required][FromQuery] int page, [Required][FromQuery] int pageSize, [FromBody] PageResultRequestDto input)
         {
             _logger.LogInformation("{0} : {1}", DateTime.Now, "get-all-mixed");
@@ -138,8 +142,8 @@ namespace ResponseCaching.Test.WebHost.Controllers
         [HttpGet]
         [ActionName("cache-custom")]
         [ResponseCaching(Duration,
-                         CustomCacheKeyGeneratorType = typeof(TestCustomCacheKeyGenerator),
-                         LockMode = ExecutingLockMode.CacheKeySingle)]
+                         CustomCacheKeyGeneratorType = typeof(TestCustomCacheKeyGenerator))]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         [Description("cache_key_definite")]
         public IEnumerable<WeatherForecast> CacheByCustom()
         {
