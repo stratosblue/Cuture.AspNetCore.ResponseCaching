@@ -206,7 +206,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton(serviceProvider => new DiagnosticLogger(serviceProvider));
             services.TryAddSingleton(serviceProvider => new DiagnosticLoggerSubscriber(serviceProvider));
-            services.TryAddSingleton(new DiagnosticLoggerSubscriberDisposerAccessor());
+            services.TryAddSingleton(_ => new DiagnosticLoggerSubscriberDisposerAccessor());
         }
 
         [Conditional("RELEASE")]
@@ -247,6 +247,15 @@ namespace Microsoft.Extensions.DependencyInjection
             var disposable = DiagnosticListener.AllListeners.Subscribe(diagnosticLoggerSubscriber);
 
             diagnosticLoggerSubscriberDisposerAccessor.Disposable = disposable;
+        }
+
+        /// <summary>
+        /// 关闭缓存诊断日志
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        public static void ShutdownResponseCachingDiagnosticLogger(this IServiceProvider serviceProvider)
+        {
+            serviceProvider.GetService<DiagnosticLoggerSubscriberDisposerAccessor>()?.Dispose();
         }
 
         #endregion initialization

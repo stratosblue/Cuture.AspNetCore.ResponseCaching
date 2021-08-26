@@ -2,10 +2,11 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.Http;
 
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -38,6 +39,8 @@ namespace ResponseCaching.Test.Base
             if (WebHost != null)
             {
                 await WebHost.StopAsync();
+                WebHost.Services.ShutdownResponseCachingDiagnosticLogger();
+                WebHost.Dispose();
             }
         }
 

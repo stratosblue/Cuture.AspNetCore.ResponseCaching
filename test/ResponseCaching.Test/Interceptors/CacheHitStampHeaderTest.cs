@@ -19,6 +19,8 @@ namespace ResponseCaching.Test.Interceptors
         protected const string HeaderKey = "cached";
         protected const string HeaderValue = "1";
 
+        private readonly long _t = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         protected Task<TextHttpOperationResult<WeatherForecast[]>>[] GetRequestTasks()
         {
             return new Task<TextHttpOperationResult<WeatherForecast[]>>[] {
@@ -26,7 +28,7 @@ namespace ResponseCaching.Test.Interceptors
                 $"{BaseUrl}/WeatherForecast/url-cache?page=2&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
                 $"{BaseUrl}/WeatherForecast/url-cache?page=3&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
                 $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t=1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t={_t}".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
                 $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t=1&_t1=0".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
                 $"{BaseUrl}/WeatherForecast/get-m".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 1,PageSize = 5 }).TryGetAsObjectAsync<WeatherForecast[]>(),
                 $"{BaseUrl}/WeatherForecast/get-m".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 1,PageSize = 6 }).TryGetAsObjectAsync<WeatherForecast[]>(),
@@ -54,7 +56,7 @@ namespace ResponseCaching.Test.Interceptors
         protected void CheckHasCacheHeader(TextHttpOperationResult<WeatherForecast[]> httpResult)
         {
             var headerExist = httpResult.ResponseMessage.Headers.TryGetValues(HeaderKey, out var value);
-            Assert.IsTrue(headerExist);
+            Assert.IsTrue(headerExist, $"{httpResult.ResponseMessage.RequestMessage.RequestUri} : [{httpResult.ResponseMessage.StatusCode}] - {httpResult.Text}");
             Assert.AreEqual(HeaderValue, value.First());
         }
     }

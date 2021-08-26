@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ResponseCaching.Test.WebHost
 {
@@ -17,6 +18,14 @@ namespace ResponseCaching.Test.WebHost
                 .ConfigureAppConfiguration(configure =>
                 {
                     configure.AddUserSecrets<TestWebHost>();
+                })
+                .ConfigureLogging(builder =>
+                {
+                    builder.ClearProviders();
+                    builder.AddConsole(options =>
+                    {
+                        options.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff ";
+                    });
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

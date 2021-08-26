@@ -11,6 +11,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
 
         private IDisposable? _disposable;
 
+        private bool _isDisposed = false;
+
         #endregion Private 字段
 
         #region Public 属性
@@ -23,6 +25,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
             get => _disposable;
             set
             {
+                if (_isDisposed)
+                {
+                    throw new ObjectDisposedException(nameof(DiagnosticLoggerSubscriberDisposerAccessor));
+                }
                 _disposable?.Dispose();
                 _disposable = value;
             }
@@ -30,12 +36,32 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
 
         #endregion Public 属性
 
+        /// <summary>
+        ///
+        /// </summary>
+        ~DiagnosticLoggerSubscriberDisposerAccessor()
+        {
+            Dispose();
+        }
+
         #region Public 方法
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            _disposable?.Dispose();
+            if (!_isDisposed)
+            {
+                _isDisposed = true;
+                if (_disposable is not null)
+                {
+                    try
+                    {
+                        _disposable.Dispose();
+                    }
+                    catch { }
+                }
+                GC.SuppressFinalize(this);
+            }
         }
 
         #endregion Public 方法

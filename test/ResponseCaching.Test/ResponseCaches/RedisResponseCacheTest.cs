@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -25,6 +26,10 @@ namespace ResponseCaching.Test.ResponseCaches
                                                           .AddUserSecrets<TestWebHost>()
                                                           .Build()
                                                           .GetValue<string>("ResponseCache_Test_Redis");
+            if (string.IsNullOrWhiteSpace(configuration))
+            {
+                throw new ArgumentException("Must set ‘ResponseCache_Test_Redis’ first.");
+            }
             _connectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(configuration);
             return new RedisResponseCache(new RedisResponseCacheOptions() { ConnectionMultiplexer = _connectionMultiplexer });
         }

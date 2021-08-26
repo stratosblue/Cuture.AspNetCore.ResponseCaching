@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 
 using ResponseCaching.Test.WebHost.Models;
 
@@ -9,38 +9,34 @@ namespace ResponseCaching.Test.WebHost.Test
 {
     public static class TestDataGenerator
     {
-        private static readonly string[] _summaries = new[]
+        public const int Count = 25;
+
+        private static readonly string[] s_summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
-
-        private static readonly Random _random = new Random();
-
-        public const int Count = 25;
-
-        public static IEnumerable<WeatherForecast> GetData()
-        {
-            return Enumerable.Range(1, Count).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = _random.Next(-20, 55),
-                Summary = _summaries[_random.Next(_summaries.Length)]
-            }).ToArray();
-        }
 
         public static IEnumerable<WeatherForecast> GetData(int count)
         {
             return GetData(0, count);
         }
 
-        public static IEnumerable<WeatherForecast> GetData(int skip, int count)
+        public static IEnumerable<WeatherForecast> GetData(int skip = 0, int count = Count)
         {
+            var random = SharedRandom.Shared;
             return Enumerable.Range(skip + 1, count).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
-                TemperatureC = _random.Next(-20, 55),
-                Summary = _summaries[_random.Next(_summaries.Length)]
+                TemperatureC = random.Next(-20, 55),
+                Summary = s_summaries[random.Next(s_summaries.Length)]
             }).ToArray();
+        }
+
+        private static class SharedRandom
+        {
+            private static readonly ThreadLocal<Random> s_random = new(() => new(), false);
+
+            public static Random Shared => s_random.Value;
         }
     }
 }
