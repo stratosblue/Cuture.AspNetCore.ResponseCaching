@@ -12,7 +12,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <summary>
         /// 静态实例
         /// </summary>
-        public static EmptyFilterMetadata Instance { get; } = new EmptyFilterMetadata();
+        public static EmptyFilterMetadata Instance { get; } = new();
 
         #endregion Public 属性
     }

@@ -12,7 +12,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
     /// <summary>
     /// 默认基于Action的http请求执行锁定器 - ResourceFilter
     /// </summary>
-    internal sealed class DefaultActionSingleResourceExecutingLocker : SharedExecutingLockerBase<ResponseCacheEntry>, IActionSingleResourceExecutingLocker, IDisposable
+    internal sealed class DefaultActionSingleResourceExecutingLocker 
+        : SharedExecutingLockerBase<ResponseCacheEntry>, IActionSingleResourceExecutingLocker, IDisposable
     {
         #region Private 字段
 
@@ -29,9 +30,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         #region Public 构造函数
 
-        public DefaultActionSingleResourceExecutingLocker(IOptions<ResponseCachingOptions> options, ExecutionLockStatePool<ResponseCacheEntry> executionLockStatePool) : base(options)
+        public DefaultActionSingleResourceExecutingLocker(IOptions<ResponseCachingOptions> options,
+                                                          ExecutionLockStatePool<ResponseCacheEntry> executionLockStatePool) : base(options)
         {
-            _executionLockStatePool = executionLockStatePool;
+            _executionLockStatePool = executionLockStatePool ?? throw new ArgumentNullException(nameof(executionLockStatePool));
         }
 
         #endregion Public 构造函数

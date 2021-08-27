@@ -28,6 +28,11 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
 
         public SharedExecutingLockerBase(IOptions<ResponseCachingOptions> options)
         {
+            if (options is null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
             _memoryCache = options.Value.LockedExecutionLocalResultCache;
 
             //TODO 支持差异化的 _localCacheAvailableMilliseconds

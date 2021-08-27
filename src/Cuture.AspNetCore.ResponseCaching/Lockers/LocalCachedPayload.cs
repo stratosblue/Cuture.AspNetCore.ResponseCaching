@@ -9,6 +9,7 @@
         #region Public 字段
 
         public long ExpireTime;
+
         public TPayload Payload;
 
         #endregion Public 字段

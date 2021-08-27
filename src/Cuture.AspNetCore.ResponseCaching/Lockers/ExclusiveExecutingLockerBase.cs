@@ -25,6 +25,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Internal
 
         public ExclusiveExecutingLockerBase(IOptions<ResponseCachingOptions> options)
         {
+            if (options is null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
             //TODO 支持差异化的 _localCacheAvailableMilliseconds
             _localCacheAvailableMilliseconds = options.Value.DefaultLocalCacheAvailableMilliseconds;
         }

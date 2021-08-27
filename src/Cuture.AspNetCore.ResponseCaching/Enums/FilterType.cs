@@ -6,12 +6,12 @@
     public enum FilterType
     {
         /// <summary>
-        /// ResourceFilter
+        /// ResourceFilter (在模型绑定前)
         /// </summary>
         Resource,
 
         /// <summary>
-        /// ActionFilter
+        /// ActionFilter (在模型绑定后)
         /// </summary>
         Action
     }

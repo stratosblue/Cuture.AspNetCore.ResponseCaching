@@ -13,7 +13,8 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Public 方法
 
         /// <inheritdoc/>
-        public bool CanCaching(ResourceExecutedContext context, ResponseCacheEntry cacheEntry) => context.HttpContext.Response.StatusCode == StatusCodes.Status200OK;
+        public bool CanCaching(ResourceExecutedContext context, ResponseCacheEntry cacheEntry)
+            => context.HttpContext.Response.StatusCode == StatusCodes.Status200OK;
 
         /// <inheritdoc/>
         public bool CanCaching(ActionExecutedContext context) => context.Result != null;

@@ -67,7 +67,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// * 默认实现对 ActionFilter 的锁定效果不敢保证100%
         /// </summary>
         [Obsolete("使用 ExecutingLockAttribute 替代此属性", true)]
-        public ExecutingLockMode LockMode { get; set; } = ExecutingLockMode.Default;
+        public ExecutingLockMode LockMode { get; } = ExecutingLockMode.Default;
 
         /// <summary>
         /// 最大可缓存响应长度（默认使用全局配置）
@@ -149,14 +149,16 @@ namespace Microsoft.AspNetCore.Mvc
         /// <para/>
         /// 需要Attribute数据时实现 <see cref="IResponseCachingAttributeSetter"/> 接口
         /// </summary>
-        public Type? CustomCacheKeyGeneratorType { get; set; }
+        [Obsolete("Use \"CacheKeyGeneratorAttribute\" instead.", true)]
+        public Type? CustomCacheKeyGeneratorType { get; }
 
         /// <summary>
         /// Model的Key解析器类型
         /// <para/>
         /// 需要实现 <see cref="IModelKeyParser"/> 接口
         /// </summary>
-        public Type? ModelKeyParserType { get; set; }
+        [Obsolete("Use \"CacheModelKeyParserAttribute\" instead.", true)]
+        public Type? ModelKeyParserType { get; }
 
         #endregion Types
 

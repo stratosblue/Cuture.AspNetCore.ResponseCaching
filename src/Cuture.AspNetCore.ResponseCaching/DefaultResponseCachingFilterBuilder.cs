@@ -160,7 +160,8 @@ namespace Cuture.AspNetCore.ResponseCaching
                         }
                         if (attribute.VaryByModels != null)
                         {
-                            var modelKeyParserType = attribute.ModelKeyParserType ?? typeof(DefaultModelKeyParser);
+                            //TODO 测试
+                            var modelKeyParserType = context.GetHttpContextMetadata<CacheModelKeyParserAttribute>()?.Type ?? typeof(DefaultModelKeyParser);
                             var modelKeyParser = context.GetRequiredService<IModelKeyParser>(modelKeyParserType);
                             keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByModels, modelKeyParser);
                             filterType = FilterType.Action;
@@ -251,23 +252,18 @@ namespace Cuture.AspNetCore.ResponseCaching
         {
             filterType = FilterType.Resource;
 
-            var attribute = context.Attribute;
-            if (attribute.CustomCacheKeyGeneratorType == null)
+            var attribute = context.GetHttpContextMetadata<CacheKeyGeneratorAttribute>();
+            if (attribute is null)
             {
                 return null;
             }
 
-            if (!typeof(ICustomCacheKeyGenerator).IsAssignableFrom(attribute.CustomCacheKeyGeneratorType))
-            {
-                throw new ArgumentException($"type of {attribute.CustomCacheKeyGeneratorType} must derives from {nameof(ICustomCacheKeyGenerator)}");
-            }
-
-            ICustomCacheKeyGenerator cacheKeyGenerator = context.GetRequiredService<ICustomCacheKeyGenerator>(attribute.CustomCacheKeyGeneratorType);
-            filterType = cacheKeyGenerator.FilterType;
+            var cacheKeyGenerator = context.GetRequiredService<ICacheKeyGenerator>(attribute.Type);
+            filterType = attribute.FilterType;
 
             if (cacheKeyGenerator is IResponseCachingAttributeSetter responseCachingAttributeSetter)
             {
-                responseCachingAttributeSetter.SetResponseCachingAttribute(attribute);
+                responseCachingAttributeSetter.SetResponseCachingAttribute(context.Attribute);
             }
 
             return cacheKeyGenerator;

@@ -29,9 +29,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         #region Public 构造函数
 
-        public DefaultResourceExecutingLocker(IOptions<ResponseCachingOptions> options, ExecutionLockStatePool<ResponseCacheEntry> executionLockStatePool) : base(options)
+        public DefaultResourceExecutingLocker(IOptions<ResponseCachingOptions> options,
+                                              ExecutionLockStatePool<ResponseCacheEntry> executionLockStatePool) : base(options)
         {
-            _executionLockStatePool = executionLockStatePool;
+            _executionLockStatePool = executionLockStatePool ?? throw new ArgumentNullException(nameof(executionLockStatePool));
         }
 
         #endregion Public 构造函数

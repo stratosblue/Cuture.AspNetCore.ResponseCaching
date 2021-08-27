@@ -155,9 +155,11 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         protected abstract object CreateLocker();
 
-        protected IOptions<TOptions> RequiredOptions<TOptions>() where TOptions : class, new() => ServiceProvider.GetRequiredService<IOptions<TOptions>>();
+        protected IOptions<TOptions> RequiredOptions<TOptions>() where TOptions : class, new()
+            => ServiceProvider.GetRequiredService<IOptions<TOptions>>();
 
-        protected TService RequiredService<TService>() where TService : notnull => ServiceProvider.GetRequiredService<TService>();
+        protected TService RequiredService<TService>() where TService : notnull
+            => ServiceProvider.GetRequiredService<TService>();
 
         #endregion Protected 方法
     }

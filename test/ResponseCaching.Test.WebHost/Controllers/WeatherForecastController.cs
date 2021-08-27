@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-
+using Cuture.AspNetCore.ResponseCaching;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -141,10 +141,10 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         [HttpGet]
         [ActionName("cache-custom")]
-        [ResponseCaching(Duration,
-                         CustomCacheKeyGeneratorType = typeof(TestCustomCacheKeyGenerator))]
+        [ResponseCaching(Duration)]
         [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
         [Description("cache_key_definite")]
+        [CacheKeyGenerator(typeof(TestCustomCacheKeyGenerator), FilterType.Resource)]
         public IEnumerable<WeatherForecast> CacheByCustom()
         {
             return TestDataGenerator.GetData(0, 5);

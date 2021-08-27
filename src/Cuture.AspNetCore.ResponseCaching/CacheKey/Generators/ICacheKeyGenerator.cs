@@ -14,7 +14,9 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
         /// <summary>
         /// 生成缓存Key
         /// </summary>
-        /// <param name="filterContext"></param>
+        /// <param name="filterContext">当类型为 <see cref="FilterType.Action"/> 时，类型为 <see cref="ActionExecutingContext"/><para/>
+        /// 当类型为 <see cref="FilterType.Resource"/> 时，类型为 <see cref="ResourceExecutingContext"/><para/>
+        /// </param>
         /// <returns></returns>
         ValueTask<string> GenerateKeyAsync(FilterContext filterContext);
 

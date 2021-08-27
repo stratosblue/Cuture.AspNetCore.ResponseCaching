@@ -36,6 +36,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
 
         #endregion Public 属性
 
+        #region Private 析构函数
+
         /// <summary>
         ///
         /// </summary>
@@ -43,6 +45,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         {
             Dispose();
         }
+
+        #endregion Private 析构函数
 
         #region Public 方法
 

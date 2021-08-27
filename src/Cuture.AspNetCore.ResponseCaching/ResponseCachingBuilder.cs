@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cuture.AspNetCore.ResponseCaching
 {
@@ -22,7 +24,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="services"></param>
         public ResponseCachingBuilder(IServiceCollection services)
         {
-            Services = services;
+            Services = services ?? throw new ArgumentNullException(nameof(services));
         }
 
         #endregion Public 构造函数

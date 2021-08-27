@@ -50,7 +50,7 @@ namespace ResponseCaching.Test.ResponseCaches
 
             TestUtil.EntryEquals(entry, cachedEntry);
 
-            await Task.Delay(TimeSpan.FromSeconds(duration + 0.1));
+            await Task.Delay(TimeSpan.FromSeconds(duration + 1));
 
             cachedEntry = await ResponseCache.GetAsync(key);
 
@@ -82,7 +82,7 @@ namespace ResponseCaching.Test.ResponseCaches
 
                 TestUtil.EntryEquals(entry, cachedEntry);
 
-                await Task.Delay(TimeSpan.FromSeconds(duration + 0.1));
+                await Task.Delay(TimeSpan.FromSeconds(duration + 1));
 
                 cachedEntry = await ResponseCache.GetAsync(key);
 
