@@ -21,7 +21,6 @@ namespace Cuture.AspNetCore.ResponseCaching
     {
         #region Private 字段
 
-        private readonly ResponseCachingAttribute _cachingAttribute;
         private bool _disposedValue;
 
         #endregion Private 字段
@@ -92,15 +91,20 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="cacheDeterminer"></param>
         /// <param name="options"></param>
         /// <param name="interceptorAggregator"></param>
+        /// <param name="dumpStreamFactory"></param>
         public ResponseCachingContext(ResponseCachingAttribute cachingAttribute,
                                       ICacheKeyGenerator cacheKeyGenerator,
                                       IRequestExecutingLocker<TFilterContext, TLocalCachingData> executingLocker,
                                       IResponseCache responseCache,
                                       IResponseCacheDeterminer cacheDeterminer,
                                       ResponseCachingOptions options,
-                                      InterceptorAggregator interceptorAggregator)
+                                      InterceptorAggregator interceptorAggregator,
+                                      IDumpStreamFactory dumpStreamFactory)
         {
-            _cachingAttribute = cachingAttribute ?? throw new ArgumentNullException(nameof(cachingAttribute));
+            if (cachingAttribute is null)
+            {
+                throw new ArgumentNullException(nameof(cachingAttribute));
+            }
 
             MaxCacheableResponseLength = cachingAttribute.MaxCacheableResponseLength;
             MaxCacheableResponseLength = MaxCacheableResponseLength >= ResponseCachingConstants.DefaultMinMaxCacheableResponseLength
@@ -116,7 +120,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             CacheDeterminer = cacheDeterminer ?? throw new ArgumentNullException(nameof(cacheDeterminer));
             OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultCannotExecutionThroughLockCallback.SetStatus429;
             Duration = cachingAttribute.Duration > 1 ? cachingAttribute.Duration : throw new ArgumentOutOfRangeException($"{nameof(cachingAttribute.Duration)}  can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} seconds");
-            DumpStreamFactory = new DefaultDumpStreamFactory(_cachingAttribute.DumpCapacity);
+            DumpStreamFactory = dumpStreamFactory ?? throw new ArgumentNullException(nameof(dumpStreamFactory));
 
             Interceptors = interceptorAggregator;
         }

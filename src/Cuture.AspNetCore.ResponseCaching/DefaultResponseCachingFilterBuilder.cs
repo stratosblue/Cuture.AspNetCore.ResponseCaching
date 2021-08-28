@@ -55,6 +55,10 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var executingLockerName = executingLockAttribute?.LockerName ?? string.Empty;
 
+            //TODO 测试
+            var dumpStreamFactory = buildContext.GetHttpContextMetadata<IDumpStreamFactoryProvider>()?.Create()
+                                        ?? DefaultDumpStreamFactory.DefaultShared;
+
             switch (filterType)
             {
                 case FilterType.Resource:
@@ -68,13 +72,14 @@ namespace Cuture.AspNetCore.ResponseCaching
                         var executingLocker = executingLockerType is null
                                                 ? null
                                                 : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker<IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>>(executingLockerType, executingLockerName);
-                        var responseCachingContext = new ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry>(attribute,
-                                                                                                                              cacheKeyGenerator,
-                                                                                                                              executingLocker!,
-                                                                                                                              responseCache,
-                                                                                                                              cacheDeterminer,
-                                                                                                                              buildContext.Options,
-                                                                                                                              interceptorAggregator);
+                        var responseCachingContext = new ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry>(cachingAttribute: attribute,
+                                                                                                                              cacheKeyGenerator: cacheKeyGenerator,
+                                                                                                                              executingLocker: executingLocker!,
+                                                                                                                              responseCache: responseCache,
+                                                                                                                              cacheDeterminer: cacheDeterminer,
+                                                                                                                              options: buildContext.Options,
+                                                                                                                              interceptorAggregator: interceptorAggregator,
+                                                                                                                              dumpStreamFactory: dumpStreamFactory);
                         return new DefaultResourceCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 case FilterType.Action:
@@ -88,13 +93,14 @@ namespace Cuture.AspNetCore.ResponseCaching
                         var executingLocker = executingLockerType is null
                                                 ? null
                                                 : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker<IRequestExecutingLocker<ActionExecutingContext, IActionResult>>(executingLockerType, executingLockerName);
-                        var responseCachingContext = new ResponseCachingContext<ActionExecutingContext, IActionResult>(attribute,
-                                                                                                                       cacheKeyGenerator,
-                                                                                                                       executingLocker!,
-                                                                                                                       responseCache,
-                                                                                                                       cacheDeterminer,
-                                                                                                                       buildContext.Options,
-                                                                                                                       interceptorAggregator);
+                        var responseCachingContext = new ResponseCachingContext<ActionExecutingContext, IActionResult>(cachingAttribute: attribute,
+                                                                                                                       cacheKeyGenerator: cacheKeyGenerator,
+                                                                                                                       executingLocker: executingLocker!,
+                                                                                                                       responseCache: responseCache,
+                                                                                                                       cacheDeterminer: cacheDeterminer,
+                                                                                                                       options: buildContext.Options,
+                                                                                                                       interceptorAggregator: interceptorAggregator,
+                                                                                                                       dumpStreamFactory: dumpStreamFactory);
                         return new DefaultActionCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 default:

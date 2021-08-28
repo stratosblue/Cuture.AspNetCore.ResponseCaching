@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Threading;
 
 namespace Cuture.AspNetCore.ResponseCaching
 {
@@ -7,7 +9,15 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// </summary>
     internal class DefaultDumpStreamFactory : IDumpStreamFactory
     {
+        #region Private 字段
+
+        private static readonly Lazy<DefaultDumpStreamFactory> s_defaultShared = new(() => new(ResponseCachingConstants.DefaultDumpCapacity), LazyThreadSafetyMode.PublicationOnly);
+
+        #endregion Private 字段
+
         #region Public 属性
+
+        public static DefaultDumpStreamFactory DefaultShared => s_defaultShared.Value;
 
         /// <summary>
         /// 初始化 <see cref="MemoryStream"/> 的容量
