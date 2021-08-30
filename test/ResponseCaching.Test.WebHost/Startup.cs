@@ -61,6 +61,7 @@ namespace ResponseCaching.Test.WebHost
                 });
 
             services.AddTransient<TestCustomCacheKeyGenerator>();
+            services.AddSingleton<TestCustomModelKeyParser>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

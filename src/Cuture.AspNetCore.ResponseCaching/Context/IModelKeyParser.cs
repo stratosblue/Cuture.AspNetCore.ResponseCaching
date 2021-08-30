@@ -11,8 +11,8 @@
         /// 解析为key
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
-        string Parse(object model);
+        /// <returns><paramref name="model"/>解析后等价的key字符串</returns>
+        string? Parse(object model);
 
         #endregion Public 方法
     }

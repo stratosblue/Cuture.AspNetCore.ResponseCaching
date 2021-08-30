@@ -103,8 +103,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
                 for (int i = 0; i < reversedInterceptors.Length; i++)
                 {
                     var interceptor = reversedInterceptors[i];
+                    var interceptorType = interceptor.GetType();
 
-                    if (interceptor.GetType().GetMethod(nameof(ICachingProcessInterceptor.OnCacheStoringAsync)) is MethodInfo onCacheStoringMethodInfo
+                    if (interceptorType.GetMethod(nameof(ICachingProcessInterceptor.OnCacheStoringAsync)) is MethodInfo onCacheStoringMethodInfo
                         && onCacheStoringMethodInfo.GetCustomAttribute<SkipCallAttribute>(false) is null)
                     {
                         var nextOnCacheStoring = _onCacheStoringWrappedDelegate;
@@ -117,7 +118,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
                         };
                     }
 
-                    if (interceptor.GetType().GetMethod(nameof(ICachingProcessInterceptor.OnResponseWritingAsync)) is MethodInfo onResponseWritingMethodInfo
+                    if (interceptorType.GetMethod(nameof(ICachingProcessInterceptor.OnResponseWritingAsync)) is MethodInfo onResponseWritingMethodInfo
                         && onResponseWritingMethodInfo.GetCustomAttribute<SkipCallAttribute>(false) is null)
                     {
                         var nextOnResponseWriting = _onResponseWritingWrappedDelegate;
@@ -129,7 +130,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
                         };
                     }
 
-                    if (interceptor.GetType().GetMethod(nameof(ICachingProcessInterceptor.OnResultSettingAsync)) is MethodInfo onResultSettingMethodInfo
+                    if (interceptorType.GetMethod(nameof(ICachingProcessInterceptor.OnResultSettingAsync)) is MethodInfo onResultSettingMethodInfo
                         && onResultSettingMethodInfo.GetCustomAttribute<SkipCallAttribute>(false) is null)
                     {
                         var nextOnResultSetting = _onResultSettingWrappedDelegate;

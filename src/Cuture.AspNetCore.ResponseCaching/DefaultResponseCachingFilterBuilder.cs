@@ -167,7 +167,6 @@ namespace Cuture.AspNetCore.ResponseCaching
                         }
                         if (attribute.VaryByModels != null)
                         {
-                            //TODO 测试
                             var modelKeyParserType = context.GetHttpContextMetadata<CacheModelKeyParserAttribute>()?.Type ?? typeof(DefaultModelKeyParser);
                             var modelKeyParser = context.GetRequiredService<IModelKeyParser>(modelKeyParserType);
                             keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByModels, modelKeyParser);

@@ -4,13 +4,13 @@
     {
         #region Public 方法
 
-        public string Parse(object model)
+        public string? Parse(object model)
         {
             if (model is ICacheKeyable keyable)
             {
                 return keyable.AsCacheKey();
             }
-            return model?.ToString() ?? string.Empty;
+            return model?.ToString();
         }
 
         #endregion Public 方法
