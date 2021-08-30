@@ -206,7 +206,6 @@ namespace Cuture.AspNetCore.ResponseCaching
             var optionInterceptorTypes = options.CachingProcessInterceptorTypes;
             var interceptorTypes = new List<Type>(optionInterceptorTypes);
 
-            //TODO Test
             var attributeInterceptors = context.Endpoint.Metadata.OfType<ICachingProcessInterceptor>();
             return optionInterceptorTypes.Select(context.GetRequiredService<ICachingProcessInterceptor>)
                                          .Concat(options.CachingProcessInterceptors)

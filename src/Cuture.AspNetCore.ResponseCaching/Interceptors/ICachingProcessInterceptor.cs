@@ -22,11 +22,11 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// <param name="key">缓存key</param>
         /// <param name="entry">缓存项</param>
         /// <param name="next">后续进行缓存的方法委托</param>
-        /// <returns></returns>
-        Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext,
-                                                     string key,
-                                                     ResponseCacheEntry entry,
-                                                     OnCacheStoringDelegate next);
+        /// <returns>进行内存缓存，以用于立即响应的 <see cref="ResponseCacheEntry"/></returns>
+        Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext,
+                                                      string key,
+                                                      ResponseCacheEntry entry,
+                                                      OnCacheStoringDelegate next);
 
         /// <summary>
         /// 在缓存将写入响应时

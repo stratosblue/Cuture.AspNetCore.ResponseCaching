@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -9,14 +10,14 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 {
     /// <inheritdoc cref="ICachingProcessInterceptor"/>
-    public abstract class CachingProcessInterceptor : ICachingProcessInterceptor
+    public abstract class CachingProcessInterceptor : Attribute, ICachingProcessInterceptor
     {
         #region Public 方法
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [SkipCall]
-        public virtual Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+        public virtual Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
         {
             return next(actionContext, key, entry);
         }

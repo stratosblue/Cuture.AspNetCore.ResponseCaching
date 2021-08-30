@@ -66,9 +66,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="actionContext"></param>
         /// <param name="key"></param>
         /// <param name="cacheEntry"></param>
-        /// <returns></returns>
+        /// <returns>进行内存缓存，以用于立即响应的 <see cref="ResponseCacheEntry"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected async Task<ResponseCacheEntry> SetCacheAsync(ActionContext actionContext, string key, ResponseCacheEntry cacheEntry)
+        protected async Task<ResponseCacheEntry?> SetCacheAsync(ActionContext actionContext, string key, ResponseCacheEntry cacheEntry)
         {
             await ResponseCache.SetAsync(key, cacheEntry);
             return cacheEntry;

@@ -161,5 +161,17 @@ namespace ResponseCaching.Test.WebHost.Controllers
         {
             return TestDataGenerator.GetData(0, 5);
         }
+
+        [HttpGet]
+        [HttpPost]
+        [ActionName("path-cache-custom-interceptor")]
+        [CacheByPath(Duration)]
+        [ExecutingLock(ExecutingLockMode.ActionSingle)]
+        [TestCachingProcessInterceptor]
+        public IEnumerable<WeatherForecast> CacheByPathGetCustomInterceptor()
+        {
+            _logger.LogInformation("{0} : {1}", DateTime.Now, "path-cache-custom-interceptor");
+            return TestDataGenerator.GetData(1, 5);
+        }
     }
 }

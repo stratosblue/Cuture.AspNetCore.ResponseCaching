@@ -19,7 +19,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     /// <param name="key"></param>
     /// <param name="entry"></param>
     /// <returns></returns>
-    public delegate Task<ResponseCacheEntry> OnCacheStoringDelegate(ActionContext actionContext, string key, ResponseCacheEntry entry);
+    public delegate Task<ResponseCacheEntry?> OnCacheStoringDelegate(ActionContext actionContext, string key, ResponseCacheEntry entry);
 
     /// <summary>
     /// 委托 - <inheritdoc cref="ICachingProcessInterceptor.OnResponseWritingAsync(ActionContext, ResponseCacheEntry, OnResponseWritingDelegate)"/>
@@ -52,7 +52,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// <param name="entry"></param>
         /// <param name="next"></param>
         /// <returns></returns>
-        public delegate Task<ResponseCacheEntry> OnCacheStoringWrappedDelegate(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next);
+        public delegate Task<ResponseCacheEntry?> OnCacheStoringWrappedDelegate(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next);
 
         /// <summary>
         ///
@@ -152,10 +152,10 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext,
+        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext,
                                                             string key,
                                                             ResponseCacheEntry entry,
-                                                            Func<ActionContext, string, ResponseCacheEntry, Task<ResponseCacheEntry>> storeFunc)
+                                                            Func<ActionContext, string, ResponseCacheEntry, Task<ResponseCacheEntry?>> storeFunc)
         {
             return _onCacheStoringWrappedDelegate(actionContext, key, entry, new(storeFunc));
         }
