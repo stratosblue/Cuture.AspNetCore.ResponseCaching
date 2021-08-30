@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Builders;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
@@ -55,9 +57,8 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var executingLockerName = executingLockAttribute?.LockerName ?? string.Empty;
 
-            //TODO 测试
-            var dumpStreamFactory = buildContext.GetHttpContextMetadata<IDumpStreamFactoryProvider>()?.Create()
-                                        ?? DefaultDumpStreamFactory.DefaultShared;
+            var dumpStreamCapacity = buildContext.GetHttpContextMetadata<ResponseDumpCapacityAttribute>()?.Capacity
+                                        ?? ResponseCachingConstants.DefaultDumpCapacity;
 
             switch (filterType)
             {
@@ -79,7 +80,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                                                                                                                               cacheDeterminer: cacheDeterminer,
                                                                                                                               options: buildContext.Options,
                                                                                                                               interceptorAggregator: interceptorAggregator,
-                                                                                                                              dumpStreamFactory: dumpStreamFactory);
+                                                                                                                              dumpStreamCapacity: dumpStreamCapacity);
                         return new DefaultResourceCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 case FilterType.Action:
@@ -100,7 +101,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                                                                                                                        cacheDeterminer: cacheDeterminer,
                                                                                                                        options: buildContext.Options,
                                                                                                                        interceptorAggregator: interceptorAggregator,
-                                                                                                                       dumpStreamFactory: dumpStreamFactory);
+                                                                                                                       dumpStreamCapacity: dumpStreamCapacity);
                         return new DefaultActionCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 default:
@@ -200,14 +201,18 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        private static ICachingProcessInterceptor? GetCachingProcessInterceptor(FilterBuildContext context)
+        private static ICachingProcessInterceptor[] GetCachingProcessInterceptor(FilterBuildContext context)
         {
-            var type = context.Attribute.CachingProcessInterceptorType
-                            ?? context.GetRequiredService<IOptions<InterceptorOptions>>().Value.CachingProcessInterceptorType;
+            var options = context.GetRequiredService<IOptions<InterceptorOptions>>().Value;
+            var optionInterceptorTypes = options.CachingProcessInterceptorTypes;
+            var interceptorTypes = new List<Type>(optionInterceptorTypes);
 
-            return type is null
-                        ? null
-                        : context.GetRequiredService<ICachingProcessInterceptor>(type);
+            //TODO Test
+            var attributeInterceptors = context.Endpoint.Metadata.OfType<ICachingProcessInterceptor>();
+            return optionInterceptorTypes.Select(context.GetRequiredService<ICachingProcessInterceptor>)
+                                         .Concat(options.CachingProcessInterceptors)
+                                         .Concat(attributeInterceptors)
+                                         .ToArray();
         }
 
         /// <summary>

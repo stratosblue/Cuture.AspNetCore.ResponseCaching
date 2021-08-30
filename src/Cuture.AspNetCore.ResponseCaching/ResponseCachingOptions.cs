@@ -115,10 +115,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             get => _maxCacheableResponseLength;
             set
             {
-                if (value < ResponseCachingConstants.DefaultMinMaxCacheableResponseLength)
-                {
-                    throw new ArgumentOutOfRangeException($"{nameof(MaxCacheableResponseLength)} 不能小于 {ResponseCachingConstants.DefaultMinMaxCacheableResponseLength}");
-                }
+                Checks.ThrowIfDumpCapacityTooSmall(value, nameof(MaxCacheableResponseLength));
                 _maxCacheableResponseLength = value;
             }
         }

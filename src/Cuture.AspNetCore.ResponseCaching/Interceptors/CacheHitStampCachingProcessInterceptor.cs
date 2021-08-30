@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -49,17 +50,21 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         #region Public 方法
 
         /// <inheritdoc/>
-        public override Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, Func<ActionContext, ResponseCacheEntry, Task<bool>> writeFunc)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override Task<bool> OnResponseWritingAsync(ActionContext actionContext,
+                                                          ResponseCacheEntry entry,
+                                                          OnResponseWritingDelegate next)
         {
             actionContext.HttpContext.Response.Headers.Add(_headerKey, _headerValue);
-            return base.OnResponseWritingAsync(actionContext, entry, writeFunc);
+            return next(actionContext, entry);
         }
 
         /// <inheritdoc/>
-        public override Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, Func<ActionExecutingContext, IActionResult, Task> setResultFunc)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
         {
             actionContext.HttpContext.Response.Headers.Add(_headerKey, _headerValue);
-            return base.OnResultSettingAsync(actionContext, actionResult, setResultFunc);
+            return next(actionContext, actionResult);
         }
 
         #endregion Public 方法

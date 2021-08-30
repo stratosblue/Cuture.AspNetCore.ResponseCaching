@@ -5,6 +5,7 @@ using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cuture.AspNetCore.ResponseCaching.Filters
 {
@@ -119,7 +120,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         {
             var response = executingContext.HttpContext.Response;
             var originalBody = response.Body;
-            using var dumpStream = Context.DumpStreamFactory.Create();
+            using var dumpStream = executingContext.HttpContext.RequestServices.GetRequiredService<IResponseDumpStreamFactory>().Create(Context.DumpStreamCapacity);
 
             ResponseCacheEntry? cacheEntry = null;
             ResourceExecutedContext executedContext;
@@ -144,7 +145,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             {
                 if (cacheEntry.Body.Length <= Context.MaxCacheableResponseLength)
                 {
-                    await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, SetCacheAsync);
+                    return await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, SetCacheAsync);
                 }
                 else
                 {

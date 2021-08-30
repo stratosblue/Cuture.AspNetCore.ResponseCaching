@@ -75,6 +75,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IHotDataCacheProvider, DefaultHotDataCacheProvider>();
 
+            services.TryAddSingleton<IResponseDumpStreamFactory, DefaultResponseDumpStreamFactory>();
+
             services.AddHttpContextAccessor();
 
             return new ResponseCachingBuilder(services);
@@ -139,11 +141,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// 使用缓存命中标记响应头（在命中缓存时的响应头中增加标记）
         /// <para/>
-        /// Note!!!
-        /// <para/>
-        /// * 此设置将会覆盖之前对<see cref="InterceptorOptions.CachingProcessInterceptorType"/>的设置
-        /// <para/>
-        /// * 对<see cref="InterceptorOptions.CachingProcessInterceptorType"/>的重新设置也会使此设置失效
+        /// * 此设置可能因为拦截器短路而不执行
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="key"></param>
@@ -153,12 +151,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.ConfigureInterceptor(options =>
             {
-                options.CachingProcessInterceptorType = typeof(CacheHitStampCachingProcessInterceptor);
+                options.AddInterceptor(new CacheHitStampCachingProcessInterceptor(key, value));
             });
-
-            var interceptor = new CacheHitStampCachingProcessInterceptor(key, value);
-
-            builder.Services.AddSingleton<CacheHitStampCachingProcessInterceptor>(interceptor);
 
             return builder;
         }

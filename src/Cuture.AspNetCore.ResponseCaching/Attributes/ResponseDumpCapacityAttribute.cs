@@ -9,7 +9,7 @@ namespace Microsoft.AspNetCore.Mvc
     /// <para/>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class ResponseDumpCapacityAttribute : Attribute, IDumpStreamFactoryProvider
+    public class ResponseDumpCapacityAttribute : Attribute
     {
         #region Public 属性
 
@@ -28,20 +28,9 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="capacity"><see cref="System.IO.MemoryStream"/>初始化大小</param>
         public ResponseDumpCapacityAttribute(int capacity)
         {
-            if (capacity < ResponseCachingConstants.DefaultMinMaxCacheableResponseLength)
-            {
-                throw new ArgumentOutOfRangeException($"{nameof(capacity)} can not less than {ResponseCachingConstants.DefaultMinMaxCacheableResponseLength}");
-            }
-            Capacity = capacity;
+            Capacity = Checks.ThrowIfDumpCapacityTooSmall(capacity, nameof(capacity));
         }
 
         #endregion Public 构造函数
-
-        #region Public 方法
-
-        /// <inheritdoc/>
-        public IDumpStreamFactory Create() => new DefaultDumpStreamFactory(Capacity);
-
-        #endregion Public 方法
     }
 }

@@ -106,7 +106,7 @@ public void ConfigureServices(IServiceCollection services)
 
 #### 3.5.2 内置的`CacheHitStamp`缓存处理拦截器
 - 此拦截器将会在命中缓存时向响应的`HttpHeader`中添加指定内容
-- 对`CachingProcessInterceptorType`的重新设置会使此设置失效
+- 此设置可能因为拦截器短路而不执行
 
 配置方法：
 ```C#

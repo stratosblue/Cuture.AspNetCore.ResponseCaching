@@ -8,6 +8,7 @@ using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cuture.AspNetCore.ResponseCaching.Filters
 {
@@ -121,7 +122,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         {
             var response = executingContext.HttpContext.Response;
             var originalBody = response.Body;
-            var dumpStream = Context.DumpStreamFactory.Create();
+            var dumpStream = executingContext.HttpContext.RequestServices.GetRequiredService<IResponseDumpStreamFactory>().Create(Context.DumpStreamCapacity);
 
             try
             {

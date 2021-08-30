@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -16,23 +15,26 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, Func<string, ResponseCacheEntry, Task<ResponseCacheEntry>> storeFunc)
+        [SkipCall]
+        public virtual Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
         {
-            return storeFunc(key, entry);
+            return next(actionContext, key, entry);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, Func<ActionContext, ResponseCacheEntry, Task<bool>> writeFunc)
+        [SkipCall]
+        public virtual Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
         {
-            return writeFunc(actionContext, entry);
+            return next(actionContext, entry);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, Func<ActionExecutingContext, IActionResult, Task> setResultFunc)
+        [SkipCall]
+        public virtual Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
         {
-            return setResultFunc(actionContext, actionResult);
+            return next(actionContext, actionResult);
         }
 
         #endregion Public 方法

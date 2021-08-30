@@ -39,9 +39,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         public int Duration { get; set; }
 
-        /// <summary>
-        ///
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsReusable => true;
 
         /// <summary>
@@ -68,9 +66,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         public CacheMode Mode { get; set; } = CacheMode.Default;
 
-        /// <summary>
-        /// Filter排序
-        /// </summary>
+        /// <inheritdoc/>
         public int Order { get; set; }
 
         /// <summary>

@@ -33,9 +33,9 @@ namespace Cuture.AspNetCore.ResponseCaching
         public IResponseCacheDeterminer CacheDeterminer { get; set; }
 
         /// <summary>
-        /// 响应转储Stream工厂
+        /// 用于Dump的MemeoryStream初始化大小
         /// </summary>
-        public IDumpStreamFactory DumpStreamFactory { get; set; }
+        public int DumpStreamCapacity { get; }
 
         /// <summary>
         /// 缓存有效时长（秒）
@@ -91,7 +91,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="cacheDeterminer"></param>
         /// <param name="options"></param>
         /// <param name="interceptorAggregator"></param>
-        /// <param name="dumpStreamFactory"></param>
+        /// <param name="dumpStreamCapacity"></param>
         public ResponseCachingContext(ResponseCachingAttribute cachingAttribute,
                                       ICacheKeyGenerator cacheKeyGenerator,
                                       IRequestExecutingLocker<TFilterContext, TLocalCachingData> executingLocker,
@@ -99,7 +99,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                                       IResponseCacheDeterminer cacheDeterminer,
                                       ResponseCachingOptions options,
                                       InterceptorAggregator interceptorAggregator,
-                                      IDumpStreamFactory dumpStreamFactory)
+                                      int dumpStreamCapacity)
         {
             if (cachingAttribute is null)
             {
@@ -120,9 +120,9 @@ namespace Cuture.AspNetCore.ResponseCaching
             CacheDeterminer = cacheDeterminer ?? throw new ArgumentNullException(nameof(cacheDeterminer));
             OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultCannotExecutionThroughLockCallback.SetStatus429;
             Duration = cachingAttribute.Duration > 1 ? cachingAttribute.Duration : throw new ArgumentOutOfRangeException($"{nameof(cachingAttribute.Duration)}  can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} seconds");
-            DumpStreamFactory = dumpStreamFactory ?? throw new ArgumentNullException(nameof(dumpStreamFactory));
 
             Interceptors = interceptorAggregator;
+            DumpStreamCapacity = Checks.ThrowIfDumpCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
         }
 
         #endregion Public 构造函数

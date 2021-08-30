@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Microsoft.Extensions.Options;
 
@@ -9,44 +10,21 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     /// </summary>
     public class InterceptorOptions : IOptions<InterceptorOptions>
     {
-        #region Private 字段
-
-        private Type? _cachingProcessInterceptorType;
-
-        #endregion Private 字段
-
         #region Public 属性
 
         /// <summary>
-        /// 缓存处理拦截器类型
-        /// <para/>
-        /// 需要实现 <see cref="ICachingProcessInterceptor"/> 接口
+        /// 拦截器实例集合
         /// </summary>
-        public Type? CachingProcessInterceptorType
-        {
-            get => _cachingProcessInterceptorType;
-            set => CheckAndSetType(ref _cachingProcessInterceptorType, value, typeof(ICachingProcessInterceptor));
-        }
+        public List<ICachingProcessInterceptor> CachingProcessInterceptors { get; } = new();
 
         /// <summary>
-        ///
+        /// 需要从 <see cref="IServiceProvider"/> 中获取的拦截器类型
         /// </summary>
+        public List<Type> CachingProcessInterceptorTypes { get; } = new();
+
+        /// <inheritdoc/>
         public InterceptorOptions Value => this;
 
         #endregion Public 属性
-
-        #region Private 方法
-
-        private static void CheckAndSetType(ref Type? target, Type? value, Type baseType)
-        {
-            if (value is null || baseType.IsAssignableFrom(value))
-            {
-                target = value;
-                return;
-            }
-            throw new ResponseCachingException($"{value.FullName} is not subclass of {baseType.FullName}");
-        }
-
-        #endregion Private 方法
     }
 }

@@ -83,6 +83,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// <inheritdoc/>
         public async Task SetAsync(string key, ResponseCacheEntry entry)
         {
+            //HACK 设置值与设置过期时间不是原子性操作，可能存在残留。不影响缓存正确性，是否有必要进行删除？
             RedisKey redisKey = key;
             await _database.HashSetAsync(redisKey, new[] {
                 new HashEntry(_contenTypeFieldName, entry.ContentType),
