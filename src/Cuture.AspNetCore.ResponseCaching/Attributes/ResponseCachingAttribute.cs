@@ -125,7 +125,8 @@ namespace Microsoft.AspNetCore.Mvc
         /// <para/>
         /// 需要实现 <see cref="ICachingProcessInterceptor"/> 接口
         /// </summary>
-        public Type? CachingProcessInterceptorType { get; set; }
+        [Obsolete("Use custom implementation \"CachingProcessInterceptor\" attribute instead.", true)]
+        public Type? CachingProcessInterceptorType { get; }
 
         /// <summary>
         /// 自定义缓存键生成器类型
