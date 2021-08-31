@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.Diagnostics;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
@@ -69,13 +69,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                 await next();
 
                 var httpItems = executingContext.HttpContext.Items;
-                if (httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingOriginalStreamKey, out var savedOriginalBody)
-                    && savedOriginalBody is Stream originalBody
-                    && httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingDumpStreamKey, out var savedDumpStream)
-                    && savedDumpStream is MemoryStream dumpStream
-                    && httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingCacheKeyKey, out var savedKey)
-                    && savedKey is string key)
+                if (httpItems.TryGetValue(ResponseCachingConstants.ResponseCachingResponseDumpContextKey, out var dumpContextObject)
+                    && dumpContextObject is ResponseDumpContext dumpContext)
                 {
+                    var dumpStream = dumpContext.DumpStream;
+                    var key = dumpContext.Key;
+                    var originalBody = dumpContext.OriginalStream;
                     try
                     {
                         dumpStream.Position = 0;
@@ -134,9 +133,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
 
                 if (Context.CacheDeterminer.CanCaching(executedContext))
                 {
-                    executingContext.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingCacheKeyKey, key);
-                    executingContext.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingDumpStreamKey, dumpStream);
-                    executingContext.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingOriginalStreamKey, originalBody);
+                    executingContext.HttpContext.Items.Add(ResponseCachingConstants.ResponseCachingResponseDumpContextKey, new ResponseDumpContext(key, dumpStream, originalBody));
 
                     return executedContext.Result;
                 }

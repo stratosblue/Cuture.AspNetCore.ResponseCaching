@@ -43,19 +43,9 @@
         public const int MinCacheAvailableSeconds = 1;
 
         /// <summary>
-        /// CacheKey在Request.Items的Key
+        /// ResponseDumpContext 在Request.Items的Key
         /// </summary>
-        public const string ResponseCachingCacheKeyKey = "__ResponseCaching.CacheKey";
-
-        /// <summary>
-        /// DumpStream在Request.Items的Key
-        /// </summary>
-        public const string ResponseCachingDumpStreamKey = "__ResponseCaching.DumpStream";
-
-        /// <summary>
-        /// 原始流在Request.Items的Key
-        /// </summary>
-        public const string ResponseCachingOriginalStreamKey = "__ResponseCaching.OriginalStream";
+        public const string ResponseCachingResponseDumpContextKey = "__ResponseCaching.ResponseDumpContext";
 
         #endregion const
     }
