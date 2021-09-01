@@ -54,12 +54,14 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var executingLockMetadata = buildContext.GetHttpContextMetadata<IExecutingLockMetadata>();
 
-            var lockMode = executingLockMetadata?.LockMode ?? buildContext.Options.DefaultExecutingLockMode;
+            var lockMode = Checks.ThrowIfExecutingLockModeIsNone(executingLockMetadata?.LockMode ?? buildContext.Options.DefaultExecutingLockMode);
 
             var executingLockerName = executingLockMetadata?.LockerName ?? string.Empty;
 
             var dumpStreamCapacity = buildContext.GetHttpContextMetadata<IResponseDumpCapacityMetadata>()?.Capacity
                                         ?? ResponseCachingConstants.DefaultDumpCapacity;
+
+            Checks.ThrowIfDumpCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
 
             switch (filterType)
             {
@@ -168,7 +170,10 @@ namespace Cuture.AspNetCore.ResponseCaching
                         }
                         if (attribute.VaryByModels != null)
                         {
-                            var modelKeyParserType = context.GetHttpContextMetadata<CacheModelKeyParserAttribute>()?.Type ?? typeof(DefaultModelKeyParser);
+                            var modelKeyParserType = context.GetHttpContextMetadata<ICacheModelKeyParserMetadata>()?.ModelKeyParserType ?? typeof(DefaultModelKeyParser);
+
+                            Checks.ThrowIfNotIModelKeyParser(modelKeyParserType);
+
                             var modelKeyParser = context.GetRequiredService<IModelKeyParser>(modelKeyParserType);
                             keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByModels, modelKeyParser);
                             filterType = FilterType.Action;

@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cuture.AspNetCore.ResponseCaching;
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
 namespace Microsoft.AspNetCore.Mvc
 {
@@ -9,14 +10,12 @@ namespace Microsoft.AspNetCore.Mvc
     /// <para/>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class CacheModelKeyParserAttribute : Attribute
+    public class CacheModelKeyParserAttribute : Attribute, ICacheModelKeyParserMetadata
     {
         #region Public 属性
 
-        /// <summary>
-        /// 缓存Key生成器类型
-        /// </summary>
-        public Type Type { get; }
+        /// <inheritdoc/>
+        public Type ModelKeyParserType { get; }
 
         #endregion Public 属性
 
@@ -37,12 +36,7 @@ namespace Microsoft.AspNetCore.Mvc
                 throw new ArgumentNullException(nameof(type));
             }
 
-            if (!typeof(IModelKeyParser).IsAssignableFrom(type))
-            {
-                throw new ArgumentException($"ModelKeyParser - {type} must derives from {nameof(IModelKeyParser)}");
-            }
-
-            Type = type;
+            ModelKeyParserType = Checks.ThrowIfNotIModelKeyParser(type);
         }
 
         #endregion Public 构造函数

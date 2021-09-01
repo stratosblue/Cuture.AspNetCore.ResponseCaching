@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
 namespace Microsoft.AspNetCore.Mvc
@@ -28,7 +29,7 @@ namespace Microsoft.AspNetCore.Mvc
         #region Public 构造函数
 
         /// <inheritdoc cref="ExecutingLockAttribute"/>
-        public ExecutingLockAttribute(ExecutingLockMode lockMode) : this("", lockMode)
+        public ExecutingLockAttribute(ExecutingLockMode lockMode) : this(string.Empty, lockMode)
         {
         }
 
@@ -39,13 +40,9 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="lockMode">锁定模式</param>
         public ExecutingLockAttribute(string lockName, ExecutingLockMode lockMode)
         {
-            if (lockMode == ExecutingLockMode.None)
-            {
-                throw new ArgumentException("can not be \"ExecutingLockMode.None\"", nameof(lockMode));
-            }
+            LockMode = Checks.ThrowIfExecutingLockModeIsNone(lockMode);
 
             LockerName = lockName ?? string.Empty;
-            LockMode = lockMode;
         }
 
         #endregion Public 构造函数
