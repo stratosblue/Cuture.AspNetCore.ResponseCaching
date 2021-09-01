@@ -2,6 +2,7 @@
 
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
 namespace Microsoft.AspNetCore.Mvc
 {
@@ -10,19 +11,15 @@ namespace Microsoft.AspNetCore.Mvc
     /// <para/>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class CacheKeyGeneratorAttribute : Attribute
+    public class CacheKeyGeneratorAttribute : Attribute, ICacheKeyGeneratorMetadata
     {
         #region Public 属性
 
-        /// <summary>
-        /// 过滤器类型
-        /// </summary>
-        public FilterType FilterType { get; }
+        /// <inheritdoc/>
+        public Type CacheKeyGeneratorType { get; }
 
-        /// <summary>
-        /// 缓存Key生成器类型
-        /// </summary>
-        public Type Type { get; }
+        /// <inheritdoc/>
+        public FilterType FilterType { get; }
 
         #endregion Public 属性
 
@@ -44,12 +41,7 @@ namespace Microsoft.AspNetCore.Mvc
                 throw new ArgumentNullException(nameof(type));
             }
 
-            if (!typeof(ICacheKeyGenerator).IsAssignableFrom(type))
-            {
-                throw new ArgumentException($"CacheKeyGenerator - {type} must derives from {nameof(ICacheKeyGenerator)}");
-            }
-
-            Type = type;
+            CacheKeyGeneratorType = Checks.ThrowIfNotICacheKeyGenerator(type);
             FilterType = filterType;
         }
 

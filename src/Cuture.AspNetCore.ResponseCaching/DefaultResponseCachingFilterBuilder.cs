@@ -267,14 +267,16 @@ namespace Cuture.AspNetCore.ResponseCaching
         {
             filterType = FilterType.Resource;
 
-            var attribute = context.GetHttpContextMetadata<CacheKeyGeneratorAttribute>();
-            if (attribute is null)
+            var metadata = context.GetHttpContextMetadata<ICacheKeyGeneratorMetadata>();
+            if (metadata is null)
             {
                 return null;
             }
 
-            var cacheKeyGenerator = context.GetRequiredService<ICacheKeyGenerator>(attribute.Type);
-            filterType = attribute.FilterType;
+            Checks.ThrowIfNotICacheKeyGenerator(metadata.CacheKeyGeneratorType);
+
+            var cacheKeyGenerator = context.GetRequiredService<ICacheKeyGenerator>(metadata.CacheKeyGeneratorType);
+            filterType = metadata.FilterType;
 
             if (cacheKeyGenerator is IResponseCachingAttributeSetter responseCachingAttributeSetter)
             {

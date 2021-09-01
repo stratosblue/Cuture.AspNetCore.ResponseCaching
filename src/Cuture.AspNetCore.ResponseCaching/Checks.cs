@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cuture.AspNetCore.ResponseCaching
@@ -27,6 +29,16 @@ namespace Cuture.AspNetCore.ResponseCaching
             }
 
             return lockMode;
+        }
+
+        public static Type ThrowIfNotICacheKeyGenerator(Type cacheKeyGeneratorType)
+        {
+            if (!typeof(ICacheKeyGenerator).IsAssignableFrom(cacheKeyGeneratorType))
+            {
+                throw new ArgumentException($"CacheKeyGenerator - {cacheKeyGeneratorType} must derives from {nameof(ICacheKeyGenerator)}");
+            }
+
+            return cacheKeyGeneratorType;
         }
 
         public static Type ThrowIfNotIModelKeyParser(Type modelKeyParserType)
