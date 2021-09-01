@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cuture.AspNetCore.ResponseCaching;
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
 namespace Microsoft.AspNetCore.Mvc
 {
@@ -9,13 +10,11 @@ namespace Microsoft.AspNetCore.Mvc
     /// <para/>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class ResponseDumpCapacityAttribute : Attribute
+    public class ResponseDumpCapacityAttribute : Attribute, IResponseDumpCapacityMetadata
     {
         #region Public 属性
 
-        /// <summary>
-        /// 容量
-        /// </summary>
+        /// <inheritdoc/>
         public int Capacity { get; }
 
         #endregion Public 属性

@@ -8,6 +8,7 @@ using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.Filters;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Http;
@@ -57,7 +58,7 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var executingLockerName = executingLockAttribute?.LockerName ?? string.Empty;
 
-            var dumpStreamCapacity = buildContext.GetHttpContextMetadata<ResponseDumpCapacityAttribute>()?.Capacity
+            var dumpStreamCapacity = buildContext.GetHttpContextMetadata<IResponseDumpCapacityMetadata>()?.Capacity
                                         ?? ResponseCachingConstants.DefaultDumpCapacity;
 
             switch (filterType)

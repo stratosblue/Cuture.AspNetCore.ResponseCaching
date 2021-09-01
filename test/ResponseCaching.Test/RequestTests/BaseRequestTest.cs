@@ -13,7 +13,6 @@ using ResponseCaching.Test.WebHost.Models;
 
 namespace ResponseCaching.Test.RequestTests
 {
-    [TestClass]
     public abstract class BaseRequestTest : WebServerHostedTestBase
     {
         protected virtual int ReRequestTimes { get; } = 3;

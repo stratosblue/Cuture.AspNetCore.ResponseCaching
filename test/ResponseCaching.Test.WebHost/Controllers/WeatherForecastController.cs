@@ -59,6 +59,7 @@ namespace ResponseCaching.Test.WebHost.Controllers
         [ActionName("url-cache")]
         [CacheByFullUrl(Duration)]
         [ExecutingLock(ExecutingLockMode.ActionSingle)]
+        [ResponseDumpCapacity(128)]
         public IEnumerable<WeatherForecast> CacheByFullUrl([Required] int page, [Required] int pageSize)
         {
             _logger.LogInformation("{0} : {1}", DateTime.Now, "url-cache");
