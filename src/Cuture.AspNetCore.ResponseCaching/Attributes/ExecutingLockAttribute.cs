@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
+
 namespace Microsoft.AspNetCore.Mvc
 {
     /// <summary>
@@ -11,18 +13,14 @@ namespace Microsoft.AspNetCore.Mvc
     /// * 默认实现对 ActionFilter 的锁定效果不敢保证100%<para/>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class ExecutingLockAttribute : Attribute
+    public class ExecutingLockAttribute : Attribute, IExecutingLockMetadata
     {
         #region Public 属性
 
-        /// <summary>
-        /// ExecutingLocker 名称
-        /// </summary>
+        /// <inheritdoc/>
         public string LockerName { get; }
 
-        /// <summary>
-        /// 缓存通行模式
-        /// </summary>
+        /// <inheritdoc/>
         public ExecutingLockMode LockMode { get; } = ExecutingLockMode.Default;
 
         #endregion Public 属性

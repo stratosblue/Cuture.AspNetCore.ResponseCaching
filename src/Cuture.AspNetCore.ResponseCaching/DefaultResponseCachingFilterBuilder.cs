@@ -52,11 +52,11 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var interceptorAggregator = new InterceptorAggregator(GetCachingProcessInterceptor(buildContext));
 
-            var executingLockAttribute = buildContext.GetHttpContextMetadata<ExecutingLockAttribute>();
+            var executingLockMetadata = buildContext.GetHttpContextMetadata<IExecutingLockMetadata>();
 
-            var lockMode = executingLockAttribute?.LockMode ?? buildContext.Options.DefaultExecutingLockMode;
+            var lockMode = executingLockMetadata?.LockMode ?? buildContext.Options.DefaultExecutingLockMode;
 
-            var executingLockerName = executingLockAttribute?.LockerName ?? string.Empty;
+            var executingLockerName = executingLockMetadata?.LockerName ?? string.Empty;
 
             var dumpStreamCapacity = buildContext.GetHttpContextMetadata<IResponseDumpCapacityMetadata>()?.Capacity
                                         ?? ResponseCachingConstants.DefaultDumpCapacity;
