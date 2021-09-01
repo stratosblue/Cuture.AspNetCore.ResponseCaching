@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -10,24 +11,18 @@ namespace Microsoft.AspNetCore.Mvc
     /// 本地热数据缓存
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class HotDataCacheAttribute : Attribute, IHotDataCacheBuilder
+    public class HotDataCacheAttribute : Attribute, IHotDataCacheBuilder, IHotDataCacheMetadata
     {
         #region Public 属性
 
-        /// <summary>
-        /// 缓存策略
-        /// </summary>
-        public HotDataCachePolicy CachePolicy { get; set; } = HotDataCachePolicy.Default;
+        /// <inheritdoc/>
+        public HotDataCachePolicy CachePolicy { get; } = HotDataCachePolicy.Default;
 
-        /// <summary>
-        /// 缓存热数据的数量
-        /// </summary>
-        public int Capacity { get; set; }
+        /// <inheritdoc/>
+        public int Capacity { get; }
 
-        /// <summary>
-        /// 名称
-        /// </summary>
-        public string? Name { get; set; }
+        /// <inheritdoc/>
+        public string? HotDataCacheName { get; }
 
         /// <inheritdoc cref="HotDataCacheAttribute(int, HotDataCachePolicy)"/>
         public HotDataCacheAttribute(int capacity)
@@ -51,10 +46,13 @@ namespace Microsoft.AspNetCore.Mvc
         #region Public 方法
 
         /// <inheritdoc/>
-        public IHotDataCache Build(IServiceProvider serviceProvider)
+        public IHotDataCache Build(IServiceProvider serviceProvider, IHotDataCacheMetadata metadata)
         {
             var hotDataCacheProvider = serviceProvider.GetRequiredService<IHotDataCacheProvider>();
-            return hotDataCacheProvider.Get(serviceProvider, Name ?? string.Empty, CachePolicy, Capacity);
+            return hotDataCacheProvider.Get(serviceProvider,
+                                            metadata.HotDataCacheName ?? string.Empty,
+                                            metadata.CachePolicy,
+                                            metadata.Capacity);
         }
 
         #endregion Public 方法

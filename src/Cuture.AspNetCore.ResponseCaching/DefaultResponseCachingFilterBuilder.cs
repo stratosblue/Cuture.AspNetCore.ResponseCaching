@@ -238,7 +238,9 @@ namespace Cuture.AspNetCore.ResponseCaching
                         var hotDataCacheBuilder = context.GetHttpContextMetadata<IHotDataCacheBuilder>();
                         if (hotDataCacheBuilder is not null)
                         {
-                            var hotDataCache = hotDataCacheBuilder.Build(context.ServiceProvider);
+                            var metadata = context.GetHttpContextMetadata<IHotDataCacheMetadata>() ?? throw new ResponseCachingException($"No {nameof(IHotDataCacheMetadata)} found for {context.Endpoint}");
+
+                            var hotDataCache = hotDataCacheBuilder.Build(context.ServiceProvider, metadata);
                             if (hotDataCache is null)
                             {
                                 throw new ResponseCachingException($"The data cache {hotDataCacheBuilder.GetType()} provided is null.");

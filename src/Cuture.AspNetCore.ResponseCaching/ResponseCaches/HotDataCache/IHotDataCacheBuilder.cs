@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
+
 namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
 {
     /// <summary>
@@ -13,8 +15,9 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// 获取热点数据缓存
         /// </summary>
         /// <param name="serviceProvider"></param>
+        /// <param name="metadata">热点数据缓存信息</param>
         /// <returns></returns>
-        IHotDataCache Build(IServiceProvider serviceProvider);
+        IHotDataCache Build(IServiceProvider serviceProvider, IHotDataCacheMetadata metadata);
 
         #endregion Public 方法
     }
