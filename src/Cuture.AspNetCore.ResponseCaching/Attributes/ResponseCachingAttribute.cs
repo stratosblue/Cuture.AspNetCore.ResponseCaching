@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Threading;
 
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Mvc
 {
@@ -14,16 +12,8 @@ namespace Microsoft.AspNetCore.Mvc
     /// 响应缓存
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class ResponseCachingAttribute : Attribute, IFilterFactory, IOrderedFilter
+    public class ResponseCachingAttribute : ResponseCacheableAttribute
     {
-        #region Private 字段
-
-        private SpinLock _createInstanceLock = new(false);
-
-        private IFilterMetadata? _filterMetadata;
-
-        #endregion Private 字段
-
         #region Public 属性
 
         /// <summary>
@@ -38,9 +28,6 @@ namespace Microsoft.AspNetCore.Mvc
         /// 缓存时长（秒）
         /// </summary>
         public int Duration { get; set; }
-
-        /// <inheritdoc/>
-        public bool IsReusable => true;
 
         /// <summary>
         /// 缓存通行模式（设置执行action的并发控制）
@@ -65,9 +52,6 @@ namespace Microsoft.AspNetCore.Mvc
         /// 缓存模式（设置依据什么内容进行缓存）
         /// </summary>
         public CacheMode Mode { get; set; } = CacheMode.Default;
-
-        /// <inheritdoc/>
-        public int Order { get; set; }
 
         /// <summary>
         /// 缓存数据存储位置
@@ -237,50 +221,5 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         #endregion Public 构造函数
-
-        #region Public 方法
-
-        /// <summary>
-        /// 创建 <see cref="IFilterMetadata"/>
-        /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
-        public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
-        {
-            var locked = false;
-            try
-            {
-                _createInstanceLock.Enter(ref locked);
-                if (_filterMetadata is null)
-                {
-                    _filterMetadata = CreateFilter(serviceProvider);
-                }
-                return _filterMetadata;
-            }
-            finally
-            {
-                if (locked)
-                {
-                    _createInstanceLock.Exit(false);
-                }
-            }
-        }
-
-        #endregion Public 方法
-
-        #region Protected 方法
-
-        /// <summary>
-        /// 创建Filter（线程安全）
-        /// </summary>
-        /// <param name="serviceProvider"></param>
-        /// <returns></returns>
-        protected virtual IFilterMetadata CreateFilter(IServiceProvider serviceProvider)
-        {
-            var filterBuilder = serviceProvider.GetRequiredService<IResponseCachingFilterBuilder>();
-            return filterBuilder.CreateFilter(serviceProvider, this);
-        }
-
-        #endregion Protected 方法
     }
 }
