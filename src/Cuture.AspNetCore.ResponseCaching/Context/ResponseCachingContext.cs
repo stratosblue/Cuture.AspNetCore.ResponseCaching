@@ -5,8 +5,10 @@ using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -92,6 +94,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="options"></param>
         /// <param name="interceptorAggregator"></param>
         /// <param name="dumpStreamCapacity"></param>
+        /// <param name="metadatas">Action端点的 <see cref="EndpointMetadataCollection"/></param>
         public ResponseCachingContext(ResponseCachingAttribute cachingAttribute,
                                       ICacheKeyGenerator cacheKeyGenerator,
                                       IRequestExecutingLocker<TFilterContext, TLocalCachingData> executingLocker,
@@ -99,11 +102,17 @@ namespace Cuture.AspNetCore.ResponseCaching
                                       IResponseCacheDeterminer cacheDeterminer,
                                       ResponseCachingOptions options,
                                       InterceptorAggregator interceptorAggregator,
-                                      int dumpStreamCapacity)
+                                      int dumpStreamCapacity,
+                                      EndpointMetadataCollection metadatas)
         {
             if (cachingAttribute is null)
             {
                 throw new ArgumentNullException(nameof(cachingAttribute));
+            }
+
+            if (metadatas is null)
+            {
+                throw new ArgumentNullException(nameof(metadatas));
             }
 
             MaxCacheableResponseLength = cachingAttribute.MaxCacheableResponseLength;
@@ -119,7 +128,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             ResponseCache = responseCache ?? throw new ArgumentNullException(nameof(responseCache));
             CacheDeterminer = cacheDeterminer ?? throw new ArgumentNullException(nameof(cacheDeterminer));
             OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultCannotExecutionThroughLockCallback.SetStatus429;
-            Duration = cachingAttribute.Duration > 1 ? cachingAttribute.Duration : throw new ArgumentOutOfRangeException($"{nameof(cachingAttribute.Duration)}  can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} seconds");
+            Duration = Checks.ThrowIfDurationTooSmall(metadatas.GetMetadata<IResponseDurationMetadata>().Duration);
 
             Interceptors = interceptorAggregator;
             DumpStreamCapacity = Checks.ThrowIfDumpCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));

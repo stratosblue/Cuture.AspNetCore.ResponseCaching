@@ -7,10 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cuture.AspNetCore.ResponseCaching
 {
-    internal static class Checks
+    /// <summary>
+    /// 参数检查
+    /// </summary>
+    public static class Checks
     {
         #region Public 方法
 
+        /// <summary>
+        /// 如果 <paramref name="capacity"/> 过小，抛出异常
+        /// </summary>
+        /// <param name="capacity"></param>
+        /// <param name="capacityExpression"></param>
+        /// <returns></returns>
         public static int ThrowIfDumpCapacityTooSmall(int capacity, [CallerArgumentExpression("capacity")] string? capacityExpression = null)
         {
             if (capacity < ResponseCachingConstants.DefaultMinMaxCacheableResponseLength)
@@ -21,6 +30,26 @@ namespace Cuture.AspNetCore.ResponseCaching
             return capacity;
         }
 
+        /// <summary>
+        /// 如果 <paramref name="duration"/> 过小，抛出异常
+        /// </summary>
+        /// <param name="duration"></param>
+        /// <returns></returns>
+        public static int ThrowIfDurationTooSmall(int duration)
+        {
+            if (duration < ResponseCachingConstants.MinCacheAvailableSeconds)
+            {
+                throw new ArgumentOutOfRangeException(nameof(duration), $"{nameof(duration)} can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} second");
+            }
+
+            return duration;
+        }
+
+        /// <summary>
+        /// 如果 <paramref name="lockMode"/> 为 <see cref="ExecutingLockMode.None"/>，抛出异常
+        /// </summary>
+        /// <param name="lockMode"></param>
+        /// <returns></returns>
         public static ExecutingLockMode ThrowIfExecutingLockModeIsNone(ExecutingLockMode lockMode)
         {
             if (lockMode == ExecutingLockMode.None)
@@ -31,6 +60,11 @@ namespace Cuture.AspNetCore.ResponseCaching
             return lockMode;
         }
 
+        /// <summary>
+        /// 如果 <paramref name="cacheKeyGeneratorType"/> 不派生自 <see cref="ICacheKeyGenerator"/>，抛出异常
+        /// </summary>
+        /// <param name="cacheKeyGeneratorType"></param>
+        /// <returns></returns>
         public static Type ThrowIfNotICacheKeyGenerator(Type cacheKeyGeneratorType)
         {
             if (!typeof(ICacheKeyGenerator).IsAssignableFrom(cacheKeyGeneratorType))
@@ -41,6 +75,11 @@ namespace Cuture.AspNetCore.ResponseCaching
             return cacheKeyGeneratorType;
         }
 
+        /// <summary>
+        /// 如果 <paramref name="modelKeyParserType"/> 不派生自 <see cref="IModelKeyParser"/>，抛出异常
+        /// </summary>
+        /// <param name="modelKeyParserType"></param>
+        /// <returns></returns>
         public static Type ThrowIfNotIModelKeyParser(Type modelKeyParserType)
         {
             if (!typeof(IModelKeyParser).IsAssignableFrom(modelKeyParserType))

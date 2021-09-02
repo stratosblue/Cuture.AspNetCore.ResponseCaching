@@ -3,6 +3,7 @@
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -12,7 +13,7 @@ namespace Microsoft.AspNetCore.Mvc
     /// 响应缓存
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class ResponseCachingAttribute : ResponseCacheableAttribute
+    public class ResponseCachingAttribute : ResponseCacheableAttribute, IResponseDurationMetadata
     {
         #region Public 属性
 
@@ -24,9 +25,7 @@ namespace Microsoft.AspNetCore.Mvc
         [Obsolete("Use \"ResponseDumpCapacityAttribute\" instead.", true)]
         public int DumpCapacity { get; }
 
-        /// <summary>
-        /// 缓存时长（秒）
-        /// </summary>
+        /// <inheritdoc/>
         public int Duration { get; set; }
 
         /// <summary>

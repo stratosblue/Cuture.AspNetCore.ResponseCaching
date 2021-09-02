@@ -39,8 +39,6 @@ namespace Cuture.AspNetCore.ResponseCaching
                 return EmptyFilterMetadata.Instance;
             }
 
-            CheckDuration(attribute.Duration);
-
             IResponseCache responseCache = GetResponseCache(buildContext);
 
             ICacheKeyGenerator cacheKeyGenerator = TryGetCustomCacheKeyGenerator(buildContext, out FilterType filterType)
@@ -52,13 +50,13 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var interceptorAggregator = new InterceptorAggregator(GetCachingProcessInterceptor(buildContext));
 
-            var executingLockMetadata = buildContext.GetHttpContextMetadata<IExecutingLockMetadata>();
+            var executingLockMetadata = buildContext.GetMetadata<IExecutingLockMetadata>();
 
             var lockMode = Checks.ThrowIfExecutingLockModeIsNone(executingLockMetadata?.LockMode ?? buildContext.Options.DefaultExecutingLockMode);
 
             var executingLockerName = executingLockMetadata?.LockerName ?? string.Empty;
 
-            var dumpStreamCapacity = buildContext.GetHttpContextMetadata<IResponseDumpCapacityMetadata>()?.Capacity
+            var dumpStreamCapacity = buildContext.GetMetadata<IResponseDumpCapacityMetadata>()?.Capacity
                                         ?? ResponseCachingConstants.DefaultDumpCapacity;
 
             Checks.ThrowIfDumpCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
@@ -83,7 +81,8 @@ namespace Cuture.AspNetCore.ResponseCaching
                                                                                                                               cacheDeterminer: cacheDeterminer,
                                                                                                                               options: buildContext.Options,
                                                                                                                               interceptorAggregator: interceptorAggregator,
-                                                                                                                              dumpStreamCapacity: dumpStreamCapacity);
+                                                                                                                              dumpStreamCapacity: dumpStreamCapacity,
+                                                                                                                              metadatas: buildContext.Endpoint.Metadata);
                         return new DefaultResourceCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 case FilterType.Action:
@@ -104,7 +103,8 @@ namespace Cuture.AspNetCore.ResponseCaching
                                                                                                                        cacheDeterminer: cacheDeterminer,
                                                                                                                        options: buildContext.Options,
                                                                                                                        interceptorAggregator: interceptorAggregator,
-                                                                                                                       dumpStreamCapacity: dumpStreamCapacity);
+                                                                                                                       dumpStreamCapacity: dumpStreamCapacity,
+                                                                                                                        metadatas: buildContext.Endpoint.Metadata);
                         return new DefaultActionCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 default:
@@ -115,14 +115,6 @@ namespace Cuture.AspNetCore.ResponseCaching
         #endregion Public 方法
 
         #region Private 方法
-
-        private static void CheckDuration(int duration)
-        {
-            if (duration < ResponseCachingConstants.MinCacheAvailableSeconds)
-            {
-                throw new ArgumentOutOfRangeException($"{nameof(duration)} can not less than {ResponseCachingConstants.MinCacheAvailableSeconds} second");
-            }
-        }
 
         /// <summary>
         /// 创建CacheKeyGenerator
@@ -170,7 +162,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                         }
                         if (attribute.VaryByModels != null)
                         {
-                            var modelKeyParserType = context.GetHttpContextMetadata<ICacheModelKeyParserMetadata>()?.ModelKeyParserType ?? typeof(DefaultModelKeyParser);
+                            var modelKeyParserType = context.GetMetadata<ICacheModelKeyParserMetadata>()?.ModelKeyParserType ?? typeof(DefaultModelKeyParser);
 
                             Checks.ThrowIfNotIModelKeyParser(modelKeyParserType);
 
@@ -235,10 +227,10 @@ namespace Cuture.AspNetCore.ResponseCaching
                 case CacheStoreLocation.Distributed:
                     {
                         var responseCache = context.GetRequiredService<IDistributedResponseCache>();
-                        var hotDataCacheBuilder = context.GetHttpContextMetadata<IHotDataCacheBuilder>();
+                        var hotDataCacheBuilder = context.GetMetadata<IHotDataCacheBuilder>();
                         if (hotDataCacheBuilder is not null)
                         {
-                            var metadata = context.GetHttpContextMetadata<IHotDataCacheMetadata>() ?? throw new ResponseCachingException($"No {nameof(IHotDataCacheMetadata)} found for {context.Endpoint}");
+                            var metadata = context.GetMetadata<IHotDataCacheMetadata>() ?? throw new ResponseCachingException($"No {nameof(IHotDataCacheMetadata)} found for {context.Endpoint}");
 
                             var hotDataCache = hotDataCacheBuilder.Build(context.ServiceProvider, metadata);
                             if (hotDataCache is null)
@@ -269,7 +261,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         {
             filterType = FilterType.Resource;
 
-            var metadata = context.GetHttpContextMetadata<ICacheKeyGeneratorMetadata>();
+            var metadata = context.GetMetadata<ICacheKeyGeneratorMetadata>();
             if (metadata is null)
             {
                 return null;
@@ -325,7 +317,7 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #region Public 方法
 
-        public T? GetHttpContextMetadata<T>() where T : class => Endpoint.Metadata.GetMetadata<T>();
+        public T? GetMetadata<T>() where T : class => Endpoint.Metadata.GetMetadata<T>();
 
         public T GetRequiredService<T>() where T : notnull => ServiceProvider.GetRequiredService<T>();
 
