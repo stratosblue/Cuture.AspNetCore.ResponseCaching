@@ -18,6 +18,7 @@ namespace Microsoft.AspNetCore.Mvc
         , IResponseDurationMetadata
         , IMaxCacheableResponseLengthMetadata
         , IResponseCacheModeMetadata
+        , IResponseCacheKeyStrictModeMetadata
     {
         #region Public 属性
 
@@ -57,10 +58,8 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         public CacheStoreLocation StoreLocation { get; set; } = CacheStoreLocation.Default;
 
-        /// <summary>
-        /// 缓存键严格模式（指定键找不到时的处理方式）
-        /// </summary>
-        public CacheKeyStrictMode StrictMode { get; set; } = CacheKeyStrictMode.Default;
+        /// <inheritdoc/>
+        public CacheKeyStrictMode? StrictMode { get; set; }
 
         /// <summary>
         /// 依据声明

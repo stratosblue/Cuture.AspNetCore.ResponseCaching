@@ -127,10 +127,6 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var cacheMode = context.RequiredMetadata<IResponseCacheModeMetadata>().Mode;
 
-            var strictMode = attribute.StrictMode == CacheKeyStrictMode.Default
-                                ? context.Options.DefaultStrictMode
-                                : attribute.StrictMode;
-
             filterType = FilterType.Resource;
 
             ICacheKeyGenerator cacheKeyGenerator;
@@ -144,6 +140,12 @@ namespace Cuture.AspNetCore.ResponseCaching
 
                 case CacheMode.Custom:
                     {
+                        var strictMode = context.GetMetadata<IResponseCacheKeyStrictModeMetadata>()?.StrictMode ?? CacheKeyStrictMode.Default;
+                        if (strictMode == CacheKeyStrictMode.Default)
+                        {
+                            strictMode = context.Options.DefaultStrictMode;
+                        }
+
                         CacheKeyBuilder? keyBuilder = null;
                         if (attribute.VaryByHeaders?.Length > 0)
                         {
