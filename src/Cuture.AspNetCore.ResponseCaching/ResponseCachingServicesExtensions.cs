@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static ResponseCachingBuilder AddCaching(this IServiceCollection services)
+        public static ResponseCachingServiceBuilder AddCaching(this IServiceCollection services)
         {
             services.AddOptions<InterceptorOptions>();
 
@@ -79,7 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddHttpContextAccessor();
 
-            return new ResponseCachingBuilder(services);
+            return new ResponseCachingServiceBuilder(services);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services"></param>
         /// <param name="configureOptions"></param>
         /// <returns></returns>
-        public static ResponseCachingBuilder AddCaching(this IServiceCollection services, Action<ResponseCachingOptions> configureOptions)
+        public static ResponseCachingServiceBuilder AddCaching(this IServiceCollection services, Action<ResponseCachingOptions> configureOptions)
         {
             services.AddOptions<ResponseCachingOptions>().PostConfigure(configureOptions);
             return services.AddCaching();
@@ -100,7 +100,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public static ResponseCachingBuilder AddCaching(this IServiceCollection services, IConfiguration configuration)
+        public static ResponseCachingServiceBuilder AddCaching(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddOptions<ResponseCachingOptions>().Bind(configuration);
             return services.AddCaching();
@@ -132,7 +132,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder"></param>
         /// <param name="configureOptions"></param>
         /// <returns></returns>
-        public static ResponseCachingBuilder ConfigureInterceptor(this ResponseCachingBuilder builder, Action<InterceptorOptions> configureOptions)
+        public static ResponseCachingServiceBuilder ConfigureInterceptor(this ResponseCachingServiceBuilder builder, Action<InterceptorOptions> configureOptions)
         {
             builder.Services.PostConfigure(configureOptions);
             return builder;
@@ -147,7 +147,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static ResponseCachingBuilder UseCacheHitStampHeader(this ResponseCachingBuilder builder, string key, string value)
+        public static ResponseCachingServiceBuilder UseCacheHitStampHeader(this ResponseCachingServiceBuilder builder, string key, string value)
         {
             builder.ConfigureInterceptor(options =>
             {
@@ -168,7 +168,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public static ResponseCachingBuilder AddDiagnosticDebugLogger(this ResponseCachingBuilder builder)
+        public static ResponseCachingServiceBuilder AddDiagnosticDebugLogger(this ResponseCachingServiceBuilder builder)
         {
             builder.InternalAddDiagnosticDebugLogger();
             return builder;
@@ -179,19 +179,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public static ResponseCachingBuilder AddDiagnosticReleaseLogger(this ResponseCachingBuilder builder)
+        public static ResponseCachingServiceBuilder AddDiagnosticReleaseLogger(this ResponseCachingServiceBuilder builder)
         {
             builder.InternalAddDiagnosticReleaseLogger();
             return builder;
         }
 
         [Conditional("DEBUG")]
-        internal static void InternalAddDiagnosticDebugLogger(this ResponseCachingBuilder builder)
+        internal static void InternalAddDiagnosticDebugLogger(this ResponseCachingServiceBuilder builder)
         {
             builder.InternalAddDiagnosticLogger();
         }
 
-        internal static void InternalAddDiagnosticLogger(this ResponseCachingBuilder builder)
+        internal static void InternalAddDiagnosticLogger(this ResponseCachingServiceBuilder builder)
         {
             var services = builder.Services;
 
@@ -204,7 +204,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         [Conditional("RELEASE")]
-        internal static void InternalAddDiagnosticReleaseLogger(this ResponseCachingBuilder builder)
+        internal static void InternalAddDiagnosticReleaseLogger(this ResponseCachingServiceBuilder builder)
         {
             builder.InternalAddDiagnosticLogger();
         }

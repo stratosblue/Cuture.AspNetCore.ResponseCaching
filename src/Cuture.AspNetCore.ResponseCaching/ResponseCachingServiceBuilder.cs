@@ -5,9 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Cuture.AspNetCore.ResponseCaching
 {
     /// <summary>
-    /// ResponseCaching构建类
+    /// ResponseCaching服务构建类
     /// </summary>
-    public class ResponseCachingBuilder
+    public class ResponseCachingServiceBuilder
     {
         #region Public 属性
 
@@ -18,11 +18,8 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #region Public 构造函数
 
-        /// <summary>
-        /// ResponseCaching构建类
-        /// </summary>
-        /// <param name="services"></param>
-        public ResponseCachingBuilder(IServiceCollection services)
+        /// <inheritdoc cref="ResponseCachingServiceBuilder"/>
+        public ResponseCachingServiceBuilder(IServiceCollection services)
         {
             Services = services ?? throw new ArgumentNullException(nameof(services));
         }

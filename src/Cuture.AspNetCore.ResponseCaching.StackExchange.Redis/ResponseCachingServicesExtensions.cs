@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configuration">The string configuration to use for this multiplexer.</param>
         /// <param name="cacheKeyPrefix">缓存Key前缀</param>
         /// <returns></returns>
-        public static ResponseCachingBuilder UseRedisResponseCache(this ResponseCachingBuilder builder, string configuration, string? cacheKeyPrefix = null)
+        public static ResponseCachingServiceBuilder UseRedisResponseCache(this ResponseCachingServiceBuilder builder, string configuration, string? cacheKeyPrefix = null)
         {
             var connectionMultiplexer = ConnectionMultiplexer.Connect(configuration);
             return builder.UseRedisResponseCache(connectionMultiplexer, cacheKeyPrefix);
@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="connectionMultiplexer"></param>
         /// <param name="cacheKeyPrefix">缓存Key前缀</param>
         /// <returns></returns>
-        public static ResponseCachingBuilder UseRedisResponseCache(this ResponseCachingBuilder builder, IConnectionMultiplexer connectionMultiplexer, string? cacheKeyPrefix = null)
+        public static ResponseCachingServiceBuilder UseRedisResponseCache(this ResponseCachingServiceBuilder builder, IConnectionMultiplexer connectionMultiplexer, string? cacheKeyPrefix = null)
         {
             return builder.UseRedisResponseCache(options =>
             {
@@ -51,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public static ResponseCachingBuilder UseRedisResponseCache(this ResponseCachingBuilder builder, IConfiguration configuration)
+        public static ResponseCachingServiceBuilder UseRedisResponseCache(this ResponseCachingServiceBuilder builder, IConfiguration configuration)
         {
             var connectionConfiguration = configuration.GetValue<string>(nameof(RedisResponseCacheOptions.Configuration));
             var connectionMultiplexer = ConnectionMultiplexer.Connect(connectionConfiguration);
@@ -70,7 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder"></param>
         /// <param name="configureOptions"></param>
         /// <returns></returns>
-        internal static ResponseCachingBuilder UseRedisResponseCache(this ResponseCachingBuilder builder, Action<RedisResponseCacheOptions> configureOptions)
+        internal static ResponseCachingServiceBuilder UseRedisResponseCache(this ResponseCachingServiceBuilder builder, Action<RedisResponseCacheOptions> configureOptions)
         {
             var services = builder.Services;
 
