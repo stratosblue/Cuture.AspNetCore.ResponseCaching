@@ -13,7 +13,10 @@ namespace Microsoft.AspNetCore.Mvc
     /// 响应缓存
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class ResponseCachingAttribute : ResponseCacheableAttribute, IResponseDurationMetadata
+    public class ResponseCachingAttribute
+        : ResponseCacheableAttribute
+        , IResponseDurationMetadata
+        , IMaxCacheableResponseLengthMetadata
     {
         #region Public 属性
 
@@ -42,10 +45,8 @@ namespace Microsoft.AspNetCore.Mvc
         [Obsolete("使用 ExecutingLockAttribute 替代此属性", true)]
         public ExecutingLockMode LockMode { get; } = ExecutingLockMode.Default;
 
-        /// <summary>
-        /// 最大可缓存响应长度（默认使用全局配置）
-        /// </summary>
-        public int MaxCacheableResponseLength { get; set; } = -1;
+        /// <inheritdoc/>
+        public int? MaxCacheableResponseLength { get; set; }
 
         /// <summary>
         /// 缓存模式（设置依据什么内容进行缓存）

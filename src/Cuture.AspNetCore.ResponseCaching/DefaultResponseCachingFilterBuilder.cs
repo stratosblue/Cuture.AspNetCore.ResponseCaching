@@ -74,15 +74,14 @@ namespace Cuture.AspNetCore.ResponseCaching
                         var executingLocker = executingLockerType is null
                                                 ? null
                                                 : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker<IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>>(executingLockerType, executingLockerName);
-                        var responseCachingContext = new ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry>(cachingAttribute: attribute,
+                        var responseCachingContext = new ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry>(metadatas: buildContext.Endpoint.Metadata,
                                                                                                                               cacheKeyGenerator: cacheKeyGenerator,
                                                                                                                               executingLocker: executingLocker!,
                                                                                                                               responseCache: responseCache,
                                                                                                                               cacheDeterminer: cacheDeterminer,
                                                                                                                               options: buildContext.Options,
                                                                                                                               interceptorAggregator: interceptorAggregator,
-                                                                                                                              dumpStreamCapacity: dumpStreamCapacity,
-                                                                                                                              metadatas: buildContext.Endpoint.Metadata);
+                                                                                                                              dumpStreamCapacity: dumpStreamCapacity);
                         return new DefaultResourceCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 case FilterType.Action:
@@ -96,15 +95,14 @@ namespace Cuture.AspNetCore.ResponseCaching
                         var executingLocker = executingLockerType is null
                                                 ? null
                                                 : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker<IRequestExecutingLocker<ActionExecutingContext, IActionResult>>(executingLockerType, executingLockerName);
-                        var responseCachingContext = new ResponseCachingContext<ActionExecutingContext, IActionResult>(cachingAttribute: attribute,
+                        var responseCachingContext = new ResponseCachingContext<ActionExecutingContext, IActionResult>(metadatas: buildContext.Endpoint.Metadata,
                                                                                                                        cacheKeyGenerator: cacheKeyGenerator,
                                                                                                                        executingLocker: executingLocker!,
                                                                                                                        responseCache: responseCache,
                                                                                                                        cacheDeterminer: cacheDeterminer,
                                                                                                                        options: buildContext.Options,
                                                                                                                        interceptorAggregator: interceptorAggregator,
-                                                                                                                       dumpStreamCapacity: dumpStreamCapacity,
-                                                                                                                        metadatas: buildContext.Endpoint.Metadata);
+                                                                                                                       dumpStreamCapacity: dumpStreamCapacity);
                         return new DefaultActionCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
                     }
                 default:

@@ -61,6 +61,22 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         /// <summary>
+        /// 如果 <paramref name="maxCacheableResponseLength"/> 过小，抛出异常
+        /// </summary>
+        /// <param name="maxCacheableResponseLength"></param>
+        /// <param name="variableExpression"></param>
+        /// <returns></returns>
+        public static int ThrowIfMaxCacheableResponseLengthTooSmall(int maxCacheableResponseLength, [CallerArgumentExpression("maxCacheableResponseLength")] string? variableExpression = null)
+        {
+            if (maxCacheableResponseLength < ResponseCachingConstants.DefaultMinMaxCacheableResponseLength)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxCacheableResponseLength), $"Invalid maxCacheableResponseLength value - {variableExpression}");
+            }
+
+            return maxCacheableResponseLength;
+        }
+
+        /// <summary>
         /// 如果 <paramref name="cacheKeyGeneratorType"/> 不派生自 <see cref="ICacheKeyGenerator"/>，抛出异常
         /// </summary>
         /// <param name="cacheKeyGeneratorType"></param>

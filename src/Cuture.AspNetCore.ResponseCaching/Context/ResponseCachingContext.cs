@@ -9,7 +9,6 @@ using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Cuture.AspNetCore.ResponseCaching
@@ -81,12 +80,23 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #endregion Public 属性
 
+        #region Protected 构造函数
+
+        /// <inheritdoc cref="ResponseCachingContext{TFilterContext, TLocalCachingData}"/>
+#pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
+        protected ResponseCachingContext()
+#pragma warning restore CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
+        {
+        }
+
+        #endregion Protected 构造函数
+
         #region Public 构造函数
 
         /// <summary>
-        ///
+        /// <inheritdoc cref="ResponseCachingContext{TFilterContext, TLocalCachingData}"/>
         /// </summary>
-        /// <param name="cachingAttribute"></param>
+        /// <param name="metadatas">Action端点的 <see cref="EndpointMetadataCollection"/></param>
         /// <param name="cacheKeyGenerator"></param>
         /// <param name="executingLocker"></param>
         /// <param name="responseCache"></param>
@@ -94,33 +104,23 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="options"></param>
         /// <param name="interceptorAggregator"></param>
         /// <param name="dumpStreamCapacity"></param>
-        /// <param name="metadatas">Action端点的 <see cref="EndpointMetadataCollection"/></param>
-        public ResponseCachingContext(ResponseCachingAttribute cachingAttribute,
+        public ResponseCachingContext(EndpointMetadataCollection metadatas,
                                       ICacheKeyGenerator cacheKeyGenerator,
                                       IRequestExecutingLocker<TFilterContext, TLocalCachingData> executingLocker,
                                       IResponseCache responseCache,
                                       IResponseCacheDeterminer cacheDeterminer,
                                       ResponseCachingOptions options,
                                       InterceptorAggregator interceptorAggregator,
-                                      int dumpStreamCapacity,
-                                      EndpointMetadataCollection metadatas)
+                                      int dumpStreamCapacity)
         {
-            if (cachingAttribute is null)
-            {
-                throw new ArgumentNullException(nameof(cachingAttribute));
-            }
-
             if (metadatas is null)
             {
                 throw new ArgumentNullException(nameof(metadatas));
             }
 
-            MaxCacheableResponseLength = cachingAttribute.MaxCacheableResponseLength;
-            MaxCacheableResponseLength = MaxCacheableResponseLength >= ResponseCachingConstants.DefaultMinMaxCacheableResponseLength
-                                            ? MaxCacheableResponseLength
-                                            : MaxCacheableResponseLength == -1
-                                                ? options.MaxCacheableResponseLength
-                                                : throw new ArgumentOutOfRangeException(nameof(MaxCacheableResponseLength), $"Unavailable value");
+            //TODO MaxCacheableResponseLength test
+            MaxCacheableResponseLength = Checks.ThrowIfMaxCacheableResponseLengthTooSmall(Metadata<IMaxCacheableResponseLengthMetadata>()?.MaxCacheableResponseLength ?? options.MaxCacheableResponseLength);
+
             MaxCacheKeyLength = options.MaxCacheKeyLength;
 
             KeyGenerator = cacheKeyGenerator ?? throw new ArgumentNullException(nameof(cacheKeyGenerator));
@@ -128,10 +128,13 @@ namespace Cuture.AspNetCore.ResponseCaching
             ResponseCache = responseCache ?? throw new ArgumentNullException(nameof(responseCache));
             CacheDeterminer = cacheDeterminer ?? throw new ArgumentNullException(nameof(cacheDeterminer));
             OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultCannotExecutionThroughLockCallback.SetStatus429;
-            Duration = Checks.ThrowIfDurationTooSmall(metadatas.GetMetadata<IResponseDurationMetadata>().Duration);
+            Duration = Checks.ThrowIfDurationTooSmall(RequiredMetadata<IResponseDurationMetadata>().Duration);
 
             Interceptors = interceptorAggregator;
             DumpStreamCapacity = Checks.ThrowIfDumpCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
+
+            TMetadata? Metadata<TMetadata>() where TMetadata : class => metadatas.GetMetadata<TMetadata>();
+            TMetadata RequiredMetadata<TMetadata>() where TMetadata : class => metadatas.RequiredMetadata<TMetadata>();
         }
 
         #endregion Public 构造函数
