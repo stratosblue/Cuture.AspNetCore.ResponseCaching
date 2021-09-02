@@ -7,6 +7,7 @@ using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.Filters;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -124,6 +125,8 @@ namespace Cuture.AspNetCore.ResponseCaching
         {
             var attribute = context.Attribute;
 
+            var cacheMode = context.RequiredMetadata<IResponseCacheModeMetadata>().Mode;
+
             var strictMode = attribute.StrictMode == CacheKeyStrictMode.Default
                                 ? context.Options.DefaultStrictMode
                                 : attribute.StrictMode;
@@ -131,7 +134,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             filterType = FilterType.Resource;
 
             ICacheKeyGenerator cacheKeyGenerator;
-            switch (attribute.Mode)
+            switch (cacheMode)
             {
                 case CacheMode.FullPathAndQuery:
                     {
@@ -185,7 +188,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                     }
 
                 default:
-                    throw new NotImplementedException($"Not ready to support CacheMode: {attribute.Mode}");
+                    throw new NotImplementedException($"Not ready to support CacheMode: {cacheMode}");
             }
 
             return cacheKeyGenerator;
@@ -320,6 +323,8 @@ namespace Cuture.AspNetCore.ResponseCaching
         public T GetRequiredService<T>() where T : notnull => ServiceProvider.GetRequiredService<T>();
 
         public T GetRequiredService<T>(Type type) => (T)ServiceProvider.GetRequiredService(type);
+
+        public T RequiredMetadata<T>() where T : class => Endpoint.Metadata.RequiredMetadata<T>();
 
         #endregion Public 方法
 

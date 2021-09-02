@@ -17,6 +17,7 @@ namespace Microsoft.AspNetCore.Mvc
         : ResponseCacheableAttribute
         , IResponseDurationMetadata
         , IMaxCacheableResponseLengthMetadata
+        , IResponseCacheModeMetadata
     {
         #region Public 属性
 
@@ -48,9 +49,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <inheritdoc/>
         public int? MaxCacheableResponseLength { get; set; }
 
-        /// <summary>
-        /// 缓存模式（设置依据什么内容进行缓存）
-        /// </summary>
+        /// <inheritdoc/>
         public CacheMode Mode { get; set; } = CacheMode.Default;
 
         /// <summary>
