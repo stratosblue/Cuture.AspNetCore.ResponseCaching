@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Cuture.AspNetCore.ResponseCaching;
-using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
@@ -88,26 +87,21 @@ namespace Microsoft.AspNetCore.Mvc
 
         /// <summary>
         /// 缓存处理拦截器类型
-        /// <para/>
-        /// 需要实现 <see cref="ICachingProcessInterceptor"/> 接口
+        /// <para/>use <see cref="CachingProcessInterceptor"/> instead
         /// </summary>
         [Obsolete("Use custom implementation \"CachingProcessInterceptor\" attribute instead.", true)]
         public Type? CachingProcessInterceptorType { get; }
 
         /// <summary>
         /// 自定义缓存键生成器类型
-        /// <para/>
-        /// 需要实现 <see cref="ICustomCacheKeyGenerator"/> 接口
-        /// <para/>
-        /// 需要Attribute数据时实现 <see cref="IResponseCachingAttributeSetter"/> 接口
+        /// <para/>use <see cref="CacheKeyGeneratorAttribute"/> instead
         /// </summary>
         [Obsolete("Use \"CacheKeyGeneratorAttribute\" instead.", true)]
         public Type? CustomCacheKeyGeneratorType { get; }
 
         /// <summary>
         /// Model的Key解析器类型
-        /// <para/>
-        /// 需要实现 <see cref="IModelKeyParser"/> 接口
+        /// <para/>use <see cref="CacheModelKeyParserAttribute"/> instead
         /// </summary>
         [Obsolete("Use \"CacheModelKeyParserAttribute\" instead.", true)]
         public Type? ModelKeyParserType { get; }

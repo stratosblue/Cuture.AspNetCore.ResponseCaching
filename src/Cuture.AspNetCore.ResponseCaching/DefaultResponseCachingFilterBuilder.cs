@@ -26,14 +26,19 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Public 方法
 
         /// <inheritdoc/>
-        public IFilterMetadata CreateFilter(IServiceProvider serviceProvider, object context)
+        public IFilterMetadata CreateFilter(IServiceProvider serviceProvider, Endpoint endpoint)
         {
-            if (context is not ResponseCachingAttribute attribute)
+            if (serviceProvider is null)
             {
-                throw new ArgumentException($"{nameof(DefaultResponseCachingFilterBuilder)} only can build filter from {nameof(ResponseCachingAttribute)}", nameof(context));
+                throw new ArgumentNullException(nameof(serviceProvider));
             }
 
-            var buildContext = new FilterBuildContext(serviceProvider, attribute);
+            if (endpoint is null)
+            {
+                throw new ArgumentNullException(nameof(endpoint));
+            }
+
+            var buildContext = new FilterBuildContext(serviceProvider, endpoint);
 
             if (!buildContext.Options.Enable)
             {
@@ -123,8 +128,6 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <returns></returns>
         private static ICacheKeyGenerator CreateCacheKeyGenerator(FilterBuildContext context, out FilterType filterType)
         {
-            var attribute = context.Attribute;
-
             var cacheMode = context.RequiredMetadata<IResponseCacheModeMetadata>().Mode;
 
             filterType = FilterType.Resource;
@@ -148,30 +151,34 @@ namespace Cuture.AspNetCore.ResponseCaching
                         }
 
                         CacheKeyBuilder? keyBuilder = null;
-                        if (attribute.VaryByHeaders?.Length > 0)
+                        if (Metadata<IResponseHeaderCachePatternMetadata>()?.VaryByHeaders is string[] varyByHeaders
+                            && varyByHeaders.Length > 0)
                         {
-                            keyBuilder = new RequestHeadersCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByHeaders);
+                            keyBuilder = new RequestHeadersCacheKeyBuilder(keyBuilder, strictMode, varyByHeaders);
                         }
-                        if (attribute.VaryByClaims?.Length > 0)
+                        if (Metadata<IResponseClaimCachePatternMetadata>()?.VaryByClaims is string[] varyByClaims
+                            && varyByClaims.Length > 0)
                         {
-                            keyBuilder = new ClaimsCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByClaims);
+                            keyBuilder = new ClaimsCacheKeyBuilder(keyBuilder, strictMode, varyByClaims);
                         }
-                        if (attribute.VaryByQueryKeys?.Length > 0)
+                        if (Metadata<IResponseQueryCachePatternMetadata>()?.VaryByQueryKeys is string[] varyByQueryKeys
+                            && varyByQueryKeys.Length > 0)
                         {
-                            keyBuilder = new QueryKeysCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByQueryKeys);
+                            keyBuilder = new QueryKeysCacheKeyBuilder(keyBuilder, strictMode, varyByQueryKeys);
                         }
-                        if (attribute.VaryByFormKeys?.Length > 0)
+                        if (Metadata<IResponseFormCachePatternMetadata>()?.VaryByFormKeys is string[] varyByFormKeys
+                            && varyByFormKeys.Length > 0)
                         {
-                            keyBuilder = new FormKeysCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByFormKeys);
+                            keyBuilder = new FormKeysCacheKeyBuilder(keyBuilder, strictMode, varyByFormKeys);
                         }
-                        if (attribute.VaryByModels != null)
+                        if (Metadata<IResponseModelCachePatternMetadata>()?.VaryByModels is string[] varyByModels)
                         {
                             var modelKeyParserType = context.GetMetadata<ICacheModelKeyParserMetadata>()?.ModelKeyParserType ?? typeof(DefaultModelKeyParser);
 
                             Checks.ThrowIfNotIModelKeyParser(modelKeyParserType);
 
                             var modelKeyParser = context.GetRequiredService<IModelKeyParser>(modelKeyParserType);
-                            keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, attribute.VaryByModels, modelKeyParser);
+                            keyBuilder = new ModelCacheKeyBuilder(keyBuilder, strictMode, varyByModels, modelKeyParser);
                             filterType = FilterType.Action;
                         }
 
@@ -195,6 +202,8 @@ namespace Cuture.AspNetCore.ResponseCaching
             }
 
             return cacheKeyGenerator;
+
+            TMetadata? Metadata<TMetadata>() where TMetadata : class => context.GetMetadata<TMetadata>();
         }
 
         /// <summary>
@@ -280,9 +289,9 @@ namespace Cuture.AspNetCore.ResponseCaching
             var cacheKeyGenerator = context.GetRequiredService<ICacheKeyGenerator>(metadata.CacheKeyGeneratorType);
             filterType = metadata.FilterType;
 
-            if (cacheKeyGenerator is IResponseCachingAttributeSetter responseCachingAttributeSetter)
+            if (cacheKeyGenerator is IEndpointSetter setter)
             {
-                responseCachingAttributeSetter.SetResponseCachingAttribute(context.Attribute);
+                setter.SetEndpoint(context.Endpoint);
             }
 
             return cacheKeyGenerator;
@@ -293,17 +302,9 @@ namespace Cuture.AspNetCore.ResponseCaching
 
     internal class FilterBuildContext
     {
-        #region Private 字段
-
-        private Endpoint? _endpoint;
-
-        #endregion Private 字段
-
         #region Public 属性
 
-        public ResponseCachingAttribute Attribute { get; }
-
-        public Endpoint Endpoint => _endpoint ?? GetEndpoint();
+        public Endpoint Endpoint { get; }
 
         public ResponseCachingOptions Options { get; }
 
@@ -313,10 +314,10 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #region Public 构造函数
 
-        public FilterBuildContext(IServiceProvider serviceProvider, ResponseCachingAttribute attribute)
+        public FilterBuildContext(IServiceProvider serviceProvider, Endpoint endpoint)
         {
-            ServiceProvider = serviceProvider;
-            Attribute = attribute;
+            ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            Endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
 
             Options = serviceProvider.GetRequiredService<IOptions<ResponseCachingOptions>>().Value;
         }
@@ -334,20 +335,5 @@ namespace Cuture.AspNetCore.ResponseCaching
         public T RequiredMetadata<T>() where T : class => Endpoint.Metadata.RequiredMetadata<T>();
 
         #endregion Public 方法
-
-        #region Private 方法
-
-        private Endpoint GetEndpoint()
-        {
-            var endpoint = ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetEndpoint();
-            if (endpoint is null)
-            {
-                throw new ResponseCachingException("Cannot access Endpoint by IHttpContextAccessor.");
-            }
-            _endpoint = endpoint;
-            return endpoint;
-        }
-
-        #endregion Private 方法
     }
 }

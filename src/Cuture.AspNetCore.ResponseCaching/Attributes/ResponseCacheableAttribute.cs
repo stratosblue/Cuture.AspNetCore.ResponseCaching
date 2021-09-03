@@ -3,6 +3,7 @@ using System.Threading;
 
 using Cuture.AspNetCore.ResponseCaching;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -69,7 +70,11 @@ namespace Microsoft.AspNetCore.Mvc
         protected virtual IFilterMetadata CreateFilter(IServiceProvider serviceProvider)
         {
             var filterBuilder = serviceProvider.GetRequiredService<IResponseCachingFilterBuilder>();
-            return filterBuilder.CreateFilter(serviceProvider, this);
+
+            var endpoint = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetEndpoint()
+                           ?? throw new ResponseCachingException("Cannot access Endpoint by IHttpContextAccessor.");
+
+            return filterBuilder.CreateFilter(serviceProvider, endpoint);
         }
 
         #endregion Protected 方法

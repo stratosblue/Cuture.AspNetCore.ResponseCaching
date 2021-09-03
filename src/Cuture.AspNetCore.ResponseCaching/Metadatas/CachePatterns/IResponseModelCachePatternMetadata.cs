@@ -20,9 +20,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Metadatas
         /// <para/>
         /// * 使用的Filter将会从 <see cref="IAsyncResourceFilter"/> 转变为 <see cref="IAsyncActionFilter"/>
         /// <para/>
-        /// * 由于内部的实现问题，<see cref="LockMode"/> 的设置在某些情况下可能无法严格限制所有请求
+        /// * 由于内部的实现问题，<see cref="IExecutingLockMetadata.LockMode"/> 的设置在某些情况下可能无法严格限制所有请求
         /// <para/>
-        /// * 生成Key时，如果没有指定 <see cref="ModelKeyParserType"/>，
+        /// * 生成Key时，如果没有指定 <see cref="ICacheModelKeyParserMetadata.ModelKeyParserType"/>，
         /// 则检查Model是否实现 <see cref="ICacheKeyable"/> 接口，如果Model未实现 <see cref="ICacheKeyable"/> 接口，
         /// 则调用Model的 <see cref="object.ToString"/> 方法生成Key
         /// </summary>

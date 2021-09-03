@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Cuture.AspNetCore.ResponseCaching
@@ -15,9 +16,9 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 创建 <see cref="IFilterMetadata"/>
         /// </summary>
         /// <param name="serviceProvider">作用域为 触发构建Filter的请求 的 <see cref="IServiceProvider"/></param>
-        /// <param name="context">构建所需上下文</param>
+        /// <param name="endpoint">目标 <see cref="Endpoint"/></param>
         /// <returns></returns>
-        IFilterMetadata CreateFilter(IServiceProvider serviceProvider, object context);
+        IFilterMetadata CreateFilter(IServiceProvider serviceProvider, Endpoint endpoint);
 
         #endregion Public 方法
     }

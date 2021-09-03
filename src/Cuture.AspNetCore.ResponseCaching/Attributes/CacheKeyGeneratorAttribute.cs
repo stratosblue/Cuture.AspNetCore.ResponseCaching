@@ -4,6 +4,8 @@ using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
+using Microsoft.AspNetCore.Http;
+
 namespace Microsoft.AspNetCore.Mvc
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="type">
         /// 需要实现 <see cref="ICacheKeyGenerator"/> 接口
         /// <para/>
-        /// 需要Attribute数据时实现 <see cref="IResponseCachingAttributeSetter"/> 接口
+        /// 需要 Action 的 <see cref="Endpoint"/> 时, 实现 <see cref="IEndpointSetter"/> 接口
         /// </param>
         /// <param name="filterType"></param>
         public CacheKeyGeneratorAttribute(Type type, FilterType filterType)

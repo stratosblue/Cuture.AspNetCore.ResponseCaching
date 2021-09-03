@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using Cuture.AspNetCore.ResponseCaching.Metadatas;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Memory;
@@ -45,7 +47,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <summary>
         /// 默认执行锁定模式
         /// <para/>
-        /// <inheritdoc cref="ResponseCachingAttribute.LockMode"/>
+        /// <inheritdoc cref="IExecutingLockMetadata.LockMode"/>
         /// </summary>
         public ExecutingLockMode DefaultExecutingLockMode
         {
