@@ -5,8 +5,6 @@ using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
-using Microsoft.AspNetCore.Mvc.Filters;
-
 namespace Microsoft.AspNetCore.Mvc
 {
     /// <summary>
@@ -20,6 +18,11 @@ namespace Microsoft.AspNetCore.Mvc
         , IResponseCacheModeMetadata
         , IResponseCacheKeyStrictModeMetadata
         , IResponseCacheStoreLocationMetadata
+        , IResponseQueryCachePatternMetadata
+        , IResponseModelCachePatternMetadata
+        , IResponseFormCachePatternMetadata
+        , IResponseHeaderCachePatternMetadata
+        , IResponseClaimCachePatternMetadata
     {
         #region Private 字段
 
@@ -66,43 +69,19 @@ namespace Microsoft.AspNetCore.Mvc
         /// <inheritdoc/>
         public CacheKeyStrictMode StrictMode { get; set; } = CacheKeyStrictMode.Default;
 
-        /// <summary>
-        /// 依据声明
-        /// </summary>
+        /// <inheritdoc/>
         public string[]? VaryByClaims { get; set; }
 
-        /// <summary>
-        /// 依据表单键
-        /// </summary>
+        /// <inheritdoc/>
         public string[]? VaryByFormKeys { get; set; }
 
-        /// <summary>
-        /// 依据请求头
-        /// </summary>
+        /// <inheritdoc/>
         public string[]? VaryByHeaders { get; set; }
 
-        /// <summary>
-        /// 依据Model
-        /// <para/>
-        /// Note:
-        /// <para/>
-        /// * 以下为使用默认实现时的情况
-        /// <para/>
-        /// * 使用空数组时为获取所有model进行生成Key
-        /// <para/>
-        /// * 使用的Filter将会从 <see cref="IAsyncResourceFilter"/> 转变为 <see cref="IAsyncActionFilter"/> &amp; <see cref="IAsyncResourceFilter"/>
-        /// <para/>
-        /// * 由于内部的实现问题，<see cref="LockMode"/> 的设置在某些情况下可能无法严格限制所有请求
-        /// <para/>
-        /// * 生成Key时，如果没有指定 <see cref="ModelKeyParserType"/>，
-        /// 则检查Model是否实现 <see cref="ICacheKeyable"/> 接口，如果Model未实现 <see cref="ICacheKeyable"/> 接口，
-        /// 则调用Model的 <see cref="object.ToString"/> 方法生成Key
-        /// </summary>
+        /// <inheritdoc/>
         public string[]? VaryByModels { get; set; }
 
-        /// <summary>
-        /// 依据查询键
-        /// </summary>
+        /// <inheritdoc/>
         public string[]? VaryByQueryKeys { get; set; }
 
         #region Types
