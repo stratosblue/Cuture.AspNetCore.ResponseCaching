@@ -140,7 +140,8 @@ namespace Cuture.AspNetCore.ResponseCaching
 
                 case CacheMode.Custom:
                     {
-                        var strictMode = context.GetMetadata<IResponseCacheKeyStrictModeMetadata>()?.StrictMode ?? CacheKeyStrictMode.Default;
+                        var strictMode = context.GetMetadata<IResponseCacheKeyStrictModeMetadata>()?.StrictMode
+                                         ?? CacheKeyStrictMode.Default;
                         if (strictMode == CacheKeyStrictMode.Default)
                         {
                             strictMode = context.Options.DefaultStrictMode;
@@ -221,9 +222,13 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <returns></returns>
         private static IResponseCache GetResponseCache(FilterBuildContext context)
         {
-            var storeLocation = context.Attribute.StoreLocation == CacheStoreLocation.Default
-                                    ? context.Options.DefaultCacheStoreLocation
-                                    : context.Attribute.StoreLocation;
+            var storeLocation = context.GetMetadata<IResponseCacheStoreLocationMetadata>()?.StoreLocation
+                                ?? CacheStoreLocation.Default;
+
+            if (storeLocation == CacheStoreLocation.Default)
+            {
+                storeLocation = context.Options.DefaultCacheStoreLocation;
+            }
 
             switch (storeLocation)
             {

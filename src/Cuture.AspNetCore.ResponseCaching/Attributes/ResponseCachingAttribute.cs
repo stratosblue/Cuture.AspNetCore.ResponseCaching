@@ -19,7 +19,14 @@ namespace Microsoft.AspNetCore.Mvc
         , IMaxCacheableResponseLengthMetadata
         , IResponseCacheModeMetadata
         , IResponseCacheKeyStrictModeMetadata
+        , IResponseCacheStoreLocationMetadata
     {
+        #region Private 字段
+
+        private int? _maxCacheableResponseLength;
+
+        #endregion Private 字段
+
         #region Public 属性
 
         /// <summary>
@@ -47,19 +54,17 @@ namespace Microsoft.AspNetCore.Mvc
         [Obsolete("使用 ExecutingLockAttribute 替代此属性", true)]
         public ExecutingLockMode LockMode { get; } = ExecutingLockMode.Default;
 
-        /// <inheritdoc/>
-        public int? MaxCacheableResponseLength { get; set; }
+        /// <inheritdoc cref="IMaxCacheableResponseLengthMetadata.MaxCacheableResponseLength"/>
+        public int MaxCacheableResponseLength { get => _maxCacheableResponseLength ?? 0; set => _maxCacheableResponseLength = value; }
 
         /// <inheritdoc/>
         public CacheMode Mode { get; set; } = CacheMode.Default;
 
-        /// <summary>
-        /// 缓存数据存储位置
-        /// </summary>
+        /// <inheritdoc/>
         public CacheStoreLocation StoreLocation { get; set; } = CacheStoreLocation.Default;
 
         /// <inheritdoc/>
-        public CacheKeyStrictMode? StrictMode { get; set; }
+        public CacheKeyStrictMode StrictMode { get; set; } = CacheKeyStrictMode.Default;
 
         /// <summary>
         /// 依据声明
@@ -131,6 +136,13 @@ namespace Microsoft.AspNetCore.Mvc
         #endregion Types
 
         #endregion Public 属性
+
+        #region interfaces
+
+        /// <inheritdoc/>
+        int? IMaxCacheableResponseLengthMetadata.MaxCacheableResponseLength => _maxCacheableResponseLength;
+
+        #endregion interfaces
 
         #region Public 构造函数
 
