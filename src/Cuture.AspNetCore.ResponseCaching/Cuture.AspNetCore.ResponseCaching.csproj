@@ -1,5 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../common.props" />
+  <Import Project="../../package.props" />
+
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

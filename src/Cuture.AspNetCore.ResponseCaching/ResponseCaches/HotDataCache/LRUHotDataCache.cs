@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using System;
+
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
 {
@@ -31,6 +33,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// <inheritdoc/>
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
 
         /// <inheritdoc/>

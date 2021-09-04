@@ -1,14 +1,6 @@
 <Project>
   <!--Project Setting-->
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
-
-    <NoWarn>CA2007;CA1303;CA1716;CA1062</NoWarn>
-
-    <Nullable>enable</Nullable>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -16,7 +8,7 @@
   <PropertyGroup>
     <VersionPrefix>1.4.1</VersionPrefix>
 
-    <Description>基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`缓存组件</Description>
+    <Description>基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`服务端缓存组件</Description>
 
     <PackageIdPrefix>Cuture.AspNetCore.ResponseCaching</PackageIdPrefix>
     <Authors>Stratos</Authors>

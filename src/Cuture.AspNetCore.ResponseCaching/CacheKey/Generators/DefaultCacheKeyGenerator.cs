@@ -66,23 +66,23 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
 
         #region SharedStringBuilderPool
 
-        private static readonly WeakReference<ObjectPool<StringBuilder>?> s_SharedStringBuilderPool = new(null, false);
+        private static readonly WeakReference<ObjectPool<StringBuilder>?> s_sharedStringBuilderPool = new(null, false);
 
         private static ObjectPool<StringBuilder> GetSharedStringBuilderPool()
         {
-            if (s_SharedStringBuilderPool.TryGetTarget(out var pool))
+            if (s_sharedStringBuilderPool.TryGetTarget(out var pool))
             {
                 return pool;
             }
 
-            lock (s_SharedStringBuilderPool)
+            lock (s_sharedStringBuilderPool)
             {
-                if (s_SharedStringBuilderPool.TryGetTarget(out pool))
+                if (s_sharedStringBuilderPool.TryGetTarget(out pool))
                 {
                     return pool;
                 }
                 pool = new DefaultObjectPoolProvider() { MaximumRetained = Environment.ProcessorCount * 4 }.CreateStringBuilderPool();
-                s_SharedStringBuilderPool.SetTarget(pool);
+                s_sharedStringBuilderPool.SetTarget(pool);
                 return pool;
             }
         }

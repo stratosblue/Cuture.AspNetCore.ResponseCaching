@@ -1,5 +1,9 @@
 ﻿<Project>
   <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+
+    <Nullable>enable</Nullable>
+
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 </Project>
