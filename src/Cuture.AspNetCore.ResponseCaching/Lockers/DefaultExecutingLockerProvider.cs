@@ -29,7 +29,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Lockers
 
         public TTargetExecutingLocker GetLocker<TTargetExecutingLocker>(Type lockerType, string name)
         {
-            Debug.WriteLine($"Get ExecutingLocker Type：{lockerType} - name：{name}");
+            Debug.WriteLine("Get ExecutingLocker Type：{0} - name：{1}", lockerType, name);
 
             if (!_lockerCreatorMap.TryGetValue(lockerType, out var lockerCreator))
             {

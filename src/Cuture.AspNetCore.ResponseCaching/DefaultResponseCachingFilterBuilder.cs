@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Builders;
@@ -66,6 +67,8 @@ namespace Cuture.AspNetCore.ResponseCaching
                                         ?? ResponseCachingConstants.DefaultDumpCapacity;
 
             Checks.ThrowIfDumpStreamInitialCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
+
+            Debug.WriteLine("FilterType {0} for endpoint {1}", filterType, endpoint);
 
             switch (filterType)
             {

@@ -150,8 +150,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                 else
                 {
                     CachingDiagnostics.CacheBodyTooLarge(key, cacheEntry.Body, Context.MaxCacheableResponseLength, executingContext, Context);
+                    return null;
                 }
-                return cacheEntry;
             }
             else
             {

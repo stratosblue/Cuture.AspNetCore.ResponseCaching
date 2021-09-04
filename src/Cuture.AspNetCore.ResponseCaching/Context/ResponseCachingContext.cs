@@ -118,7 +118,6 @@ namespace Cuture.AspNetCore.ResponseCaching
                 throw new ArgumentNullException(nameof(metadatas));
             }
 
-            //TODO MaxCacheableResponseLength test
             MaxCacheableResponseLength = Checks.ThrowIfMaxCacheableResponseLengthTooSmall(Metadata<IMaxCacheableResponseLengthMetadata>()?.MaxCacheableResponseLength ?? options.MaxCacheableResponseLength);
 
             MaxCacheKeyLength = options.MaxCacheKeyLength;

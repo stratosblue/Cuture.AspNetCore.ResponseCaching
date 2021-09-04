@@ -14,13 +14,10 @@ using ResponseCaching.Test.WebHost.Test;
 
 namespace ResponseCaching.Test.WebHost.Controllers
 {
-    [ApiController]
-    [Route("[controller]/[action]")]
-    public class WeatherForecastController : ControllerBase
-    {
-        private readonly ILogger<WeatherForecastController> _logger;
 
-        private const int Duration = 10;
+    public class WeatherForecastController : TestControllerBase
+    {
+        private readonly ILogger _logger;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
