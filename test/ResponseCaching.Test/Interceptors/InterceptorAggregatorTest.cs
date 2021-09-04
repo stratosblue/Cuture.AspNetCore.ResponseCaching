@@ -18,7 +18,7 @@ namespace ResponseCaching.Test.Interceptors
         #region Public 方法
 
         [TestMethod]
-        public void ShouldNotCallSkipCallMethod()
+        public void ShouldCallImplementedInterfaceMethod()
         {
             var random = new Random();
 

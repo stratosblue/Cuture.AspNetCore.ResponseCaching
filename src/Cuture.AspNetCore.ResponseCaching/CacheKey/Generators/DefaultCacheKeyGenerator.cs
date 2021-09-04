@@ -31,7 +31,7 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
         public DefaultCacheKeyGenerator(CacheKeyBuilder innerBuilder)
         {
             _innerBuilder = innerBuilder ?? throw new ArgumentNullException(nameof(innerBuilder));
-            _stringBuilderPool = new DefaultObjectPoolProvider().CreateStringBuilderPool();
+            _stringBuilderPool = GetSharedStringBuilderPool();
         }
 
         #endregion Public 构造函数
@@ -63,5 +63,30 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
         }
 
         #endregion Public 方法
+
+        #region SharedStringBuilderPool
+
+        private static readonly WeakReference<ObjectPool<StringBuilder>?> s_SharedStringBuilderPool = new(null, false);
+
+        private static ObjectPool<StringBuilder> GetSharedStringBuilderPool()
+        {
+            if (s_SharedStringBuilderPool.TryGetTarget(out var pool))
+            {
+                return pool;
+            }
+
+            lock (s_SharedStringBuilderPool)
+            {
+                if (s_SharedStringBuilderPool.TryGetTarget(out pool))
+                {
+                    return pool;
+                }
+                pool = new DefaultObjectPoolProvider() { MaximumRetained = Environment.ProcessorCount * 4 }.CreateStringBuilderPool();
+                s_SharedStringBuilderPool.SetTarget(pool);
+                return pool;
+            }
+        }
+
+        #endregion SharedStringBuilderPool
     }
 }

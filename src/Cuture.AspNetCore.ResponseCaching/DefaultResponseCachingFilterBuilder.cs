@@ -64,7 +64,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             var executingLockerName = executingLockMetadata?.LockerName ?? string.Empty;
 
             var dumpStreamCapacity = buildContext.GetMetadata<IDumpStreamInitialCapacityMetadata>()?.Capacity
-                                        ?? ResponseCachingConstants.DefaultDumpCapacity;
+                                     ?? ResponseCachingConstants.DefaultDumpCapacity;
 
             Checks.ThrowIfDumpStreamInitialCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
 
@@ -176,7 +176,8 @@ namespace Cuture.AspNetCore.ResponseCaching
                         }
                         if (Metadata<IResponseModelCachePatternMetadata>()?.VaryByModels is string[] varyByModels)
                         {
-                            var modelKeyParserType = context.GetMetadata<ICacheModelKeyParserMetadata>()?.ModelKeyParserType ?? typeof(DefaultModelKeyParser);
+                            var modelKeyParserType = context.GetMetadata<ICacheModelKeyParserMetadata>()?.ModelKeyParserType
+                                                     ?? typeof(DefaultModelKeyParser);
 
                             Checks.ThrowIfNotIModelKeyParser(modelKeyParserType);
 
@@ -250,7 +251,8 @@ namespace Cuture.AspNetCore.ResponseCaching
                         var hotDataCacheBuilder = context.GetMetadata<IHotDataCacheBuilder>();
                         if (hotDataCacheBuilder is not null)
                         {
-                            var metadata = context.GetMetadata<IHotDataCacheMetadata>() ?? throw new ResponseCachingException($"No {nameof(IHotDataCacheMetadata)} found for {context.Endpoint}");
+                            var metadata = context.GetMetadata<IHotDataCacheMetadata>()
+                                           ?? throw new ResponseCachingException($"No {nameof(IHotDataCacheMetadata)} found for {context.Endpoint}");
 
                             var hotDataCache = hotDataCacheBuilder.Build(context.ServiceProvider, metadata);
                             if (hotDataCache is null)
