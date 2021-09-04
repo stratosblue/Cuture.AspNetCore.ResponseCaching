@@ -13,7 +13,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     /// <summary>
     /// 缓存处理拦截器 - 缓存命中标记响应头
     /// </summary>
-    internal class CacheHitStampCachingProcessInterceptor : CachingProcessInterceptor
+    internal class CacheHitStampInterceptor : IResponseWritingInterceptor, IActionResultSettingInterceptor
     {
         #region Private 字段
 
@@ -29,7 +29,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// </summary>
         /// <param name="headerKey"></param>
         /// <param name="headerValue"></param>
-        public CacheHitStampCachingProcessInterceptor(string headerKey, StringValues headerValue)
+        public CacheHitStampInterceptor(string headerKey, StringValues headerValue)
         {
             if (string.IsNullOrEmpty(headerKey))
             {
@@ -51,9 +51,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Task<bool> OnResponseWritingAsync(ActionContext actionContext,
-                                                          ResponseCacheEntry entry,
-                                                          OnResponseWritingDelegate next)
+        public Task<bool> OnResponseWritingAsync(ActionContext actionContext,
+                                                 ResponseCacheEntry entry,
+                                                 OnResponseWritingDelegate next)
         {
             actionContext.HttpContext.Response.Headers.Add(_headerKey, _headerValue);
             return next(actionContext, entry);
@@ -61,7 +61,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
+        public Task OnResultSettingAsync(ActionExecutingContext actionContext,
+                                         IActionResult actionResult,
+                                         OnResultSettingDelegate next)
         {
             actionContext.HttpContext.Response.Headers.Add(_headerKey, _headerValue);
             return next(actionContext, actionResult);

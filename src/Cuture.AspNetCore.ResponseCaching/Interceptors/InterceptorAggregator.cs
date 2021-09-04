@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -13,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 {
     /// <summary>
-    /// 委托 - <inheritdoc cref="ICachingProcessInterceptor.OnCacheStoringAsync(ActionContext, string, ResponseCacheEntry, OnCacheStoringDelegate)"/>
+    /// 委托 - <inheritdoc cref="ICacheStoringInterceptor.OnCacheStoringAsync(ActionContext, string, ResponseCacheEntry, OnCacheStoringDelegate)"/>
     /// </summary>
     /// <param name="actionContext"></param>
     /// <param name="key"></param>
@@ -22,7 +21,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     public delegate Task<ResponseCacheEntry?> OnCacheStoringDelegate(ActionContext actionContext, string key, ResponseCacheEntry entry);
 
     /// <summary>
-    /// 委托 - <inheritdoc cref="ICachingProcessInterceptor.OnResponseWritingAsync(ActionContext, ResponseCacheEntry, OnResponseWritingDelegate)"/>
+    /// 委托 - <inheritdoc cref="IResponseWritingInterceptor.OnResponseWritingAsync(ActionContext, ResponseCacheEntry, OnResponseWritingDelegate)"/>
     /// </summary>
     /// <param name="actionContext"></param>
     /// <param name="entry"></param>
@@ -30,7 +29,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     public delegate Task<bool> OnResponseWritingDelegate(ActionContext actionContext, ResponseCacheEntry entry);
 
     /// <summary>
-    /// 委托 - <inheritdoc cref="ICachingProcessInterceptor.OnResultSettingAsync(ActionExecutingContext, IActionResult, OnResultSettingDelegate)"/>
+    /// 委托 - <inheritdoc cref="IActionResultSettingInterceptor.OnResultSettingAsync(ActionExecutingContext, IActionResult, OnResultSettingDelegate)"/>
     /// </summary>
     /// <param name="actionContext"></param>
     /// <param name="actionResult"></param>
@@ -40,7 +39,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     /// <summary>
     /// 拦截器集合
     /// </summary>
-    public class InterceptorAggregator
+    public class InterceptorAggregator : IActionResultSettingInterceptor, IResponseWritingInterceptor, ICacheStoringInterceptor
     {
         #region Public 委托
 
@@ -76,7 +75,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         #region Private 字段
 
-        private readonly IEnumerable<ICachingProcessInterceptor>? _interceptors;
+        private readonly IEnumerable<IResponseCachingInterceptor>? _interceptors;
 
         private readonly OnCacheStoringWrappedDelegate _onCacheStoringWrappedDelegate;
         private readonly OnResponseWritingWrappedDelegate _onResponseWritingWrappedDelegate;
@@ -89,8 +88,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// <summary>
         /// 拦截器集合
         /// </summary>
-        /// <param name="interceptors"><see cref="ICachingProcessInterceptor"/></param>
-        public InterceptorAggregator(IEnumerable<ICachingProcessInterceptor>? interceptors)
+        /// <param name="interceptors"><see cref="IResponseCachingInterceptor"/></param>
+        public InterceptorAggregator(IEnumerable<IResponseCachingInterceptor>? interceptors)
         {
             _onCacheStoringWrappedDelegate = new(static (actionContext, key, entry, next) => next(actionContext, key, entry));
             _onResponseWritingWrappedDelegate = new(static (actionContext, entry, next) => next(actionContext, entry));
@@ -103,42 +102,38 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
                 for (int i = 0; i < reversedInterceptors.Length; i++)
                 {
                     var interceptor = reversedInterceptors[i];
-                    var interceptorType = interceptor.GetType();
 
-                    if (interceptorType.GetMethod(nameof(ICachingProcessInterceptor.OnCacheStoringAsync)) is MethodInfo onCacheStoringMethodInfo
-                        && onCacheStoringMethodInfo.GetCustomAttribute<SkipCallAttribute>(false) is null)
+                    if (interceptor is ICacheStoringInterceptor cacheStoringInterceptor)
                     {
                         var nextOnCacheStoring = _onCacheStoringWrappedDelegate;
                         _onCacheStoringWrappedDelegate = (actionContext, key, entry, next) =>
                         {
-                            return interceptor.OnCacheStoringAsync(actionContext,
-                                                                   key,
-                                                                   entry,
-                                                                   (actionContext, key, entry) => nextOnCacheStoring(actionContext, key, entry, next));
+                            return cacheStoringInterceptor.OnCacheStoringAsync(actionContext,
+                                                                               key,
+                                                                               entry,
+                                                                               (actionContext, key, entry) => nextOnCacheStoring(actionContext, key, entry, next));
                         };
                     }
 
-                    if (interceptorType.GetMethod(nameof(ICachingProcessInterceptor.OnResponseWritingAsync)) is MethodInfo onResponseWritingMethodInfo
-                        && onResponseWritingMethodInfo.GetCustomAttribute<SkipCallAttribute>(false) is null)
+                    if (interceptor is IResponseWritingInterceptor responseWritingInterceptor)
                     {
                         var nextOnResponseWriting = _onResponseWritingWrappedDelegate;
                         _onResponseWritingWrappedDelegate = (actionContext, entry, next) =>
                         {
-                            return interceptor.OnResponseWritingAsync(actionContext,
-                                                                      entry,
-                                                                      (actionContext, entry) => nextOnResponseWriting(actionContext, entry, next));
+                            return responseWritingInterceptor.OnResponseWritingAsync(actionContext,
+                                                                                     entry,
+                                                                                     (actionContext, entry) => nextOnResponseWriting(actionContext, entry, next));
                         };
                     }
 
-                    if (interceptorType.GetMethod(nameof(ICachingProcessInterceptor.OnResultSettingAsync)) is MethodInfo onResultSettingMethodInfo
-                        && onResultSettingMethodInfo.GetCustomAttribute<SkipCallAttribute>(false) is null)
+                    if (interceptor is IActionResultSettingInterceptor actionResultSettingInterceptor)
                     {
                         var nextOnResultSetting = _onResultSettingWrappedDelegate;
                         _onResultSettingWrappedDelegate = (actionContext, actionResult, next) =>
                         {
-                            return interceptor.OnResultSettingAsync(actionContext,
-                                                                    actionResult,
-                                                                    (actionContext, actionResult) => nextOnResultSetting(actionContext, actionResult, next));
+                            return actionResultSettingInterceptor.OnResultSettingAsync(actionContext,
+                                                                                       actionResult,
+                                                                                       (actionContext, actionResult) => nextOnResultSetting(actionContext, actionResult, next));
                         };
                     }
                 }
@@ -152,31 +147,18 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext,
-                                                            string key,
-                                                            ResponseCacheEntry entry,
-                                                            Func<ActionContext, string, ResponseCacheEntry, Task<ResponseCacheEntry?>> storeFunc)
-        {
-            return _onCacheStoringWrappedDelegate(actionContext, key, entry, new(storeFunc));
-        }
+        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            => _onCacheStoringWrappedDelegate(actionContext, key, entry, next);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<bool> OnResponseWritingAsync(ActionContext actionContext,
-                                                 ResponseCacheEntry entry,
-                                                 Func<ActionContext, ResponseCacheEntry, Task<bool>> writeFunc)
-        {
-            return _onResponseWritingWrappedDelegate(actionContext, entry, new(writeFunc));
-        }
+        public Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
+            => _onResponseWritingWrappedDelegate(actionContext, entry, next);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task OnResultSettingAsync(ActionExecutingContext actionContext,
-                                         IActionResult actionResult,
-                                         Func<ActionExecutingContext, IActionResult, Task> setResultFunc)
-        {
-            return _onResultSettingWrappedDelegate(actionContext, actionResult, new(setResultFunc));
-        }
+        public Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
+            => _onResultSettingWrappedDelegate(actionContext, actionResult, next);
 
         #endregion ICachingProcessInterceptor
     }

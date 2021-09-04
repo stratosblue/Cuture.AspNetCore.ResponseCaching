@@ -210,18 +210,18 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         /// <summary>
-        /// 获取<see cref="ICachingProcessInterceptor"/>
+        /// 获取<see cref="IResponseWritingInterceptor"/>
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        private static ICachingProcessInterceptor[] GetCachingProcessInterceptor(FilterBuildContext context)
+        private static IResponseCachingInterceptor[] GetCachingProcessInterceptor(FilterBuildContext context)
         {
             var options = context.GetRequiredService<IOptions<InterceptorOptions>>().Value;
             var optionInterceptorTypes = options.CachingProcessInterceptorTypes;
             var interceptorTypes = new List<Type>(optionInterceptorTypes);
 
-            var attributeInterceptors = context.Endpoint.Metadata.OfType<ICachingProcessInterceptor>();
-            return optionInterceptorTypes.Select(context.GetRequiredService<ICachingProcessInterceptor>)
+            var attributeInterceptors = context.Endpoint.Metadata.OfType<IResponseCachingInterceptor>();
+            return optionInterceptorTypes.Select(context.GetRequiredService<IResponseCachingInterceptor>)
                                          .Concat(options.CachingProcessInterceptors)
                                          .Concat(attributeInterceptors)
                                          .ToArray();

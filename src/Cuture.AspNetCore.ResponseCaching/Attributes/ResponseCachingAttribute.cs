@@ -87,7 +87,7 @@ namespace Microsoft.AspNetCore.Mvc
 
         /// <summary>
         /// 缓存处理拦截器类型
-        /// <para/>use <see cref="CachingProcessInterceptor"/> instead
+        /// <para/>use custom attribute with <see cref="IResponseCachingInterceptor"/> instead
         /// </summary>
         [Obsolete("Use custom implementation \"CachingProcessInterceptor\" attribute instead.", true)]
         public Type? CachingProcessInterceptorType { get; }

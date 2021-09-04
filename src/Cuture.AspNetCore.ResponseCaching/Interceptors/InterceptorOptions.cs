@@ -15,7 +15,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// <summary>
         /// 拦截器实例集合
         /// </summary>
-        public List<ICachingProcessInterceptor> CachingProcessInterceptors { get; } = new();
+        public List<IResponseCachingInterceptor> CachingProcessInterceptors { get; } = new();
 
         /// <summary>
         /// 需要从 <see cref="IServiceProvider"/> 中获取的拦截器类型

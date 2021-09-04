@@ -29,7 +29,7 @@ namespace ResponseCaching.Test.Interceptors
                 var interceptor3 = new Interceptor3();
                 var interceptor4 = new Interceptor4();
 
-                var interceptors = new ICachingProcessInterceptor[] { interceptor1, interceptor2, interceptor3, interceptor4 };
+                var interceptors = new IResponseCachingInterceptor[] { interceptor1, interceptor2, interceptor3, interceptor4 };
 
                 //随机组合进行测试
                 interceptors = interceptors.OrderBy(_ => random.Next()).ToArray();
@@ -59,7 +59,7 @@ namespace ResponseCaching.Test.Interceptors
                 var interceptor4 = new Interceptor4();
                 var shortCircuitsInterceptor = new ShortCircuitsInterceptor();
 
-                var interceptors = new ICachingProcessInterceptor[] { interceptor1, interceptor2, interceptor3, interceptor4, shortCircuitsInterceptor };
+                var interceptors = new IResponseCachingInterceptor[] { interceptor1, interceptor2, interceptor3, interceptor4, shortCircuitsInterceptor };
 
                 //随机组合进行测试
                 interceptors = interceptors.OrderBy(_ => random.Next()).ToArray();
@@ -88,7 +88,7 @@ namespace ResponseCaching.Test.Interceptors
             }
         }
 
-        private static void NormalCheck(IEnumerable<ICachingProcessInterceptor> interceptors)
+        private static void NormalCheck(IEnumerable<IResponseCachingInterceptor> interceptors)
         {
             foreach (var interceptor in interceptors)
             {
@@ -96,7 +96,7 @@ namespace ResponseCaching.Test.Interceptors
             }
         }
 
-        private static void NormalCheck(ICachingProcessInterceptor interceptor)
+        private static void NormalCheck(IResponseCachingInterceptor interceptor)
         {
             switch (interceptor)
             {
@@ -115,9 +115,9 @@ namespace ResponseCaching.Test.Interceptors
 
                 case Interceptor3 interceptor3:
 
-                    Assert.AreEqual(0, interceptor3.OnCacheStoringCallCount);
-                    Assert.AreEqual(0, interceptor3.OnResponseWritingCallCount);
-                    Assert.AreEqual(0, interceptor3.OnResultSettingCallCount);
+                    Assert.AreEqual(1, interceptor3.OnCacheStoringCallCount);
+                    Assert.AreEqual(1, interceptor3.OnResponseWritingCallCount);
+                    Assert.AreEqual(1, interceptor3.OnResultSettingCallCount);
 
                     break;
 
@@ -140,7 +140,7 @@ namespace ResponseCaching.Test.Interceptors
             }
         }
 
-        private static void ShouldNoAnyCalled(ICachingProcessInterceptor interceptor)
+        private static void ShouldNoAnyCalled(IResponseCachingInterceptor interceptor)
         {
             var callCountable = interceptor as IInterceptorCallCountable;
 
@@ -166,7 +166,7 @@ namespace ResponseCaching.Test.Interceptors
             #endregion Public 属性
         }
 
-        private class Interceptor1 : CachingProcessInterceptor, IInterceptorCallCountable
+        private class Interceptor1 : IResponseWritingInterceptor, IInterceptorCallCountable
         {
             #region Public 字段
 
@@ -178,30 +178,16 @@ namespace ResponseCaching.Test.Interceptors
 
             #region Public 方法
 
-            [SkipCall]
-            public override Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
-            {
-                OnCacheStoringCallCount++;
-                throw new NotImplementedException();
-            }
-
-            public override Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
+            public Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
             {
                 OnResponseWritingCallCount++;
-                return base.OnResponseWritingAsync(actionContext, entry, next);
-            }
-
-            [SkipCall]
-            public override Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
-            {
-                OnResultSettingCallCount++;
-                throw new NotImplementedException();
+                return next(actionContext, entry);
             }
 
             #endregion Public 方法
         }
 
-        private class Interceptor2 : CachingProcessInterceptor, IInterceptorCallCountable
+        private class Interceptor2 : IActionResultSettingInterceptor, IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
         {
             #region Public 字段
 
@@ -213,28 +199,28 @@ namespace ResponseCaching.Test.Interceptors
 
             #region Public 方法
 
-            public override Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
             {
                 OnCacheStoringCallCount++;
-                return base.OnCacheStoringAsync(actionContext, key, entry, next);
+                return next(actionContext, key, entry);
             }
 
-            public override Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
+            public Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
             {
                 OnResponseWritingCallCount++;
-                return base.OnResponseWritingAsync(actionContext, entry, next);
+                return next(actionContext, entry);
             }
 
-            public override Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
+            public Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
             {
                 OnResultSettingCallCount++;
-                return base.OnResultSettingAsync(actionContext, actionResult, next);
+                return next(actionContext, actionResult);
             }
 
             #endregion Public 方法
         }
 
-        private class Interceptor3 : CachingProcessInterceptor, IInterceptorCallCountable
+        private class Interceptor3 : IActionResultSettingInterceptor, IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
         {
             #region Public 字段
 
@@ -246,31 +232,28 @@ namespace ResponseCaching.Test.Interceptors
 
             #region Public 方法
 
-            [SkipCall]
-            public override Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
             {
                 OnCacheStoringCallCount++;
-                throw new NotImplementedException();
+                return next(actionContext, key, entry);
             }
 
-            [SkipCall]
-            public override Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
+            public Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
             {
                 OnResponseWritingCallCount++;
-                throw new NotImplementedException();
+                return next(actionContext, entry);
             }
 
-            [SkipCall]
-            public override Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
+            public Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
             {
                 OnResultSettingCallCount++;
-                throw new NotImplementedException();
+                return next(actionContext, actionResult);
             }
 
             #endregion Public 方法
         }
 
-        private class Interceptor4 : CachingProcessInterceptor, IInterceptorCallCountable
+        private class Interceptor4 : ICacheStoringInterceptor, IInterceptorCallCountable
         {
             #region Public 字段
 
@@ -282,30 +265,16 @@ namespace ResponseCaching.Test.Interceptors
 
             #region Public 方法
 
-            public override Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
             {
                 OnCacheStoringCallCount++;
-                return base.OnCacheStoringAsync(actionContext, key, entry, next);
-            }
-
-            [SkipCall]
-            public override Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
-            {
-                OnResponseWritingCallCount++;
-                throw new NotImplementedException();
-            }
-
-            [SkipCall]
-            public override Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
-            {
-                OnResultSettingCallCount++;
-                throw new NotImplementedException();
+                return next(actionContext, key, entry);
             }
 
             #endregion Public 方法
         }
 
-        private class ShortCircuitsInterceptor : CachingProcessInterceptor, IInterceptorCallCountable
+        private class ShortCircuitsInterceptor : IActionResultSettingInterceptor, IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
         {
             #region Public 字段
 
@@ -317,19 +286,19 @@ namespace ResponseCaching.Test.Interceptors
 
             #region Public 方法
 
-            public override Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
             {
                 OnCacheStoringCallCount++;
                 return Task.FromResult<ResponseCacheEntry>(null);
             }
 
-            public override Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
+            public Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
             {
                 OnResponseWritingCallCount++;
                 return Task.FromResult(true);
             }
 
-            public override Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
+            public Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
             {
                 OnResultSettingCallCount++;
                 return Task.CompletedTask;

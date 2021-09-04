@@ -151,7 +151,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             builder.ConfigureInterceptor(options =>
             {
-                options.AddInterceptor(new CacheHitStampCachingProcessInterceptor(key, value));
+                options.AddInterceptor(new CacheHitStampInterceptor(key, value));
             });
 
             return builder;

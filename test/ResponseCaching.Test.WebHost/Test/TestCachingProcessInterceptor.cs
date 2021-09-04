@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -7,11 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ResponseCaching.Test.WebHost.Test
 {
-    public class TestCachingProcessInterceptor : CachingProcessInterceptor
+    public class TestCachingProcessInterceptor : Attribute, ICacheStoringInterceptor
     {
         #region Public 方法
 
-        public override Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+        public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
         {
             return Task.FromResult<ResponseCacheEntry>(null);
         }

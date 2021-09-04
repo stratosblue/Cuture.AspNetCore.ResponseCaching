@@ -18,7 +18,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="options"></param>
         /// <param name="interceptor"></param>
         /// <returns></returns>
-        public static InterceptorOptions AddInterceptor<TInterceptor>(this InterceptorOptions options, TInterceptor interceptor) where TInterceptor : ICachingProcessInterceptor
+        public static InterceptorOptions AddInterceptor<TInterceptor>(this InterceptorOptions options, TInterceptor interceptor) where TInterceptor : IResponseCachingInterceptor
         {
             options.CachingProcessInterceptors.Add(interceptor);
             return options;
@@ -30,7 +30,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <typeparam name="TInterceptor"></typeparam>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static InterceptorOptions AddServiceInterceptor<TInterceptor>(this InterceptorOptions options) where TInterceptor : ICachingProcessInterceptor
+        public static InterceptorOptions AddServiceInterceptor<TInterceptor>(this InterceptorOptions options) where TInterceptor : IResponseCachingInterceptor
         {
             options.CachingProcessInterceptorTypes.Add(typeof(TInterceptor));
             return options;
