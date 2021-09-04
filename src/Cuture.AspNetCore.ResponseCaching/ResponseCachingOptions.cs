@@ -117,7 +117,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             get => _maxCacheableResponseLength;
             set
             {
-                Checks.ThrowIfDumpCapacityTooSmall(value, nameof(MaxCacheableResponseLength));
+                Checks.ThrowIfDumpStreamInitialCapacityTooSmall(value, nameof(MaxCacheableResponseLength));
                 _maxCacheableResponseLength = value;
             }
         }

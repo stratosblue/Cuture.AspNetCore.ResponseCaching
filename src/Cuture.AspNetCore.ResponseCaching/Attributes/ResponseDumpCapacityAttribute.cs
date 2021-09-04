@@ -10,7 +10,7 @@ namespace Microsoft.AspNetCore.Mvc
     /// <para/>
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class ResponseDumpCapacityAttribute : Attribute, IResponseDumpCapacityMetadata
+    public class ResponseDumpCapacityAttribute : Attribute, IDumpStreamInitialCapacityMetadata
     {
         #region Public 属性
 
@@ -27,7 +27,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="capacity"><see cref="System.IO.MemoryStream"/>初始化大小</param>
         public ResponseDumpCapacityAttribute(int capacity)
         {
-            Capacity = Checks.ThrowIfDumpCapacityTooSmall(capacity, nameof(capacity));
+            Capacity = Checks.ThrowIfDumpStreamInitialCapacityTooSmall(capacity, nameof(capacity));
         }
 
         #endregion Public 构造函数

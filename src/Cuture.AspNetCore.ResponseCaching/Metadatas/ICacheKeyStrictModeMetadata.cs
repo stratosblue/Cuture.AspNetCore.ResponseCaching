@@ -5,7 +5,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Metadatas
     /// <summary>
     /// <inheritdoc cref="IResponseCachingMetadata"/> - 缓存键严格模式
     /// </summary>
-    public interface IResponseCacheKeyStrictModeMetadata : IResponseCachingMetadata
+    public interface ICacheKeyStrictModeMetadata : IResponseCachingMetadata
     {
         #region Public 属性
 

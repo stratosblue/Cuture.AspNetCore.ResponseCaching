@@ -14,9 +14,9 @@ namespace Microsoft.AspNetCore.Mvc
         : ResponseCacheableAttribute
         , IResponseDurationMetadata
         , IMaxCacheableResponseLengthMetadata
-        , IResponseCacheModeMetadata
-        , IResponseCacheKeyStrictModeMetadata
-        , IResponseCacheStoreLocationMetadata
+        , ICacheModeMetadata
+        , ICacheKeyStrictModeMetadata
+        , ICacheStoreLocationMetadata
         , IResponseQueryCachePatternMetadata
         , IResponseModelCachePatternMetadata
         , IResponseFormCachePatternMetadata

@@ -20,7 +20,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <param name="capacity"></param>
         /// <param name="capacityExpression"></param>
         /// <returns></returns>
-        public static int ThrowIfDumpCapacityTooSmall(int capacity, [CallerArgumentExpression("capacity")] string? capacityExpression = null)
+        public static int ThrowIfDumpStreamInitialCapacityTooSmall(int capacity, [CallerArgumentExpression("capacity")] string? capacityExpression = null)
         {
             if (capacity < ResponseCachingConstants.DefaultMinMaxCacheableResponseLength)
             {

@@ -134,11 +134,13 @@ namespace ResponseCaching.Test.RequestTests
                 using var enumerator1 = items1.GetEnumerator();
                 using var enumerator2 = items2.GetEnumerator();
 
+                var index = 0;
+
                 while (enumerator1.MoveNext()
                        && enumerator2.MoveNext())
                 {
                     Assert.IsNotNull(enumerator1.Current);
-                    Assert.IsTrue(enumerator1.Current.Equals(enumerator2.Current));
+                    Assert.IsTrue(enumerator1.Current.Equals(enumerator2.Current), $"index: {index} - Item1: {enumerator1.Current} Item2: {enumerator2.Current}");
                 }
             }
         }

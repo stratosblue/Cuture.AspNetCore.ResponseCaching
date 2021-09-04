@@ -131,7 +131,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             Duration = Checks.ThrowIfDurationTooSmall(RequiredMetadata<IResponseDurationMetadata>().Duration);
 
             Interceptors = interceptorAggregator;
-            DumpStreamCapacity = Checks.ThrowIfDumpCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
+            DumpStreamCapacity = Checks.ThrowIfDumpStreamInitialCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
 
             TMetadata? Metadata<TMetadata>() where TMetadata : class => metadatas.GetMetadata<TMetadata>();
             TMetadata RequiredMetadata<TMetadata>() where TMetadata : class => metadatas.RequiredMetadata<TMetadata>();

@@ -5,7 +5,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Metadatas
     /// <summary>
     /// <inheritdoc cref="IResponseCachingMetadata"/> - 缓存模式
     /// </summary>
-    public interface IResponseCacheModeMetadata : IResponseCachingMetadata
+    public interface ICacheModeMetadata : IResponseCachingMetadata
     {
         #region Public 属性
 

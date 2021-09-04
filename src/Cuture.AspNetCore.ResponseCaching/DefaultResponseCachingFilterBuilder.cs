@@ -62,10 +62,10 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var executingLockerName = executingLockMetadata?.LockerName ?? string.Empty;
 
-            var dumpStreamCapacity = buildContext.GetMetadata<IResponseDumpCapacityMetadata>()?.Capacity
+            var dumpStreamCapacity = buildContext.GetMetadata<IDumpStreamInitialCapacityMetadata>()?.Capacity
                                         ?? ResponseCachingConstants.DefaultDumpCapacity;
 
-            Checks.ThrowIfDumpCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
+            Checks.ThrowIfDumpStreamInitialCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
 
             switch (filterType)
             {
@@ -128,7 +128,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <returns></returns>
         private static ICacheKeyGenerator CreateCacheKeyGenerator(FilterBuildContext context, out FilterType filterType)
         {
-            var cacheMode = context.RequiredMetadata<IResponseCacheModeMetadata>().Mode;
+            var cacheMode = context.RequiredMetadata<ICacheModeMetadata>().Mode;
 
             filterType = FilterType.Resource;
 
@@ -143,7 +143,7 @@ namespace Cuture.AspNetCore.ResponseCaching
 
                 case CacheMode.Custom:
                     {
-                        var strictMode = context.GetMetadata<IResponseCacheKeyStrictModeMetadata>()?.StrictMode
+                        var strictMode = context.GetMetadata<ICacheKeyStrictModeMetadata>()?.StrictMode
                                          ?? CacheKeyStrictMode.Default;
                         if (strictMode == CacheKeyStrictMode.Default)
                         {
@@ -231,7 +231,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <returns></returns>
         private static IResponseCache GetResponseCache(FilterBuildContext context)
         {
-            var storeLocation = context.GetMetadata<IResponseCacheStoreLocationMetadata>()?.StoreLocation
+            var storeLocation = context.GetMetadata<ICacheStoreLocationMetadata>()?.StoreLocation
                                 ?? CacheStoreLocation.Default;
 
             if (storeLocation == CacheStoreLocation.Default)
