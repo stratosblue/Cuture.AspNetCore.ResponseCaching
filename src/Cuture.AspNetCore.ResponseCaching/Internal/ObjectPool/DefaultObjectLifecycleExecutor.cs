@@ -6,12 +6,12 @@ namespace Microsoft.Extensions.ObjectPool
     /// 默认对象生命周期执行器
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal sealed class DefaultObjectLifecycleExecutor<T> : IObjectLifecycleExecutor<T> where T : class, new()
+    internal sealed class DefaultObjectLifecycleExecutor<T> : IObjectLifecycleExecutor<T> where T : new()
     {
         #region Public 方法
 
         /// <inheritdoc/>
-        public T Create() => new();
+        public T? Create() => new();
 
         /// <inheritdoc/>
         public void Destroy(T item)

@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.Diagnostics;
+using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
     /// <summary>
     /// CacheFilter基类
     /// </summary>
-    public abstract class CacheFilterBase<TFilterExecutingContext, TLocalCachingData> : IDisposable where TFilterExecutingContext : FilterContext
+    public abstract class CacheFilterBase<TFilterExecutingContext> : IDisposable where TFilterExecutingContext : FilterContext
     {
         #region Private 字段
 
         private readonly CachingDiagnosticsAccessor _cachingDiagnosticsAccessor;
+        private readonly OnCacheStoringDelegate<ActionContext> _onCacheStoringDelegate;
         private bool _disposedValue;
 
         #endregion Private 字段
@@ -26,20 +28,20 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         #region Protected 属性
 
         /// <inheritdoc cref="Diagnostics.CachingDiagnostics"/>
-        protected CachingDiagnostics CachingDiagnostics => _cachingDiagnosticsAccessor.CachingDiagnostics;
-
-        /// <inheritdoc cref="ILogger"/>
-        protected ILogger Logger => CachingDiagnostics.Logger;
-
-        /// <summary>
-        /// 响应缓存容器
-        /// </summary>
-        protected IResponseCache ResponseCache => Context.ResponseCache;
+        protected CachingDiagnostics CachingDiagnostics { get; }
 
         /// <summary>
         /// ResponseCaching上下文
         /// </summary>
-        protected ResponseCachingContext<TFilterExecutingContext, TLocalCachingData> Context { get; }
+        protected ResponseCachingContext Context { get; }
+
+        /// <inheritdoc cref="ILogger"/>
+        protected ILogger Logger { get; }
+
+        /// <summary>
+        /// 响应缓存容器
+        /// </summary>
+        protected IResponseCache ResponseCache { get; }
 
         #endregion Protected 属性
 
@@ -50,15 +52,49 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// </summary>
         /// <param name="context"></param>
         /// <param name="cachingDiagnosticsAccessor"></param>
-        public CacheFilterBase(ResponseCachingContext<TFilterExecutingContext, TLocalCachingData> context, CachingDiagnosticsAccessor cachingDiagnosticsAccessor)
+        public CacheFilterBase(ResponseCachingContext context, CachingDiagnosticsAccessor cachingDiagnosticsAccessor)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
             _cachingDiagnosticsAccessor = cachingDiagnosticsAccessor;
+            CachingDiagnostics = _cachingDiagnosticsAccessor.CachingDiagnostics;
+            Logger = CachingDiagnostics.Logger;
+            ResponseCache = Context.ResponseCache;
+            _onCacheStoringDelegate = InternalStoreCacheAsync;
         }
 
         #endregion Public 构造函数
 
         #region Protected 方法
+
+        #region StoreCache
+
+        /// <summary>
+        /// 检查并保存缓存
+        /// </summary>
+        /// <param name="executingContext"></param>
+        /// <param name="executedContext"></param>
+        /// <param name="key"></param>
+        /// <param name="cacheEntry"></param>
+        /// <returns></returns>
+        protected async Task<ResponseCacheEntry?> CheckAndStoreCacheAsync(ResourceExecutingContext executingContext,
+                                                                          ResourceExecutedContext executedContext,
+                                                                          string key,
+                                                                          ResponseCacheEntry cacheEntry)
+        {
+            if (Context.CacheDeterminer.CanCaching(executedContext, cacheEntry))
+            {
+                if (cacheEntry.Body.Length <= Context.MaxCacheableResponseLength)
+                {
+                    return await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, StoreCacheAsync);
+                }
+                else
+                {
+                    CachingDiagnostics.CacheBodyTooLarge(key, cacheEntry.Body, Context.MaxCacheableResponseLength, executingContext, Context);
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// 保存响应
@@ -68,11 +104,20 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="cacheEntry"></param>
         /// <returns>进行内存缓存，以用于立即响应的 <see cref="ResponseCacheEntry"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected async Task<ResponseCacheEntry?> SetCacheAsync(ActionContext actionContext, string key, ResponseCacheEntry cacheEntry)
+        protected Task<ResponseCacheEntry?> StoreCacheAsync(ActionContext actionContext, string key, ResponseCacheEntry cacheEntry)
+        {
+            return Context.Interceptors.OnCacheStoringAsync(actionContext, key, cacheEntry, _onCacheStoringDelegate);
+        }
+
+        private async Task<ResponseCacheEntry?> InternalStoreCacheAsync(ActionContext actionContext, string key, ResponseCacheEntry cacheEntry)
         {
             await ResponseCache.SetAsync(key, cacheEntry);
             return cacheEntry;
         }
+
+        #endregion StoreCache
+
+        #region Response with cache
 
         /// <summary>
         /// 尝试以缓存处理请求
@@ -117,6 +162,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         {
             return Context.Interceptors.OnResponseWritingAsync(context, cacheEntry, WriteCacheToResponseAsync);
         }
+
+        #endregion Response with cache
 
         #endregion Protected 方法
 

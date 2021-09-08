@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.Diagnostics;
@@ -12,7 +13,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
     /// <summary>
     /// 默认的基于IAsyncResourceFilter的缓存过滤Filter
     /// </summary>
-    public class DefaultResourceCacheFilter : CacheFilterBase<ResourceExecutingContext, ResponseCacheEntry>, IAsyncResourceFilter
+    public class DefaultResourceCacheFilter : CacheFilterBase<ResourceExecutingContext>, IAsyncResourceFilter
     {
         #region Public 构造函数
 
@@ -21,8 +22,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// </summary>
         /// <param name="context"></param>
         /// <param name="cachingDiagnosticsAccessor"></param>
-        public DefaultResourceCacheFilter(ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry> context,
-                                          CachingDiagnosticsAccessor cachingDiagnosticsAccessor) : base(context, cachingDiagnosticsAccessor)
+        public DefaultResourceCacheFilter(ResponseCachingContext context,
+                                          CachingDiagnosticsAccessor cachingDiagnosticsAccessor)
+            : base(context, cachingDiagnosticsAccessor)
         {
         }
 
@@ -31,46 +33,17 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         #region Public 方法
 
         /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
         {
-            if (CachingDiagnostics is null)
-            {
-                return InternalOnResourceExecutionAsync(context, next);
-            }
-            return InternalOnResourceExecutionWithDiagnosticAsync(context, next, CachingDiagnostics);
+            return InternalOnResourceExecutionAsync(context, next, CachingDiagnostics);
         }
 
         #endregion Public 方法
 
         #region OnResourceExecutionAsync
 
-        private async Task InternalOnResourceExecutionAsync(ResourceExecutingContext executingContext, ResourceExecutionDelegate next)
-        {
-            var key = (await Context.KeyGenerator.GenerateKeyAsync(executingContext)).ToLowerInvariant();
-
-            if (key.Length > Context.MaxCacheKeyLength)
-            {
-                CachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, executingContext, Context);
-                await next();
-                return;
-            }
-
-            if (string.IsNullOrEmpty(key))
-            {
-                CachingDiagnostics.NoCachingFounded(key, executingContext, Context);
-                await next();
-                return;
-            }
-
-            if (await TryServeFromCacheAsync(executingContext, key))
-            {
-                return;
-            }
-
-            await ExecutingRequestAsync(executingContext, next, key);
-        }
-
-        private async Task InternalOnResourceExecutionWithDiagnosticAsync(ResourceExecutingContext executingContext, ResourceExecutionDelegate next, CachingDiagnostics cachingDiagnostics)
+        private async Task InternalOnResourceExecutionAsync(ResourceExecutingContext executingContext, ResourceExecutionDelegate next, CachingDiagnostics cachingDiagnostics)
         {
             cachingDiagnostics.StartProcessingCache(executingContext, Context);
             try
@@ -88,6 +61,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
 
                 if (string.IsNullOrEmpty(key))
                 {
+                    cachingDiagnostics.NoCachingFounded(key, executingContext, Context);
                     await next();
                     return;
                 }
@@ -122,7 +96,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             var originalBody = response.Body;
             using var dumpStream = executingContext.HttpContext.RequestServices.GetRequiredService<IResponseDumpStreamFactory>().Create(Context.DumpStreamCapacity);
 
-            ResponseCacheEntry? cacheEntry = null;
+            ResponseCacheEntry cacheEntry = null!;
             ResourceExecutedContext executedContext;
             try
             {
@@ -141,22 +115,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
                 response.Body = originalBody;
             }
 
-            if (Context.CacheDeterminer.CanCaching(executedContext, cacheEntry))
-            {
-                if (cacheEntry.Body.Length <= Context.MaxCacheableResponseLength)
-                {
-                    return await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, SetCacheAsync);
-                }
-                else
-                {
-                    CachingDiagnostics.CacheBodyTooLarge(key, cacheEntry.Body, Context.MaxCacheableResponseLength, executingContext, Context);
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
-            }
+            return await CheckAndStoreCacheAsync(executingContext, executedContext, key, cacheEntry);
         }
 
         /// <summary>
@@ -166,26 +125,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <param name="next"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        protected async Task ExecutingRequestAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
+        protected virtual Task ExecutingRequestAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
         {
-            if (Context.ExecutingLocker != null)
-            {
-                var executed = await Context.ExecutingLocker.ProcessCacheWithLockAsync(key,
-                                                                                       context,
-                                                                                       inCacheEntry => WriteCacheToResponseWithInterceptorAsync(context, inCacheEntry),
-                                                                                       () => DumpAndCacheResponseAsync(context, next, key));
-                if (!executed)
-                {
-                    CachingDiagnostics.CannotExecutionThroughLock(key, context, Context);
-
-                    await Context.OnCannotExecutionThroughLock(key, context);
-                    return;
-                }
-            }
-            else
-            {
-                await DumpAndCacheResponseAsync(context, next, key);
-            }
+            return DumpAndCacheResponseAsync(context, next, key);
         }
 
         #endregion Protected 方法

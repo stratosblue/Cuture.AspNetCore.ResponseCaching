@@ -8,6 +8,8 @@ namespace ResponseCaching.Test.WebHost
 {
     public class TestWebHost
     {
+        public static bool IsTest { get; set; } = false;
+
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
@@ -29,7 +31,10 @@ namespace ResponseCaching.Test.WebHost
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseTestServer();
+                    if (IsTest)
+                    {
+                        webBuilder.UseTestServer();
+                    }
                     webBuilder.UseStartup<Startup>();
                 });
     }

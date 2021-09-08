@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.ObjectPool
     /// 对象所有者
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal sealed class ObjectOwner<T> : IObjectOwner<T> where T : class
+    internal sealed class ObjectOwner<T> : IObjectOwner<T>
     {
         #region Private 字段
 

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
 
 namespace Cuture.AspNetCore.ResponseCaching.Interceptors
@@ -13,7 +12,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     /// <summary>
     /// 缓存处理拦截器 - 缓存命中标记响应头
     /// </summary>
-    internal class CacheHitStampInterceptor : IResponseWritingInterceptor, IActionResultSettingInterceptor
+    internal class CacheHitStampInterceptor : IResponseWritingInterceptor
     {
         #region Private 字段
 
@@ -57,16 +56,6 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         {
             actionContext.HttpContext.Response.Headers.Add(_headerKey, _headerValue);
             return next(actionContext, entry);
-        }
-
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task OnResultSettingAsync(ActionExecutingContext actionContext,
-                                         IActionResult actionResult,
-                                         OnResultSettingDelegate next)
-        {
-            actionContext.HttpContext.Response.Headers.Add(_headerKey, _headerValue);
-            return next(actionContext, actionResult);
         }
 
         #endregion Public 方法

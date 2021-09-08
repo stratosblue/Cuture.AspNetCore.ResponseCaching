@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.Metadatas;
@@ -10,6 +11,15 @@ using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching
 {
+    /// <summary>
+    /// 执行锁定超时后的处理委托
+    /// </summary>
+    /// <param name="cacheKey"></param>
+    /// <param name="filterContext"></param>
+    /// <param name="next"></param>
+    /// <returns></returns>
+    public delegate Task ExecutionLockTimeoutFallbackDelegate(string cacheKey, FilterContext filterContext, Func<Task> next);
+
     /// <summary>
     /// 缓存选项
     /// </summary>
@@ -23,6 +33,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         private int _maxCacheableResponseLength = ResponseCachingConstants.DefaultMaxCacheableResponseLength;
         private int _maxCacheKeyLength = ResponseCachingConstants.DefaultMaxCacheKeyLength;
         private IMemoryCache _resultLocalCache = CreatedDefaultResultLocalCache();
+        private int defaultLockMillisecondsTimeout = ResponseCachingConstants.DefaultLockMillisecondsTimeout;
 
         #endregion Private 字段
 
@@ -66,6 +77,17 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 锁定执行时，默认的本地缓存可用时间（毫秒）
         /// </summary>
         public uint DefaultLocalCacheAvailableMilliseconds { get; set; } = 1500;
+
+        /// <summary>
+        /// 默认锁定等待超时时间（毫秒）<para/>
+        /// 默认值为 <see cref="ResponseCachingConstants.DefaultLockMillisecondsTimeout"/><para/>
+        /// 如果值为 <see cref="Timeout.Infinite"/>(-1) 则无限等待
+        /// </summary>
+        public int DefaultLockMillisecondsTimeout
+        {
+            get => defaultLockMillisecondsTimeout;
+            set => defaultLockMillisecondsTimeout = Checks.ThrowIfLockMillisecondsTimeoutInvalid(value).Value;
+        }
 
         /// <summary>
         /// 默认缓存键的严格模式
@@ -139,11 +161,16 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         /// <summary>
-        /// 无法使用锁执行请求时（Semaphore池用尽）的回调
-        /// <para/>
+        /// 无法使用锁执行请求时（Semaphore池用尽）的回调<para/>
         /// 默认只会返回状态429
         /// </summary>
         public Func<string, FilterContext, Task>? OnCannotExecutionThroughLock { get; }
+
+        /// <summary>
+        /// <inheritdoc cref="ExecutionLockTimeoutFallbackDelegate"/><para/>
+        /// 默认只会返回状态429
+        /// </summary>
+        public ExecutionLockTimeoutFallbackDelegate? OnExecutionLockTimeoutFallback { get; }
 
         /// <inheritdoc/>
         public ResponseCachingOptions Value => this;

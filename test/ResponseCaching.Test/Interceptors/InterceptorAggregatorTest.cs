@@ -7,7 +7,6 @@ using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ResponseCaching.Test.Interceptors
@@ -40,7 +39,6 @@ namespace ResponseCaching.Test.Interceptors
 
                 interceptorAggregator.OnCacheStoringAsync(null, null, null, (_, _, _) => Task.FromResult<ResponseCacheEntry>(null));
                 interceptorAggregator.OnResponseWritingAsync(null, null, (_, _) => Task.FromResult(true));
-                interceptorAggregator.OnResultSettingAsync(null, null, (_, _) => Task.CompletedTask);
 
                 NormalCheck(interceptors);
             }
@@ -70,7 +68,6 @@ namespace ResponseCaching.Test.Interceptors
 
                 interceptorAggregator.OnCacheStoringAsync(null, null, null, (_, _, _) => Task.FromResult<ResponseCacheEntry>(null));
                 interceptorAggregator.OnResponseWritingAsync(null, null, (_, _) => Task.FromResult(true));
-                interceptorAggregator.OnResultSettingAsync(null, null, (_, _) => Task.CompletedTask);
 
                 bool shortCircuited = false;
                 foreach (var interceptor in interceptors)
@@ -103,21 +100,19 @@ namespace ResponseCaching.Test.Interceptors
                 case Interceptor1 interceptor1:
                     Assert.AreEqual(0, interceptor1.OnCacheStoringCallCount);
                     Assert.AreEqual(1, interceptor1.OnResponseWritingCallCount);
-                    Assert.AreEqual(0, interceptor1.OnResultSettingCallCount);
 
                     break;
 
                 case Interceptor2 interceptor2:
                     Assert.AreEqual(1, interceptor2.OnCacheStoringCallCount);
                     Assert.AreEqual(1, interceptor2.OnResponseWritingCallCount);
-                    Assert.AreEqual(1, interceptor2.OnResultSettingCallCount);
+
                     break;
 
                 case Interceptor3 interceptor3:
 
                     Assert.AreEqual(1, interceptor3.OnCacheStoringCallCount);
                     Assert.AreEqual(1, interceptor3.OnResponseWritingCallCount);
-                    Assert.AreEqual(1, interceptor3.OnResultSettingCallCount);
 
                     break;
 
@@ -125,14 +120,14 @@ namespace ResponseCaching.Test.Interceptors
 
                     Assert.AreEqual(1, interceptor4.OnCacheStoringCallCount);
                     Assert.AreEqual(0, interceptor4.OnResponseWritingCallCount);
-                    Assert.AreEqual(0, interceptor4.OnResultSettingCallCount);
+
                     break;
 
                 case ShortCircuitsInterceptor shortCircuitsInterceptor:
 
                     Assert.AreEqual(1, shortCircuitsInterceptor.OnCacheStoringCallCount);
                     Assert.AreEqual(1, shortCircuitsInterceptor.OnResponseWritingCallCount);
-                    Assert.AreEqual(1, shortCircuitsInterceptor.OnResultSettingCallCount);
+
                     break;
 
                 default:
@@ -148,7 +143,6 @@ namespace ResponseCaching.Test.Interceptors
 
             Assert.AreEqual(0, callCountable.OnCacheStoringCallCount, interceptor.GetType().Name);
             Assert.AreEqual(0, callCountable.OnResponseWritingCallCount, interceptor.GetType().Name);
-            Assert.AreEqual(0, callCountable.OnResultSettingCallCount, interceptor.GetType().Name);
         }
 
         #endregion Public 方法
@@ -161,7 +155,6 @@ namespace ResponseCaching.Test.Interceptors
 
             int OnCacheStoringCallCount { get; set; }
             int OnResponseWritingCallCount { get; set; }
-            int OnResultSettingCallCount { get; set; }
 
             #endregion Public 属性
         }
@@ -172,7 +165,6 @@ namespace ResponseCaching.Test.Interceptors
 
             public int OnCacheStoringCallCount { get; set; }
             public int OnResponseWritingCallCount { get; set; }
-            public int OnResultSettingCallCount { get; set; }
 
             #endregion Public 字段
 
@@ -187,19 +179,18 @@ namespace ResponseCaching.Test.Interceptors
             #endregion Public 方法
         }
 
-        private class Interceptor2 : IActionResultSettingInterceptor, IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
+        private class Interceptor2 : IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
         {
             #region Public 字段
 
             public int OnCacheStoringCallCount { get; set; }
             public int OnResponseWritingCallCount { get; set; }
-            public int OnResultSettingCallCount { get; set; }
 
             #endregion Public 字段
 
             #region Public 方法
 
-            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
             {
                 OnCacheStoringCallCount++;
                 return next(actionContext, key, entry);
@@ -209,30 +200,23 @@ namespace ResponseCaching.Test.Interceptors
             {
                 OnResponseWritingCallCount++;
                 return next(actionContext, entry);
-            }
-
-            public Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
-            {
-                OnResultSettingCallCount++;
-                return next(actionContext, actionResult);
             }
 
             #endregion Public 方法
         }
 
-        private class Interceptor3 : IActionResultSettingInterceptor, IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
+        private class Interceptor3 : IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
         {
             #region Public 字段
 
             public int OnCacheStoringCallCount { get; set; }
             public int OnResponseWritingCallCount { get; set; }
-            public int OnResultSettingCallCount { get; set; }
 
             #endregion Public 字段
 
             #region Public 方法
 
-            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
             {
                 OnCacheStoringCallCount++;
                 return next(actionContext, key, entry);
@@ -242,12 +226,6 @@ namespace ResponseCaching.Test.Interceptors
             {
                 OnResponseWritingCallCount++;
                 return next(actionContext, entry);
-            }
-
-            public Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
-            {
-                OnResultSettingCallCount++;
-                return next(actionContext, actionResult);
             }
 
             #endregion Public 方法
@@ -259,13 +237,12 @@ namespace ResponseCaching.Test.Interceptors
 
             public int OnCacheStoringCallCount { get; set; }
             public int OnResponseWritingCallCount { get; set; }
-            public int OnResultSettingCallCount { get; set; }
 
             #endregion Public 字段
 
             #region Public 方法
 
-            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
             {
                 OnCacheStoringCallCount++;
                 return next(actionContext, key, entry);
@@ -274,19 +251,18 @@ namespace ResponseCaching.Test.Interceptors
             #endregion Public 方法
         }
 
-        private class ShortCircuitsInterceptor : IActionResultSettingInterceptor, IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
+        private class ShortCircuitsInterceptor : IResponseWritingInterceptor, ICacheStoringInterceptor, IInterceptorCallCountable
         {
             #region Public 字段
 
             public int OnCacheStoringCallCount { get; set; }
             public int OnResponseWritingCallCount { get; set; }
-            public int OnResultSettingCallCount { get; set; }
 
             #endregion Public 字段
 
             #region Public 方法
 
-            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+            public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
             {
                 OnCacheStoringCallCount++;
                 return Task.FromResult<ResponseCacheEntry>(null);
@@ -296,12 +272,6 @@ namespace ResponseCaching.Test.Interceptors
             {
                 OnResponseWritingCallCount++;
                 return Task.FromResult(true);
-            }
-
-            public Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
-            {
-                OnResultSettingCallCount++;
-                return Task.CompletedTask;
             }
 
             #endregion Public 方法

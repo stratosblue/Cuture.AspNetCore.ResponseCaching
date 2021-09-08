@@ -80,6 +80,12 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// <returns></returns>
         public bool IsExpired() => DateTimeOffset.FromUnixTimeMilliseconds(Expire) < DateTimeOffset.UtcNow;
 
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"[{ContentType}] - Length:{Body.Length} Expire: {Expire}";
+        }
+
         #endregion Public 方法
     }
 }

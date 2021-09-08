@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="5.*" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

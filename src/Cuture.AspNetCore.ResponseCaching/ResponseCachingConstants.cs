@@ -18,6 +18,11 @@
         public const int DefaultDumpCapacity = 1024;
 
         /// <summary>
+        /// 默认锁定等待超时时间（毫秒）
+        /// </summary>
+        public const int DefaultLockMillisecondsTimeout = 10_000;
+
+        /// <summary>
         /// 默认最大可缓存响应长度 - 512k
         /// </summary>
         public const int DefaultMaxCacheableResponseLength = 512 * 1024;
@@ -41,6 +46,11 @@
         /// 最小缓存可用秒数
         /// </summary>
         public const int MinCacheAvailableSeconds = 1;
+
+        /// <summary>
+        /// <see cref="IExecutingLock{TCachePayload}"/> 在Request.Items的Key
+        /// </summary>
+        public const string ResponseCachingExecutingLockKey = "__ResponseCaching.ExecutingLock";
 
         /// <summary>
         /// ResponseDumpContext 在Request.Items的Key

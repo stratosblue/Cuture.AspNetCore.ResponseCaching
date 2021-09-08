@@ -46,6 +46,7 @@ namespace ResponseCaching.Test.Base
         [TestInitialize]
         public virtual async Task InitAsync()
         {
+            TestWebHost.IsTest = true;
             var hostBuilder = TestWebHost.CreateHostBuilder(GetHostArgs());
             await ConfigureWebHost(hostBuilder);
             WebHost = await hostBuilder.StartAsync();

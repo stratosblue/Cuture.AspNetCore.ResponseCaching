@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.ObjectPool
     /// 对象所有者
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IObjectOwner<T> : IDisposable where T : class
+    internal interface IObjectOwner<T> : IDisposable
     {
         #region Public 属性
 

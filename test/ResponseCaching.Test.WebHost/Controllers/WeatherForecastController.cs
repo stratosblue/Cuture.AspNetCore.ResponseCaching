@@ -102,7 +102,7 @@ namespace ResponseCaching.Test.WebHost.Controllers
         [ActionName("get-m")]
         [CacheByModel(Duration,
                       "input")]
-        [ExecutingLock("model", ExecutingLockMode.ActionSingle)]
+        [ExecutingLock(ExecutingLockMode.ActionSingle)]
         public IEnumerable<WeatherForecast> CacheByModel(PageResultRequestDto input)
         {
             int page = input.Page;

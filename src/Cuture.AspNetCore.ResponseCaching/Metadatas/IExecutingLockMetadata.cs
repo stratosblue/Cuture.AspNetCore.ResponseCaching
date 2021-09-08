@@ -1,4 +1,4 @@
-﻿using Cuture.AspNetCore.ResponseCaching.Lockers;
+﻿using System.Threading;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,14 +12,20 @@ namespace Cuture.AspNetCore.ResponseCaching.Metadatas
         #region Public 属性
 
         /// <summary>
-        /// 使用的 <inheritdoc cref="IRequestExecutingLocker{TExecutingContext, TCachingData}"/> 名称
+        /// 锁定的超时时间（毫秒）<para/>
+        /// null 或大于 -1 的任意值<para/>
+        /// null 表示使用默认值<para/>
+        /// <see cref="Timeout.Infinite"/>(-1) 为无限等待
         /// </summary>
-        string LockerName { get; }
+        int? LockMillisecondsTimeout { get; }
 
         /// <summary>
         /// 缓存通行模式
         /// </summary>
         ExecutingLockMode LockMode { get; }
+
+        /// <inheritdoc cref="ExecutionLockTimeoutFallbackDelegate"/>
+        ExecutionLockTimeoutFallbackDelegate? OnExecutionLockTimeout { get; }
 
         #endregion Public 属性
     }

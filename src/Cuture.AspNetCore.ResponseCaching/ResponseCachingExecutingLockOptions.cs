@@ -24,8 +24,8 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region LockState
 
         private TimeSpan _lockStateRecycleInterval = TimeSpan.FromMinutes(2);
-        private int _maximumLockStatePooled = short.MaxValue >> 2;
-        private int _minimumLockStateRetained = (short.MaxValue >> 4) / 3;
+        private int _maximumExecutingLockPooled = short.MaxValue >> 2;
+        private int _minimumExecutingLockPooled = (short.MaxValue >> 4) / 3;
 
         #endregion LockState
 
@@ -107,34 +107,34 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         /// <summary>
-        /// 最大锁定内容池大小
+        /// 最大执行锁池大小
         /// </summary>
-        public int MaximumLockStatePooled
+        public int MaximumExecutingLockPooled
         {
-            get => _maximumLockStatePooled;
+            get => _maximumExecutingLockPooled;
             set
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(MaximumLockStatePooled));
+                    throw new ArgumentOutOfRangeException(nameof(MaximumExecutingLockPooled));
                 }
-                _maximumLockStatePooled = value;
+                _maximumExecutingLockPooled = value;
             }
         }
 
         /// <summary>
-        /// 最小锁定内容池保留大小
+        /// 最小执行锁池大小
         /// </summary>
-        public int MinimumLockStateRetained
+        public int MinimumExecutingLockRetained
         {
-            get => _minimumLockStateRetained;
+            get => _minimumExecutingLockPooled;
             set
             {
                 if (value < 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(MinimumLockStateRetained));
+                    throw new ArgumentOutOfRangeException(nameof(MinimumExecutingLockRetained));
                 }
-                _minimumLockStateRetained = value;
+                _minimumExecutingLockPooled = value;
             }
         }
 
@@ -174,9 +174,9 @@ namespace Cuture.AspNetCore.ResponseCaching
                 throw new ArgumentException($"cannot be less than {MinimumSemaphoreRetained}", nameof(MaximumSemaphorePooled));
             }
 
-            if (MaximumLockStatePooled < MinimumLockStateRetained)
+            if (MaximumExecutingLockPooled < MinimumExecutingLockRetained)
             {
-                throw new ArgumentException($"cannot be less than {MinimumLockStateRetained}", nameof(MaximumLockStatePooled));
+                throw new ArgumentException($"cannot be less than {MinimumExecutingLockRetained}", nameof(MaximumExecutingLockPooled));
             }
 
             if (_logger is not null)
@@ -186,9 +186,9 @@ namespace Cuture.AspNetCore.ResponseCaching
                     _logger.LogWarning($"the value of {MaximumSemaphorePooled} maybe not big enough.");
                 }
 
-                if (MaximumLockStatePooled > MaximumSemaphorePooled)
+                if (MaximumExecutingLockPooled > MaximumSemaphorePooled)
                 {
-                    _logger.LogWarning($"a value for {nameof(MaximumLockStatePooled)} greater than {nameof(MaximumSemaphorePooled)} is worthless.");
+                    _logger.LogWarning($"a value for {nameof(MaximumExecutingLockPooled)} greater than {nameof(MaximumSemaphorePooled)} is worthless.");
                 }
             }
             _checked = true;

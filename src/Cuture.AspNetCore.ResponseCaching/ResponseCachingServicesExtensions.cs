@@ -5,13 +5,12 @@ using System.Threading;
 using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Diagnostics;
+using Cuture.AspNetCore.ResponseCaching.ExecutingLock;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Internal;
-using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
@@ -47,28 +46,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<IResponseCacheDeterminer, DefaultResponseCacheDeterminer>();
 
-            services.TryAddSingleton<IExecutingLockerProvider, DefaultExecutingLockerProvider>();
-
-            services.TryAddSingleton(services =>
-            {
-                var options = services.GetRequiredService<IOptions<ResponseCachingExecutingLockOptions>>().Value;
-
-                var boundedObjectPoolOptions = new BoundedObjectPoolOptions()
-                {
-                    MaximumPooled = options.MaximumSemaphorePooled,
-                    MinimumRetained = options.MinimumSemaphoreRetained,
-                    RecycleInterval = options.SemaphoreRecycleInterval,
-                };
-
-                var semaphorePool = BoundedObjectPool.Create(new SinglePassSemaphoreLifecycleExecutor(), boundedObjectPoolOptions);
-
-                return (INakedBoundedObjectPool<SemaphoreSlim>)semaphorePool;
-            });
-
-            services.TryAddSingleton(typeof(ExecutionLockStateLifecycleExecutor<>));
-
-            services.TryAddSingleton(services => CreateLockStatePool<IActionResult>(services));
-            services.TryAddSingleton(services => CreateLockStatePool<ResponseCacheEntry>(services));
+            services.AddExecutingLockPool();
 
             services.TryAddSingleton(serviceProvider => new CachingDiagnostics(serviceProvider));
             services.TryAddSingleton<CachingDiagnosticsAccessor>();
@@ -106,20 +84,64 @@ namespace Microsoft.Extensions.DependencyInjection
             return services.AddCaching();
         }
 
-        private static INakedBoundedObjectPool<ExecutionLockState<TPayload>> CreateLockStatePool<TPayload>(IServiceProvider services) where TPayload : class
+        /// <summary>
+        /// 添加<see cref="IExecutingLockPool{TCachePayload}"/>
+        /// </summary>
+        /// <param name="services"></param>
+        private static void AddExecutingLockPool(this IServiceCollection services)
         {
-            var options = services.GetRequiredService<IOptions<ResponseCachingExecutingLockOptions>>().Value;
-
-            var boundedObjectPoolOptions = new BoundedObjectPoolOptions()
+            services.TryAddSingleton(services =>
             {
-                MaximumPooled = options.MaximumLockStatePooled,
-                MinimumRetained = options.MinimumLockStateRetained,
-                RecycleInterval = options.LockStateRecycleInterval,
-            };
+                var options = services.GetRequiredService<IOptions<ResponseCachingExecutingLockOptions>>().Value;
 
-            var lifecycleExecutor = services.GetRequiredService<ExecutionLockStateLifecycleExecutor<TPayload>>();
-            var pool = BoundedObjectPool.Create(lifecycleExecutor, boundedObjectPoolOptions);
-            return (INakedBoundedObjectPool<ExecutionLockState<TPayload>>)pool;
+                var boundedObjectPoolOptions = new BoundedObjectPoolOptions()
+                {
+                    MaximumPooled = options.MaximumSemaphorePooled,
+                    MinimumRetained = options.MinimumSemaphoreRetained,
+                    RecycleInterval = options.SemaphoreRecycleInterval,
+                };
+
+                var semaphorePool = BoundedObjectPool.Create(new SinglePassSemaphoreLifecycleExecutor(), boundedObjectPoolOptions);
+
+                return (INakedBoundedObjectPool<SemaphoreSlim>)semaphorePool;
+            });
+
+            services.TryAddSingleton(typeof(ExclusiveExecutingLockLifecycleExecutor<>));
+            services.TryAddSingleton(typeof(SharedExecutingLockLifecycleExecutor<>));
+
+            services.TryAddSingleton(serviceProvider => CreateSharedExecutingLockPool(serviceProvider));
+            services.TryAddSingleton(serviceProvider => CreateExclusiveExecutingLockPool(serviceProvider));
+
+            static INakedBoundedObjectPool<SharedExecutingLock<ResponseCacheEntry>> CreateSharedExecutingLockPool(IServiceProvider serviceProvider)
+            {
+                var objectPoolOptions = GetObjectPoolOptions(serviceProvider);
+
+                var lifecycleExecutor = serviceProvider.GetRequiredService<SharedExecutingLockLifecycleExecutor<ResponseCacheEntry>>();
+                var pool = BoundedObjectPool.Create(lifecycleExecutor, objectPoolOptions);
+                return (INakedBoundedObjectPool<SharedExecutingLock<ResponseCacheEntry>>)pool;
+            }
+
+            static INakedBoundedObjectPool<ExclusiveExecutingLock<ResponseCacheEntry>> CreateExclusiveExecutingLockPool(IServiceProvider serviceProvider)
+            {
+                var objectPoolOptions = GetObjectPoolOptions(serviceProvider);
+
+                var lifecycleExecutor = serviceProvider.GetRequiredService<ExclusiveExecutingLockLifecycleExecutor<ResponseCacheEntry>>();
+                var pool = BoundedObjectPool.Create(lifecycleExecutor, objectPoolOptions);
+                return (INakedBoundedObjectPool<ExclusiveExecutingLock<ResponseCacheEntry>>)pool;
+            }
+
+            static BoundedObjectPoolOptions GetObjectPoolOptions(IServiceProvider serviceProvider)
+            {
+                var options = serviceProvider.GetRequiredService<IOptions<ResponseCachingExecutingLockOptions>>().Value;
+
+                var boundedObjectPoolOptions = new BoundedObjectPoolOptions()
+                {
+                    MaximumPooled = options.MaximumExecutingLockPooled,
+                    MinimumRetained = options.MinimumExecutingLockRetained,
+                    RecycleInterval = options.LockStateRecycleInterval,
+                };
+                return boundedObjectPoolOptions;
+            }
         }
 
         #endregion AddCaching

@@ -44,7 +44,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         #region Public 方法
 
         /// <inheritdoc cref="CacheBodyTooLargeEventData"/>
-        public void CacheBodyTooLarge(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, FilterContext filterContext, object context)
+        public void CacheBodyTooLarge(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, FilterContext filterContext, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(CacheBodyTooLargeEventData.EventName))
@@ -56,7 +56,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="CacheKeyGeneratedEventData"/>
-        public void CacheKeyGenerated(FilterContext filterContext, string key, ICacheKeyGenerator keyGenerator, object context)
+        public void CacheKeyGenerated(FilterContext filterContext, string key, ICacheKeyGenerator keyGenerator, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(CacheKeyGeneratedEventData.EventName))
@@ -66,7 +66,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="CacheKeyTooLongEventData"/>
-        public void CacheKeyTooLong(string key, int maxAvailableLength, FilterContext filterContext, object context)
+        public void CacheKeyTooLong(string key, int maxAvailableLength, FilterContext filterContext, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(CacheKeyTooLongEventData.EventName))
@@ -78,7 +78,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="CannotExecutionThroughLockEventData"/>
-        public void CannotExecutionThroughLock(string key, FilterContext filterContext, object context)
+        public void CannotExecutionThroughLock(string key, FilterContext filterContext, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(CannotExecutionThroughLockEventData.EventName))
@@ -88,7 +88,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="EndProcessingCacheEventData"/>
-        public void EndProcessingCache(FilterContext filterContext, object context)
+        public void EndProcessingCache(FilterContext filterContext, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(EndProcessingCacheEventData.EventName))
@@ -98,7 +98,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="NoCachingFoundedEventData"/>
-        public void NoCachingFounded(string key, FilterContext filterContext, object context)
+        public void NoCachingFounded(string key, FilterContext filterContext, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(NoCachingFoundedEventData.EventName))
@@ -108,7 +108,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="ResponseFromActionResultEventData"/>
-        public void ResponseFromActionResult(ActionExecutingContext executingContext, IActionResult actionResult, object context)
+        public void ResponseFromActionResult(ActionExecutingContext executingContext, IActionResult actionResult, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(ResponseFromActionResultEventData.EventName))
@@ -118,7 +118,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="ResponseFromCacheEventData"/>
-        public void ResponseFromCache(ActionContext actionContext, ResponseCacheEntry cacheEntry, object context)
+        public void ResponseFromCache(ActionContext actionContext, ResponseCacheEntry cacheEntry, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(ResponseFromCacheEventData.EventName))
@@ -128,7 +128,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         }
 
         /// <inheritdoc cref="StartProcessingCacheEventData"/>
-        public void StartProcessingCache(FilterContext filterContext, object context)
+        public void StartProcessingCache(FilterContext filterContext, ResponseCachingContext context)
         {
             if (DiagnosticSource != null
                 && DiagnosticSource.IsEnabled(StartProcessingCacheEventData.EventName))

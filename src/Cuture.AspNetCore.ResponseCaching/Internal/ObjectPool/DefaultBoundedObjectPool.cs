@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.ObjectPool
     /// 有限大小的对象池
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class DefaultBoundedObjectPool<T> : INakedBoundedObjectPool<T>, IBoundedObjectPool<T> where T : class
+    internal class DefaultBoundedObjectPool<T> : INakedBoundedObjectPool<T>, IBoundedObjectPool<T>
     {
         #region Private 字段
 
@@ -189,14 +189,14 @@ namespace Microsoft.Extensions.ObjectPool
                 //进入锁之前进行一次判断，可以在满载情况下避免锁
                 if (_objectCount >= _maximumPooled)
                 {
-                    return null;
+                    return default;
                 }
 
                 lock (_syncRoot)
                 {
                     if (_objectCount >= _maximumPooled)
                     {
-                        return null;
+                        return default;
                     }
                     _objectCount++;
                 }

@@ -7,18 +7,17 @@ using System.Threading.Tasks;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 {
     /// <summary>
-    /// 委托 - <inheritdoc cref="ICacheStoringInterceptor.OnCacheStoringAsync(ActionContext, string, ResponseCacheEntry, OnCacheStoringDelegate)"/>
+    /// 委托 - <inheritdoc cref="ICacheStoringInterceptor.OnCacheStoringAsync(ActionContext, string, ResponseCacheEntry, OnCacheStoringDelegate{ActionContext})"/>
     /// </summary>
     /// <param name="actionContext"></param>
     /// <param name="key"></param>
     /// <param name="entry"></param>
     /// <returns></returns>
-    public delegate Task<ResponseCacheEntry?> OnCacheStoringDelegate(ActionContext actionContext, string key, ResponseCacheEntry entry);
+    public delegate Task<ResponseCacheEntry?> OnCacheStoringDelegate<in TContext>(TContext actionContext, string key, ResponseCacheEntry entry) where TContext : ActionContext;
 
     /// <summary>
     /// 委托 - <inheritdoc cref="IResponseWritingInterceptor.OnResponseWritingAsync(ActionContext, ResponseCacheEntry, OnResponseWritingDelegate)"/>
@@ -29,17 +28,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
     public delegate Task<bool> OnResponseWritingDelegate(ActionContext actionContext, ResponseCacheEntry entry);
 
     /// <summary>
-    /// 委托 - <inheritdoc cref="IActionResultSettingInterceptor.OnResultSettingAsync(ActionExecutingContext, IActionResult, OnResultSettingDelegate)"/>
-    /// </summary>
-    /// <param name="actionContext"></param>
-    /// <param name="actionResult"></param>
-    /// <returns></returns>
-    public delegate Task OnResultSettingDelegate(ActionExecutingContext actionContext, IActionResult actionResult);
-
-    /// <summary>
     /// 拦截器集合
     /// </summary>
-    public class InterceptorAggregator : IActionResultSettingInterceptor, IResponseWritingInterceptor, ICacheStoringInterceptor
+    public class InterceptorAggregator : IResponseWritingInterceptor, ICacheStoringInterceptor
     {
         #region Public 委托
 
@@ -51,7 +42,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// <param name="entry"></param>
         /// <param name="next"></param>
         /// <returns></returns>
-        public delegate Task<ResponseCacheEntry?> OnCacheStoringWrappedDelegate(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next);
+        public delegate Task<ResponseCacheEntry?> OnCacheStoringWrappedDelegate(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next);
 
         /// <summary>
         ///
@@ -62,24 +53,12 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         /// <returns></returns>
         public delegate Task<bool> OnResponseWritingWrappedDelegate(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next);
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="actionContext"></param>
-        /// <param name="actionResult"></param>
-        /// <param name="next"></param>
-        /// <returns></returns>
-        public delegate Task OnResultSettingWrappedDelegate(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next);
-
         #endregion Public 委托
 
         #region Private 字段
 
-        private readonly IEnumerable<IResponseCachingInterceptor>? _interceptors;
-
         private readonly OnCacheStoringWrappedDelegate _onCacheStoringWrappedDelegate;
         private readonly OnResponseWritingWrappedDelegate _onResponseWritingWrappedDelegate;
-        private readonly OnResultSettingWrappedDelegate _onResultSettingWrappedDelegate;
 
         #endregion Private 字段
 
@@ -93,7 +72,6 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
         {
             _onCacheStoringWrappedDelegate = new(static (actionContext, key, entry, next) => next(actionContext, key, entry));
             _onResponseWritingWrappedDelegate = new(static (actionContext, entry, next) => next(actionContext, entry));
-            _onResultSettingWrappedDelegate = new(static (actionContext, actionResult, next) => next(actionContext, actionResult));
 
             if (interceptors is not null)
             {
@@ -125,20 +103,8 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
                                                                                      (actionContext, entry) => nextOnResponseWriting(actionContext, entry, next));
                         };
                     }
-
-                    if (interceptor is IActionResultSettingInterceptor actionResultSettingInterceptor)
-                    {
-                        var nextOnResultSetting = _onResultSettingWrappedDelegate;
-                        _onResultSettingWrappedDelegate = (actionContext, actionResult, next) =>
-                        {
-                            return actionResultSettingInterceptor.OnResultSettingAsync(actionContext,
-                                                                                       actionResult,
-                                                                                       (actionContext, actionResult) => nextOnResultSetting(actionContext, actionResult, next));
-                        };
-                    }
                 }
             }
-            _interceptors = interceptors;
         }
 
         #endregion Public 构造函数
@@ -147,18 +113,13 @@ namespace Cuture.AspNetCore.ResponseCaching.Interceptors
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
             => _onCacheStoringWrappedDelegate(actionContext, key, entry, next);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
             => _onResponseWritingWrappedDelegate(actionContext, entry, next);
-
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Task OnResultSettingAsync(ActionExecutingContext actionContext, IActionResult actionResult, OnResultSettingDelegate next)
-            => _onResultSettingWrappedDelegate(actionContext, actionResult, next);
 
         #endregion ICachingProcessInterceptor
     }

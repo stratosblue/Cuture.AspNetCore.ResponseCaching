@@ -22,19 +22,19 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
 
         /// <summary>
         /// 响应缓存的处理上下文
-        /// <see cref="ResponseCachingContext{TFilterContext, TLocalCachingData}"/>
+        /// <see cref="ResponseCachingContext"/>
         /// <para/>
         /// 默认情况下TFilterContext可能为<see cref="ActionExecutingContext"/>或<see cref="ResourceExecutingContext"/>
         /// <para/>
         /// 与之对应的TLocalCachingData分别为<see cref="IActionResult"/>和<see cref="ResponseCacheEntry"/>
         /// </summary>
-        public object Context { get; }
+        public ResponseCachingContext Context { get; }
 
         /// <summary>
         /// <inheritdoc cref="ResponseCachingEventData"/>
         /// </summary>
         /// <param name="context">响应缓存的处理上下文</param>
-        public ResponseCachingEventData(object context)
+        public ResponseCachingEventData(ResponseCachingContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -54,7 +54,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public FilterContext FilterContext { get; }
 
         /// <inheritdoc cref="StartProcessingCacheEventData"/>
-        public StartProcessingCacheEventData(FilterContext filterContext, object context) : base(context)
+        public StartProcessingCacheEventData(FilterContext filterContext, ResponseCachingContext context) : base(context)
         {
             FilterContext = filterContext;
         }
@@ -74,7 +74,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public FilterContext FilterContext { get; }
 
         /// <inheritdoc cref="EndProcessingCacheEventData"/>
-        public EndProcessingCacheEventData(FilterContext filterContext, object context) : base(context)
+        public EndProcessingCacheEventData(FilterContext filterContext, ResponseCachingContext context) : base(context)
         {
             FilterContext = filterContext;
         }
@@ -106,7 +106,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public ICacheKeyGenerator KeyGenerator { get; }
 
         /// <inheritdoc cref="CacheKeyGeneratedEventData"/>
-        public CacheKeyGeneratedEventData(FilterContext filterContext, string key, ICacheKeyGenerator keyGenerator, object context) : base(context)
+        public CacheKeyGeneratedEventData(FilterContext filterContext, string key, ICacheKeyGenerator keyGenerator, ResponseCachingContext context) : base(context)
         {
             FilterContext = filterContext;
             Key = key;
@@ -133,7 +133,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public ResponseCacheEntry CacheEntry { get; }
 
         /// <inheritdoc cref="ResponseFromCacheEventData"/>
-        public ResponseFromCacheEventData(ActionContext actionContext, ResponseCacheEntry cacheEntry, object context) : base(context)
+        public ResponseFromCacheEventData(ActionContext actionContext, ResponseCacheEntry cacheEntry, ResponseCachingContext context) : base(context)
         {
             ActionContext = actionContext;
             CacheEntry = cacheEntry;
@@ -157,7 +157,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public IActionResult ActionResult { get; }
 
         /// <inheritdoc cref="ResponseFromActionResultEventData"/>
-        public ResponseFromActionResultEventData(ActionExecutingContext executingContext, IActionResult actionResult, object context) : base(context)
+        public ResponseFromActionResultEventData(ActionExecutingContext executingContext, IActionResult actionResult, ResponseCachingContext context) : base(context)
         {
             ActionExecutingContext = executingContext;
             ActionResult = actionResult;
@@ -188,7 +188,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public FilterContext FilterContext { get; }
 
         /// <inheritdoc cref="CacheKeyTooLongEventData"/>
-        public CacheKeyTooLongEventData(string key, int maxAvailableLength, FilterContext filterContext, object context) : base(context)
+        public CacheKeyTooLongEventData(string key, int maxAvailableLength, FilterContext filterContext, ResponseCachingContext context) : base(context)
         {
             Key = key;
             MaxAvailableLength = maxAvailableLength;
@@ -215,7 +215,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public FilterContext FilterContext { get; }
 
         /// <inheritdoc cref="NoCachingFoundedEventData"/>
-        public NoCachingFoundedEventData(string key, FilterContext filterContext, object context) : base(context)
+        public NoCachingFoundedEventData(string key, FilterContext filterContext, ResponseCachingContext context) : base(context)
         {
             Key = key;
             FilterContext = filterContext;
@@ -251,7 +251,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public FilterContext FilterContext { get; }
 
         /// <inheritdoc cref="CacheBodyTooLargeEventData"/>
-        public CacheBodyTooLargeEventData(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, FilterContext filterContext, object context) : base(context)
+        public CacheBodyTooLargeEventData(string key, ReadOnlyMemory<byte> body, int maxAvailableLength, FilterContext filterContext, ResponseCachingContext context) : base(context)
         {
             Key = key;
             Body = body;
@@ -279,7 +279,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Diagnostics
         public FilterContext FilterContext { get; }
 
         /// <inheritdoc cref="CannotExecutionThroughLockEventData"/>
-        public CannotExecutionThroughLockEventData(string key, FilterContext filterContext, object context) : base(context)
+        public CannotExecutionThroughLockEventData(string key, FilterContext filterContext, ResponseCachingContext context) : base(context)
         {
             Key = key;
             FilterContext = filterContext;

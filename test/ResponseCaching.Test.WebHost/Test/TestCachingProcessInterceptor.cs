@@ -12,7 +12,7 @@ namespace ResponseCaching.Test.WebHost.Test
     {
         #region Public 方法
 
-        public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate next)
+        public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
         {
             return Task.FromResult<ResponseCacheEntry>(null);
         }

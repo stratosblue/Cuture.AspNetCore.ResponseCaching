@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.ObjectPool
     /// 有界的对象池
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal interface IBoundedObjectPool<T> : IDisposable where T : class
+    internal interface IBoundedObjectPool<T> : IDisposable
     {
         #region Public 方法
 
@@ -31,7 +31,11 @@ namespace Microsoft.Extensions.ObjectPool
         #endregion Public 方法
     }
 
-    internal interface IDirectBoundedObjectPool<T> : IDisposable where T : class
+    /// <summary>
+    /// 直接借用对象的 <inheritdoc cref="IBoundedObjectPool{T}"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    internal interface IDirectBoundedObjectPool<T> : IDisposable
     {
         #region Public 方法
 

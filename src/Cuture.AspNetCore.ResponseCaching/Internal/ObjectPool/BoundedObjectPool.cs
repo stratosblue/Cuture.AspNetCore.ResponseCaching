@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.ObjectPool
         /// <param name="minimumRetained">最小保留对象数量</param>
         /// <param name="recycleIntervalSeconds">回收间隔(秒)</param>
         /// <returns></returns>
-        public static IBoundedObjectPool<T> Create<T>(int maximumPooled, int minimumRetained, int recycleIntervalSeconds) where T : class, new()
+        public static IBoundedObjectPool<T> Create<T>(int maximumPooled, int minimumRetained, int recycleIntervalSeconds) where T : new()
         {
             return Create<T>(maximumPooled, minimumRetained, TimeSpan.FromSeconds(recycleIntervalSeconds));
         }
@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.ObjectPool
         /// <param name="minimumRetained">最小保留对象数量</param>
         /// <param name="recycleInterval">回收间隔</param>
         /// <returns></returns>
-        public static IBoundedObjectPool<T> Create<T>(int maximumPooled, int minimumRetained, TimeSpan recycleInterval) where T : class, new()
+        public static IBoundedObjectPool<T> Create<T>(int maximumPooled, int minimumRetained, TimeSpan recycleInterval) where T : new()
         {
             var options = new BoundedObjectPoolOptions
             {
@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.ObjectPool
         /// <typeparam name="T"></typeparam>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static IBoundedObjectPool<T> Create<T>(BoundedObjectPoolOptions options) where T : class, new()
+        public static IBoundedObjectPool<T> Create<T>(BoundedObjectPoolOptions options) where T : new()
         {
             return Create(new DefaultObjectLifecycleExecutor<T>(), options);
         }
@@ -59,7 +59,7 @@ namespace Microsoft.Extensions.ObjectPool
         /// <param name="objectLifecycleExecutor"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static IBoundedObjectPool<T> Create<T>(IObjectLifecycleExecutor<T> objectLifecycleExecutor, BoundedObjectPoolOptions options) where T : class
+        public static IBoundedObjectPool<T> Create<T>(IObjectLifecycleExecutor<T> objectLifecycleExecutor, BoundedObjectPoolOptions options)
         {
             return new DefaultBoundedObjectPool<T>(objectLifecycleExecutor, options);
         }

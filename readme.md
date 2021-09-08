@@ -1,6 +1,6 @@
 # Cuture.AspNetCore.ResponseCaching
 ## 1. Intro
-基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`缓存组件
+基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`服务端缓存组件
 
 ## 2. 注意项
 - 针对`Action`的缓存实现，基于`Filter`，非中间件/AOP实现；

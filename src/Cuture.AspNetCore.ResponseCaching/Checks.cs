@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 
@@ -58,6 +60,26 @@ namespace Cuture.AspNetCore.ResponseCaching
             }
 
             return lockMode;
+        }
+
+        /// <summary>
+        /// 如果 <paramref name="lockMillisecondsTimeout"/> 无效，抛出异常
+        /// </summary>
+        /// <param name="lockMillisecondsTimeout"></param>
+        /// <returns></returns>
+        [return: NotNullIfNotNull("lockMillisecondsTimeout")]
+        public static int? ThrowIfLockMillisecondsTimeoutInvalid(int? lockMillisecondsTimeout)
+        {
+            if (lockMillisecondsTimeout is null)
+            {
+                return lockMillisecondsTimeout;
+            }
+            if (lockMillisecondsTimeout.Value < Timeout.Infinite)
+            {
+                throw new ArgumentOutOfRangeException(nameof(lockMillisecondsTimeout), $"Can not less than {Timeout.Infinite}");
+            }
+
+            return lockMillisecondsTimeout;
         }
 
         /// <summary>

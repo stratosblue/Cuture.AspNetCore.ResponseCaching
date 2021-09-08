@@ -9,7 +9,6 @@ using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.Filters;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Internal;
-using Cuture.AspNetCore.ResponseCaching.Lockers;
 using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
@@ -17,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching
@@ -57,11 +57,8 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             var interceptorAggregator = new InterceptorAggregator(GetCachingProcessInterceptor(buildContext));
 
-            var executingLockMetadata = buildContext.GetMetadata<IExecutingLockMetadata>();
-
-            var lockMode = Checks.ThrowIfExecutingLockModeIsNone(executingLockMetadata?.LockMode ?? buildContext.Options.DefaultExecutingLockMode);
-
-            var executingLockerName = executingLockMetadata?.LockerName ?? string.Empty;
+            var lockMode = buildContext.GetMetadata<IExecutingLockMetadata>()?.LockMode ?? buildContext.Options.DefaultExecutingLockMode;
+            lockMode = Checks.ThrowIfExecutingLockModeIsNone(lockMode);
 
             var dumpStreamCapacity = buildContext.GetMetadata<IDumpStreamInitialCapacityMetadata>()?.Capacity
                                      ?? ResponseCachingConstants.DefaultDumpCapacity;
@@ -70,52 +67,43 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             Debug.WriteLine("FilterType {0} for endpoint {1}", filterType, endpoint);
 
-            switch (filterType)
+            var executingLockPool = lockMode switch
             {
-                case FilterType.Resource:
-                    {
-                        Type? executingLockerType = lockMode switch
-                        {
-                            ExecutingLockMode.ActionSingle => typeof(IActionSingleResourceExecutingLocker),
-                            ExecutingLockMode.CacheKeySingle => typeof(ICacheKeySingleResourceExecutingLocker),
-                            _ => null,
-                        };
-                        var executingLocker = executingLockerType is null
-                                                ? null
-                                                : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker<IRequestExecutingLocker<ResourceExecutingContext, ResponseCacheEntry>>(executingLockerType, executingLockerName);
-                        var responseCachingContext = new ResponseCachingContext<ResourceExecutingContext, ResponseCacheEntry>(metadatas: buildContext.Endpoint.Metadata,
-                                                                                                                              cacheKeyGenerator: cacheKeyGenerator,
-                                                                                                                              executingLocker: executingLocker!,
-                                                                                                                              responseCache: responseCache,
-                                                                                                                              cacheDeterminer: cacheDeterminer,
-                                                                                                                              options: buildContext.Options,
-                                                                                                                              interceptorAggregator: interceptorAggregator,
-                                                                                                                              dumpStreamCapacity: dumpStreamCapacity);
-                        return new DefaultResourceCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
-                    }
-                case FilterType.Action:
-                    {
-                        Type? executingLockerType = lockMode switch
-                        {
-                            ExecutingLockMode.ActionSingle => typeof(IActionSingleActionExecutingLocker),
-                            ExecutingLockMode.CacheKeySingle => typeof(ICacheKeySingleActionExecutingLocker),
-                            _ => null,
-                        };
-                        var executingLocker = executingLockerType is null
-                                                ? null
-                                                : serviceProvider.GetRequiredService<IExecutingLockerProvider>().GetLocker<IRequestExecutingLocker<ActionExecutingContext, IActionResult>>(executingLockerType, executingLockerName);
-                        var responseCachingContext = new ResponseCachingContext<ActionExecutingContext, IActionResult>(metadatas: buildContext.Endpoint.Metadata,
-                                                                                                                       cacheKeyGenerator: cacheKeyGenerator,
-                                                                                                                       executingLocker: executingLocker!,
-                                                                                                                       responseCache: responseCache,
-                                                                                                                       cacheDeterminer: cacheDeterminer,
-                                                                                                                       options: buildContext.Options,
-                                                                                                                       interceptorAggregator: interceptorAggregator,
-                                                                                                                       dumpStreamCapacity: dumpStreamCapacity);
-                        return new DefaultActionCacheFilter(responseCachingContext, cachingDiagnosticsAccessor);
-                    }
-                default:
-                    throw new NotImplementedException($"Not ready to support FilterType: {filterType}");
+                ExecutingLockMode.ActionSingle => CreateSharedExecutingLockPool(serviceProvider),
+                ExecutingLockMode.CacheKeySingle => CreateExclusiveExecutingLock(serviceProvider),
+                _ => null,
+            };
+
+            var responseCachingContext = new ResponseCachingContext(metadatas: buildContext.Endpoint.Metadata,
+                                                                    cacheKeyGenerator: cacheKeyGenerator,
+                                                                    responseCache: responseCache,
+                                                                    cacheDeterminer: cacheDeterminer,
+                                                                    options: buildContext.Options,
+                                                                    interceptorAggregator: interceptorAggregator,
+                                                                    dumpStreamCapacity: dumpStreamCapacity);
+            return filterType switch
+            {
+                FilterType.Resource => executingLockPool is null
+                                        ? new DefaultResourceCacheFilter(responseCachingContext, cachingDiagnosticsAccessor)
+                                        : new DefaultLockedResourceCacheFilter(responseCachingContext, executingLockPool, cachingDiagnosticsAccessor),
+                FilterType.Action => executingLockPool is null
+                                        ? new DefaultActionCacheFilter(responseCachingContext, cachingDiagnosticsAccessor)
+                                        : new DefaultLockedActionCacheFilter(responseCachingContext, executingLockPool, cachingDiagnosticsAccessor),
+                _ => throw new NotImplementedException($"Not ready to support FilterType: {filterType}"),
+            };
+
+            // 缓存共享锁
+            static IExecutingLockPool<ResponseCacheEntry> CreateSharedExecutingLockPool(IServiceProvider serviceProvider)
+            {
+                var nakedBoundedObjectPool = serviceProvider.GetRequiredService<INakedBoundedObjectPool<SharedExecutingLock<ResponseCacheEntry>>>();
+                return new SingleLockExecutingLockPool<ResponseCacheEntry, SharedExecutingLock<ResponseCacheEntry>>(nakedBoundedObjectPool);
+            }
+
+            // 缓存独占锁
+            static IExecutingLockPool<ResponseCacheEntry> CreateExclusiveExecutingLock(IServiceProvider serviceProvider)
+            {
+                var nakedBoundedObjectPool = serviceProvider.GetRequiredService<INakedBoundedObjectPool<ExclusiveExecutingLock<ResponseCacheEntry>>>();
+                return new ExecutingLockPool<ResponseCacheEntry, ExclusiveExecutingLock<ResponseCacheEntry>>(nakedBoundedObjectPool);
             }
         }
 
