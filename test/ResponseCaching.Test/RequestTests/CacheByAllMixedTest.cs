@@ -46,7 +46,7 @@ namespace ResponseCaching.Test.RequestTests
                 {
                     for (int pageSize_q = 7; pageSize_q < 15; pageSize_q += 4)
                     {
-                        var url = $"{BaseUrl}/WeatherForecast/get-all-mixed?page={page_q}&pageSize={pageSize_q}";
+                        var url = $"{BaseUrl}/CacheByAllMixed/Post?page={page_q}&pageSize={pageSize_q}";
                         for (int page_h = 1; page_h < 10; page_h += 3)
                         {
                             for (int pageSize_h = 7; pageSize_h < 15; pageSize_h += 4)

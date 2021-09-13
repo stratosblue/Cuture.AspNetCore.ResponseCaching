@@ -16,12 +16,12 @@ namespace ResponseCaching.Test.RequestTests
         protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
         {
             return new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
-                () => $"{BaseUrl}/WeatherForecast/path-cache-custom-interceptor?page=1&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache-custom-interceptor?page=1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache-custom-interceptor".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache-custom-interceptor?page=1&pageSize=5".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache-custom-interceptor?page=1".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/WeatherForecast/path-cache-custom-interceptor".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/CacheByPathWithCustomInterceptor/Get?page=1&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/CacheByPathWithCustomInterceptor/Get?page=1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/CacheByPathWithCustomInterceptor/Get".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/CacheByPathWithCustomInterceptor/Get?page=1&pageSize=5".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/CacheByPathWithCustomInterceptor/Get?page=1".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
+                () => $"{BaseUrl}/CacheByPathWithCustomInterceptor/Get".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
             };
         }
 

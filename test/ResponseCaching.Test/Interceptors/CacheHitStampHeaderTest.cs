@@ -24,17 +24,17 @@ namespace ResponseCaching.Test.Interceptors
         protected Task<TextHttpOperationResult<WeatherForecast[]>>[] GetRequestTasks()
         {
             return new Task<TextHttpOperationResult<WeatherForecast[]>>[] {
-                $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/url-cache?page=2&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/url-cache?page=3&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t=1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t={_t}".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/url-cache?page=1&pageSize=5&_t=1&_t1=0".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/get-m".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 1,PageSize = 5 }).TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/get-m".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 1,PageSize = 6 }).TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/get-m".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 2,PageSize = 4 }).TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/get-m".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 2,PageSize = 6 }).TryGetAsObjectAsync<WeatherForecast[]>(),
-                $"{BaseUrl}/WeatherForecast/get-m".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 3,PageSize = 3 }).TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByFullUrl/Get?page=1&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByFullUrl/Get?page=2&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByFullUrl/Get?page=3&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByFullUrl/Get?page=1&pageSize=5&_t=1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByFullUrl/Get?page=1&pageSize=5&_t={_t}".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByFullUrl/Get?page=1&pageSize=5&_t=1&_t1=0".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByModel/Post".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 1,PageSize = 5 }).TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByModel/Post".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 1,PageSize = 6 }).TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByModel/Post".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 2,PageSize = 4 }).TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByModel/Post".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 2,PageSize = 6 }).TryGetAsObjectAsync<WeatherForecast[]>(),
+                $"{BaseUrl}/CacheByModel/Post".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 3,PageSize = 3 }).TryGetAsObjectAsync<WeatherForecast[]>(),
             };
         }
 

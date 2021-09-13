@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ResponseCaching.Test.WebHost.Controllers
 {
-    [ApiController]
-    [Route("[controller]/[action]")]
-    public class HotDataCacheTestController : ControllerBase
+    public class HotDataCacheController : TestControllerBase
     {
         #region Public 方法
 
@@ -16,7 +14,7 @@ namespace ResponseCaching.Test.WebHost.Controllers
             Mode = CacheMode.FullPathAndQuery,
             StoreLocation = CacheStoreLocation.Distributed)]
         [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
-        public string Do(string input)
+        public string Get(string input)
         {
             return "Inputed:" + input;
         }

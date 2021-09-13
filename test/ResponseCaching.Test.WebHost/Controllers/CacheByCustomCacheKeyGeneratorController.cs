@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+
+using Cuture.AspNetCore.ResponseCaching;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,7 +11,7 @@ using ResponseCaching.Test.WebHost.Test;
 
 namespace ResponseCaching.Test.WebHost.Controllers
 {
-    public class WeatherForecastController : TestControllerBase
+    public class CacheByCustomCacheKeyGeneratorController : TestControllerBase
     {
         #region Private 字段
 
@@ -19,7 +21,7 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         #region Public 构造函数
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public CacheByCustomCacheKeyGeneratorController(ILogger<CacheByCustomCacheKeyGeneratorController> logger)
         {
             _logger = logger;
         }
@@ -29,10 +31,13 @@ namespace ResponseCaching.Test.WebHost.Controllers
         #region Public 方法
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get([Required] int page, [Required] int pageSize)
+        [ResponseCaching(Duration)]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
+        [Description("cache_key_definite")]
+        [CacheKeyGenerator(typeof(TestCustomCacheKeyGenerator), FilterType.Resource)]
+        public IEnumerable<WeatherForecast> Get()
         {
-            _logger.LogInformation("{0} - {1}", page, pageSize);
-            return TestDataGenerator.GetData((page - 1) * pageSize, pageSize);
+            return TestDataGenerator.GetData(0, 5);
         }
 
         #endregion Public 方法

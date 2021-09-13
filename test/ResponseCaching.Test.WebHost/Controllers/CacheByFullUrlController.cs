@@ -9,7 +9,7 @@ using ResponseCaching.Test.WebHost.Test;
 
 namespace ResponseCaching.Test.WebHost.Controllers
 {
-    public class WeatherForecastController : TestControllerBase
+    public class CacheByFullUrlController : TestControllerBase
     {
         #region Private 字段
 
@@ -19,7 +19,7 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         #region Public 构造函数
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public CacheByFullUrlController(ILogger<CacheByFullUrlController> logger)
         {
             _logger = logger;
         }
@@ -29,6 +29,9 @@ namespace ResponseCaching.Test.WebHost.Controllers
         #region Public 方法
 
         [HttpGet]
+        [CacheByFullUrl(Duration)]
+        [ExecutingLock(ExecutingLockMode.ActionSingle)]
+        [ResponseDumpCapacity(128)]
         public IEnumerable<WeatherForecast> Get([Required] int page, [Required] int pageSize)
         {
             _logger.LogInformation("{0} - {1}", page, pageSize);

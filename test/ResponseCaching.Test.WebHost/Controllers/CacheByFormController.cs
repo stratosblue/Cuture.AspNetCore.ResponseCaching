@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,7 +8,7 @@ using ResponseCaching.Test.WebHost.Test;
 
 namespace ResponseCaching.Test.WebHost.Controllers
 {
-    public class WeatherForecastController : TestControllerBase
+    public class CacheByFormController : TestControllerBase
     {
         #region Private 字段
 
@@ -19,7 +18,7 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         #region Public 构造函数
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public CacheByFormController(ILogger<CacheByFormController> logger)
         {
             _logger = logger;
         }
@@ -28,9 +27,13 @@ namespace ResponseCaching.Test.WebHost.Controllers
 
         #region Public 方法
 
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get([Required] int page, [Required] int pageSize)
+        [HttpPost]
+        [CacheByForm(Duration, "page", "pageSize")]
+        [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
+        public IEnumerable<WeatherForecast> Post()
         {
+            int page = int.Parse(Request.Form["page"]);
+            int pageSize = int.Parse(Request.Form["pageSize"]);
             _logger.LogInformation("{0} - {1}", page, pageSize);
             return TestDataGenerator.GetData((page - 1) * pageSize, pageSize);
         }

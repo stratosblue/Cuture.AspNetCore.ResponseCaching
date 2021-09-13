@@ -26,7 +26,7 @@ namespace ResponseCaching.Test.RequestTests
         [TestMethod]
         public async Task None_DistributedResponseCache_Get()
         {
-            var urls = Enumerable.Range(0, 50).Select(m => $"{BaseUrl}/HotDataCacheTest/do?input={m}").ToArray();
+            var urls = Enumerable.Range(0, 50).Select(m => $"{BaseUrl}/HotDataCache/Get?input={m}").ToArray();
 
             var tasks = urls.Select(url => Enumerable.Range(0, 100).Select(_ => url.CreateHttpRequest().TryGetAsStringAsync())).SelectMany(m => m).ToArray();
 
@@ -42,8 +42,8 @@ namespace ResponseCaching.Test.RequestTests
         {
             var urlCount = 50;
             var rCount = 25;
-            var urls = Enumerable.Range(0, urlCount).Select(m => $"{BaseUrl}/HotDataCacheTest/do?input={m}").ToArray();
-            var rUrls = Enumerable.Range(urlCount * 2, rCount).Select(m => $"{BaseUrl}/HotDataCacheTest/do?input={m}").ToArray();
+            var urls = Enumerable.Range(0, urlCount).Select(m => $"{BaseUrl}/HotDataCache/Get?input={m}").ToArray();
+            var rUrls = Enumerable.Range(urlCount * 2, rCount).Select(m => $"{BaseUrl}/HotDataCache/Get?input={m}").ToArray();
 
             //确保缓存是有序的
             foreach (var item in urls)

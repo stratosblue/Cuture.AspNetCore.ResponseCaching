@@ -19,11 +19,33 @@ namespace ResponseCaching.Test.WebHost.Controllers
     [Route("[controller]/[action]")]
     public class LoginController : ControllerBase
     {
+        #region Private 字段
+
         private readonly ILogger<LoginController> _logger;
+
+        #endregion Private 字段
+
+        #region Public 构造函数
 
         public LoginController(ILogger<LoginController> logger)
         {
             _logger = logger;
+        }
+
+        #endregion Public 构造函数
+
+        #region Public 方法
+
+        [HttpGet]
+        public async Task CookieAsync([FromQuery] string uid)
+        {
+            var claimsIdentity = new ClaimsIdentity(new[]
+            {
+                new Claim(JwtClaimTypes.Id,uid),
+                new Claim(JwtClaimTypes.SessionId,new string(uid.Reverse().ToArray()))
+            }, CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
         }
 
         [HttpGet]
@@ -43,16 +65,6 @@ namespace ResponseCaching.Test.WebHost.Controllers
             return token;
         }
 
-        [HttpGet]
-        public async Task CookieAsync([FromQuery] string uid)
-        {
-            var claimsIdentity = new ClaimsIdentity(new[]
-            {
-                new Claim(JwtClaimTypes.Id,uid),
-                new Claim(JwtClaimTypes.SessionId,new string(uid.Reverse().ToArray()))
-            }, CookieAuthenticationDefaults.AuthenticationScheme);
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
-        }
+        #endregion Public 方法
     }
 }
