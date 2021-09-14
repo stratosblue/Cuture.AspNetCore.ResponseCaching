@@ -29,7 +29,7 @@ namespace Microsoft.AspNetCore.Mvc
 
         #region Public 构造函数
 
-        /// <inheritdoc cref="ExecutingLockAttribute(ExecutingLockMode, int?)"/>
+        /// <inheritdoc cref="ExecutingLockAttribute(ExecutingLockMode, int)"/>
         public ExecutingLockAttribute(ExecutingLockMode lockMode)
         {
             LockMode = Checks.ThrowIfExecutingLockModeIsNone(lockMode);
@@ -40,7 +40,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="lockMode">锁定模式</param>
         /// <param name="lockMillisecondsTimeout">锁定的等待超时时间</param>
-        public ExecutingLockAttribute(ExecutingLockMode lockMode, int? lockMillisecondsTimeout) : this(lockMode)
+        public ExecutingLockAttribute(ExecutingLockMode lockMode, int lockMillisecondsTimeout) : this(lockMode)
         {
             LockMillisecondsTimeout = Checks.ThrowIfLockMillisecondsTimeoutInvalid(lockMillisecondsTimeout);
         }

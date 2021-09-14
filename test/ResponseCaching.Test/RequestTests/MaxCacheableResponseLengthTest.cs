@@ -16,12 +16,11 @@ namespace ResponseCaching.Test.RequestTests
     {
         #region Public 方法
 
-        //ActionFilter会本地缓存ActionResult对象，在本地缓存有效期内，不受此限制影响
-        //[TestMethod]
-        //public async Task ShouldActionFilterNotCacheAsync()
-        //{
-        //    await ExecuteAsync("by-action-filter");
-        //}
+        [TestMethod]
+        public async Task ShouldActionFilterNotCacheAsync()
+        {
+            await ExecuteAsync("by-action-filter");
+        }
 
         [TestMethod]
         public async Task ShouldResourceFilterNotCacheAsync()
