@@ -8,11 +8,9 @@ using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.Filters;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
-using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,19 +25,16 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Public 方法
 
         /// <inheritdoc/>
-        public IFilterMetadata CreateFilter(IServiceProvider serviceProvider, Endpoint endpoint)
+        public IFilterMetadata CreateFilter(IServiceProvider serviceProvider)
         {
             if (serviceProvider is null)
             {
                 throw new ArgumentNullException(nameof(serviceProvider));
             }
 
-            if (endpoint is null)
-            {
-                throw new ArgumentNullException(nameof(endpoint));
-            }
+            var endpointAccessor = serviceProvider.GetRequiredService<IEndpointAccessor>();
 
-            var buildContext = new FilterBuildContext(serviceProvider, endpoint);
+            var buildContext = new FilterBuildContext(serviceProvider, endpointAccessor);
 
             if (!buildContext.Options.Enable)
             {
@@ -65,7 +60,7 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             Checks.ThrowIfDumpStreamInitialCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
 
-            Debug.WriteLine("FilterType {0} for endpoint {1}", filterType, endpoint);
+            Debug.WriteLine("FilterType {0} for endpoint {1}", filterType, endpointAccessor);
 
             var executingLockPool = lockMode switch
             {
@@ -74,7 +69,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                 _ => null,
             };
 
-            var responseCachingContext = new ResponseCachingContext(metadatas: buildContext.Endpoint.Metadata,
+            var responseCachingContext = new ResponseCachingContext(metadatas: endpointAccessor.Metadatas,
                                                                     cacheKeyGenerator: cacheKeyGenerator,
                                                                     responseCache: responseCache,
                                                                     cacheDeterminer: cacheDeterminer,
@@ -209,7 +204,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             var optionInterceptorTypes = options.CachingProcessInterceptorTypes;
             var interceptorTypes = new List<Type>(optionInterceptorTypes);
 
-            var attributeInterceptors = context.Endpoint.Metadata.OfType<IResponseCachingInterceptor>();
+            var attributeInterceptors = context.EndpointAccessor.Metadatas.OfType<IResponseCachingInterceptor>();
             return optionInterceptorTypes.Select(context.GetRequiredService<IResponseCachingInterceptor>)
                                          .Concat(options.CachingProcessInterceptors)
                                          .Concat(attributeInterceptors)
@@ -240,7 +235,7 @@ namespace Cuture.AspNetCore.ResponseCaching
                         if (hotDataCacheBuilder is not null)
                         {
                             var metadata = context.GetMetadata<IHotDataCacheMetadata>()
-                                           ?? throw new ResponseCachingException($"No {nameof(IHotDataCacheMetadata)} found for {context.Endpoint}");
+                                           ?? throw new ResponseCachingException($"No {nameof(IHotDataCacheMetadata)} found for {context.EndpointAccessor}");
 
                             var hotDataCache = hotDataCacheBuilder.Build(context.ServiceProvider, metadata);
                             if (hotDataCache is null)
@@ -284,7 +279,7 @@ namespace Cuture.AspNetCore.ResponseCaching
 
             if (cacheKeyGenerator is IEndpointSetter setter)
             {
-                setter.SetEndpoint(context.Endpoint);
+                setter.SetEndpoint(context.EndpointAccessor.Endpoint);
             }
 
             return cacheKeyGenerator;
@@ -297,7 +292,7 @@ namespace Cuture.AspNetCore.ResponseCaching
     {
         #region Public 属性
 
-        public Endpoint Endpoint { get; }
+        public IEndpointAccessor EndpointAccessor { get; }
 
         public ResponseCachingOptions Options { get; }
 
@@ -307,10 +302,10 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #region Public 构造函数
 
-        public FilterBuildContext(IServiceProvider serviceProvider, Endpoint endpoint)
+        public FilterBuildContext(IServiceProvider serviceProvider, IEndpointAccessor endpointAccessor)
         {
             ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            Endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
+            EndpointAccessor = endpointAccessor ?? throw new ArgumentNullException(nameof(endpointAccessor));
 
             Options = serviceProvider.GetRequiredService<IOptions<ResponseCachingOptions>>().Value;
         }
@@ -319,13 +314,13 @@ namespace Cuture.AspNetCore.ResponseCaching
 
         #region Public 方法
 
-        public T? GetMetadata<T>() where T : class => Endpoint.Metadata.GetMetadata<T>();
+        public T? GetMetadata<T>() where T : class => EndpointAccessor.GetMetadata<T>();
 
         public T GetRequiredService<T>() where T : notnull => ServiceProvider.GetRequiredService<T>();
 
         public T GetRequiredService<T>(Type type) => (T)ServiceProvider.GetRequiredService(type);
 
-        public T RequiredMetadata<T>() where T : class => Endpoint.Metadata.RequiredMetadata<T>();
+        public T RequiredMetadata<T>() where T : class => EndpointAccessor.GetRequiredMetadata<T>();
 
         #endregion Public 方法
     }

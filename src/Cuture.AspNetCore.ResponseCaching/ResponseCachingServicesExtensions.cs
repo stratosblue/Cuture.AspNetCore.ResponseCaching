@@ -37,6 +37,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddOptions<ResponseCachingExecutingLockOptions>();
 
+            services.AddHttpContextAccessor();
+
+            services.TryAddScoped<IEndpointAccessor, DefaultEndpointAccessor>();
+
             services.TryAddSingleton<IResponseCachingFilterBuilder, DefaultResponseCachingFilterBuilder>();
 
             services.TryAddSingleton<IMemoryResponseCache, DefaultMemoryResponseCache>();
@@ -55,8 +59,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IHotDataCacheProvider, DefaultHotDataCacheProvider>();
 
             services.TryAddSingleton<IResponseDumpStreamFactory, DefaultResponseDumpStreamFactory>();
-
-            services.AddHttpContextAccessor();
 
             return new ResponseCachingServiceBuilder(services);
         }
