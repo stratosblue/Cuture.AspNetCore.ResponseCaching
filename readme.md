@@ -30,41 +30,79 @@ public void ConfigureServices(IServiceCollection services)
 
     services.AddCaching(options =>
     {
+        options.Enable = true;  //是否启用响应缓存
         options.DefaultCacheStoreLocation = CacheStoreLocation.Memory;      //默认缓存数据存储位置 - Memory
         options.DefaultExecutingLockMode = ExecutingLockMode.None;      //默认执行锁定模式 - 不锁定
         options.DefaultStrictMode = CacheKeyStrictMode.Ignore;      //默认缓存Key的严格模式 - 忽略没有的找到的Key
+        options.LockedExecutionLocalResultCache = new MemoryCache(new MemoryCacheOptions());    //锁定执行时，响应的本地缓存
         options.MaxCacheableResponseLength = 1024 * 1024;       //默认最大可缓存的响应内容长度
         options.MaxCacheKeyLength = 1024;       //最大缓存Key长度
+        options.OnCannotExecutionThroughLock = (cacheKey, filterContext) => Task.CompletedTask;     //无法使用锁执行请求时（Semaphore池用尽）的回调
+        options.OnExecutionLockTimeoutFallback = (cacheKey, filterContext, next) => Task.CompletedTask;     //执行锁定超时后的处理委托
     });
 }
 ```
 
-### 3.3 对需要缓存的`Action`方法进行标记
+### 3.3 为`Action`方法标记`ResponseCachingMetadata`Attribute与`ResponseCacheable`Attribute
+
+#### 3.3.1 工作方式概述
+
+ - `ResponseCachingMetadata`为派生自`IResponseCachingMetadata`的`Attribute`，用于描述响应缓存的配置等细节；
+ - `ResponseCacheable`为内部实现的Attribute，用于使用`Endpoint`获取对应`Action`的`ResponseCachingMetadata`并动态构建`Filter`；
+
+`IResponseCachingMetadata`接口及内置的`ResponseCachingMetadata`列表：
+|          接口          |          描述内容          |          内置实现          |
+|          ---           |            ---            |             ---           |
+|`IResponseClaimCachePatternMetadata`|创建缓存时依据的 Claim 类型|`ResponseCachingAttribute`|
+|`IResponseFormCachePatternMetadata`|创建缓存时依据的 Form 键|`ResponseCachingAttribute`|
+|`IResponseHeaderCachePatternMetadata`|创建缓存时依据的 Header 键|`ResponseCachingAttribute`|
+|`IResponseModelCachePatternMetadata`|创建缓存时依据的 Model 参数名|`ResponseCachingAttribute`|
+|`IResponseQueryCachePatternMetadata`|创建缓存时依据的 Query 键|`ResponseCachingAttribute`|
+|`ICacheKeyGeneratorMetadata`|用于生成缓存Key的`ICacheKeyGenerator`实现类型|`CacheKeyGeneratorAttribute`|
+|`ICacheKeyStrictModeMetadata`|缓存键严格模式|`ResponseCachingAttribute`|
+|`ICacheModelKeyParserMetadata`|用于生成Model的缓存Key的`IModelKeyParser`实现类型|`CacheModelKeyParserAttribute`|
+|`ICacheModeMetadata`|缓存模式|`ResponseCachingAttribute`|
+|`ICacheStoreLocationMetadata`|缓存数据存储位置|`ResponseCachingAttribute`|
+|`IDumpStreamInitialCapacityMetadata`|Dump响应的Stream初始容量|`ResponseDumpCapacityAttribute`|
+|`IExecutingLockMetadata`|`Action`的执行锁定方式|`ExecutingLockAttribute`|
+|`IHotDataCacheMetadata`|热点数据缓存方式|`HotDataCacheAttribute`|
+|`IMaxCacheableResponseLengthMetadata`|最大可缓存响应长度|`ResponseCachingAttribute`|
+|`IResponseDurationMetadata`|缓存时长|`ResponseCachingAttribute`|
+
+#### 3.3.2 使用内置的特性
 
 使用`[ResponseCaching]`标记需要缓存响应的`Action`，或者使用简便标记`[CacheByQuery]`、`[CacheByForm]`、`[CacheByHeader]`、`[CacheByClaim]`、`[CacheByModel]`、`[CacheByPath]`、`[CacheByFullUrl]` (这些标记都是继承自`ResponseCaching`并进行了简单的预设置)；
 
 ```C#
 [ResponseCaching(
-                 60,  //缓存时长（秒）
-                 Mode = CacheMode.Custom,   //设置缓存模式 - 自定义缓存Key生成
-                 VaryByClaims = new[] { "id" },     //依据Claim中的`id`进行构建缓存Key
-                 VaryByHeaders = new[] { "version" },   //依据Header中的`version`进行构建缓存Key
-                 VaryByQueryKeys = new[] { "page", "pageSize" },    //依据Query中的`page`和`pageSize`进行构建缓存Key
-                 VaryByModels = new[] { "input" },  //依据Model中的`input`进行构建缓存Key
-                 StoreLocation = CacheStoreLocation.Memory,     //设置缓存数据存储位置 - Memory
-                 StrictMode = CacheKeyStrictMode.Ignore,    //缓存Key的严格模式 - 忽略没有的找到的Key
-                 MaxCacheableResponseLength = 1024 * 1024,      //最大可缓存的响应内容长度
-                 CustomCacheKeyGeneratorType = typeof(CustomCacheKeyGeneratorType),     //自定义缓存Key生成器类型
-                 ModelKeyParserType = typeof(ModelKeyParserType),   //自定义Model的Key分析器
-                 CachingProcessInterceptorType = typeof(CustomCachingProcessInterceptorType),   //自定义缓存处理拦截器类型
-                 DumpCapacity = 1024 * 2,   //Dump响应流时的MemoryStream初始化大小
-                 LockMode = ExecutingLockMode.CacheKeySingle    //执行锁定模式 - 依据缓存Key锁定（尽可能保证单机每个Key只有一个action方法体在执行）
-                 )]
+                60,  //缓存时长（秒）
+                Mode = CacheMode.Custom,   //设置缓存模式 - 自定义缓存Key生成
+                VaryByClaims = new[] { "id" },     //依据Claim中的`id`进行构建缓存Key
+                VaryByHeaders = new[] { "version" },   //依据Header中的`version`进行构建缓存Key
+                VaryByQueryKeys = new[] { "page", "pageSize" },    //依据Query中的`page`和`pageSize`进行构建缓存Key
+                VaryByModels = new[] { "input" },  //依据Model中的`input`进行构建缓存Key
+                StoreLocation = CacheStoreLocation.Memory,     //设置缓存数据存储位置 - Memory
+                StrictMode = CacheKeyStrictMode.Ignore,    //缓存Key的严格模式 - 忽略没有的找到的Key
+                MaxCacheableResponseLength = 1024 * 1024      //最大可缓存的响应内容长度
+                )]
+[CacheKeyGenerator(typeof(CustomCacheKeyGenerator), FilterType.Resource)]    //使用 CustomCacheKeyGenerator 作为缓存key生成器
+[CacheModelKeyParser(typeof(CustomModelKeyParser))]    //使用 CustomModelKeyParser 作为model的key解析器
+[ExecutingLock(ExecutingLockMode.CacheKeySingle)]    //执行action时锁定执行过程，锁定粒度为每个缓存Key，不允许并行执行
+[HotDataCache(50, HotDataCachePolicy.LRU)]    //将热点数据缓存在内存中，淘汰算法为LRU
+[ResponseDumpCapacity(1024 * 1024)]    //指定dump响应的stream初始化容量，减少不必要的扩容
 public IEnumerable<DataDto> Foo([FromQuery] int page, [FromQuery] int pageSize, [FromBody] RequestDto input)
 {
     //...action logic
 }
 ```
+
+#### 3.3.3 使用自定义特性
+
+ 1. 自定义`Attribue`，继承继承`ResponseCacheableAttribute`（或继承`IFilterFactory`自行实现构建逻辑）；
+ 2. 自定义`Attribue`，继承需要设置的`IResponseCachingMetadata`接口；
+ 3. 使用上述自定义特性标记需要缓存的`Action`方法；
+
+ - 可以使用多个`Attribute`分别实现`IResponseCachingMetadata`，也可以将所有的功能在一个`Attribute`实现；
 
 ### 3.4 使用`Redis`进行缓存
 
@@ -83,15 +121,44 @@ public void ConfigureServices(IServiceCollection services)
 
     services.AddCaching()
             .UseRedisResponseCache("redis:6379",    //redis配置字符串
-                                    "ResponseCache_"     //缓存前缀
-                                    );
+                                   "ResponseCache_"     //缓存前缀
+                                  );
 }
 ```
 
-### 3.5 全局拦截器的使用
-当前只实现了缓存处理拦截器`ICachingProcessInterceptor`
+### 3.5 拦截器
 
-#### 3.5.1 全局拦截器的配置
+- 当前只有两个拦截器
+    - 缓存存储拦截器：`ICacheStoringInterceptor`
+    - 缓存写入拦截器：`IResponseWritingInterceptor`
+- 拦截器可以有多个；
+- 拦截器执行顺序为 `全局Service拦截器` -> `全局Instance拦截器` -> `Attribute拦截器`；
+
+#### 3.5.1 自定义拦截器
+
+ - 继承需要拦截的流程接口即可；
+
+```C#
+public class IgnoreHelloCacheStoringInterceptor
+    : Attribute     //继承Attribute，以进行单个Action的设置
+    , ICacheStoringInterceptor      //响应存储拦截器
+{
+    public async Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
+    {
+        if (key == "hello")
+        {
+            return null; //key为hello时，不进行存储，且不进行后续的处理
+        }
+
+        return await next(actionContext, key, entry);   //执行后续处理
+    }
+}
+```
+
+#### 3.5.2 设置全局拦截器
+
+- 全局生效的拦截器
+
 ```C#
 public void ConfigureServices(IServiceCollection services)
 {
@@ -99,14 +166,23 @@ public void ConfigureServices(IServiceCollection services)
 
     services.AddCaching().ConfigureInterceptor(options =>
     {
-        options.CachingProcessInterceptorType = typeof(CustomCachingProcessInterceptorType);
+        //Instance拦截器
+        options.AddInterceptor(new CacheHitStampInterceptor("key", "value"));    //添加拦截器 CacheHitStampInterceptor 的实例作为全局拦截器
+        
+        //Service拦截器
+        options.AddServiceInterceptor<CustomInterceptor>();    //从DI中获取 CustomInterceptor 作为全局拦截器
     });
 }
 ```
 
-#### 3.5.2 内置的`CacheHitStamp`缓存处理拦截器
+#### 3.5.2 设置`Action`拦截器
+
+- 将拦截器`Attribute`设置到对应的`Action`方法即可，此时拦截器只针对当前`Action`生效
+
+#### 3.5.3 内置的`CacheHitStamp`缓存处理拦截器
+
 - 此拦截器将会在命中缓存时向响应的`HttpHeader`中添加指定内容
-- 此设置可能因为拦截器短路而不执行
+- 此设置可能因为前置拦截器短路而不执行
 
 配置方法：
 ```C#

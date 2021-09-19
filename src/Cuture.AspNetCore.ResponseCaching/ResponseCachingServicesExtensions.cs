@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddOptions<InterceptorOptions>();
 
-            services.AddOptions<ResponseCachingExecutingLockOptions>().PostConfigure(options => options.CheckOptions());
+            services.AddOptions<ResponseCachingExecutingLockOptions>();
 
             services.TryAddSingleton<IResponseCachingFilterBuilder, DefaultResponseCachingFilterBuilder>();
 

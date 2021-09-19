@@ -7,7 +7,6 @@ using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching
 {
@@ -23,7 +22,7 @@ namespace Cuture.AspNetCore.ResponseCaching
     /// <summary>
     /// 缓存选项
     /// </summary>
-    public class ResponseCachingOptions : IOptions<ResponseCachingOptions>
+    public class ResponseCachingOptions
     {
         #region Private 字段
 
@@ -164,16 +163,13 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 无法使用锁执行请求时（Semaphore池用尽）的回调<para/>
         /// 默认只会返回状态429
         /// </summary>
-        public Func<string, FilterContext, Task>? OnCannotExecutionThroughLock { get; }
+        public Func<string, FilterContext, Task>? OnCannotExecutionThroughLock { get; set; }
 
         /// <summary>
         /// <inheritdoc cref="ExecutionLockTimeoutFallbackDelegate"/><para/>
         /// 默认只会返回状态429
         /// </summary>
-        public ExecutionLockTimeoutFallbackDelegate? OnExecutionLockTimeoutFallback { get; }
-
-        /// <inheritdoc/>
-        public ResponseCachingOptions Value => this;
+        public ExecutionLockTimeoutFallbackDelegate? OnExecutionLockTimeoutFallback { get; set; }
 
         #endregion Public 属性
 
