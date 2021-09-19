@@ -52,7 +52,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
             if (@lock is null)
             {
                 CachingDiagnostics.CannotExecutionThroughLock(key, context, Context);
-                await Context.OnCannotExecutionThroughLock(key, context);
+                await Context.OnCannotExecutionThroughLock(key, context, () => next());
                 return;
             }
 

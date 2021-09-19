@@ -139,7 +139,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     MaximumPooled = options.MaximumExecutingLockPooled,
                     MinimumRetained = options.MinimumExecutingLockRetained,
-                    RecycleInterval = options.LockStateRecycleInterval,
+                    RecycleInterval = options.ExecutingLockRecycleInterval,
                 };
                 return boundedObjectPoolOptions;
             }

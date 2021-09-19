@@ -11,6 +11,15 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Cuture.AspNetCore.ResponseCaching
 {
     /// <summary>
+    /// 无法使用锁执行请求时（Semaphore池用尽）的委托
+    /// </summary>
+    /// <param name="cacheKey"></param>
+    /// <param name="filterContext"></param>
+    /// <param name="next"></param>
+    /// <returns></returns>
+    public delegate Task CannotExecutionThroughLockDelegate(string cacheKey, FilterContext filterContext, Func<Task> next);
+
+    /// <summary>
     /// 执行锁定超时后的处理委托
     /// </summary>
     /// <param name="cacheKey"></param>
@@ -158,7 +167,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// 无法使用锁执行请求时（Semaphore池用尽）的回调<para/>
         /// 默认只会返回状态429
         /// </summary>
-        public Func<string, FilterContext, Task>? OnCannotExecutionThroughLock { get; set; }
+        public CannotExecutionThroughLockDelegate? OnCannotExecutionThroughLock { get; set; }
 
         /// <summary>
         /// <inheritdoc cref="ExecutionLockTimeoutFallbackDelegate"/><para/>

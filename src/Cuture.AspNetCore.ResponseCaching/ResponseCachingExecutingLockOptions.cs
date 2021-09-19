@@ -9,7 +9,7 @@ namespace Cuture.AspNetCore.ResponseCaching
     {
         #region Private 字段
 
-        private TimeSpan _lockStateRecycleInterval = TimeSpan.FromMinutes(2);
+        private TimeSpan _executingLockRecycleInterval = TimeSpan.FromMinutes(2);
         private int _maximumExecutingLockPooled = short.MaxValue >> 2;
         private int _maximumSemaphorePooled = short.MaxValue >> 2;
         private int _minimumExecutingLockPooled = (short.MaxValue >> 4) / 3;
@@ -21,18 +21,18 @@ namespace Cuture.AspNetCore.ResponseCaching
         #region Public 属性
 
         /// <summary>
-        /// 锁定内容的回收间隔
+        /// 执行锁的回收间隔
         /// </summary>
-        public TimeSpan LockStateRecycleInterval
+        public TimeSpan ExecutingLockRecycleInterval
         {
-            get => _lockStateRecycleInterval;
+            get => _executingLockRecycleInterval;
             set
             {
                 if (value <= TimeSpan.Zero)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(LockStateRecycleInterval));
+                    throw new ArgumentOutOfRangeException(nameof(ExecutingLockRecycleInterval));
                 }
-                _lockStateRecycleInterval = value;
+                _executingLockRecycleInterval = value;
             }
         }
 

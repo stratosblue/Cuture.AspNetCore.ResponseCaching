@@ -37,8 +37,23 @@ public void ConfigureServices(IServiceCollection services)
         options.LockedExecutionLocalResultCache = new MemoryCache(new MemoryCacheOptions());    //锁定执行时，响应的本地缓存
         options.MaxCacheableResponseLength = 1024 * 1024;       //默认最大可缓存的响应内容长度
         options.MaxCacheKeyLength = 1024;       //最大缓存Key长度
-        options.OnCannotExecutionThroughLock = (cacheKey, filterContext) => Task.CompletedTask;     //无法使用锁执行请求时（Semaphore池用尽）的回调
+        options.OnCannotExecutionThroughLock = (cacheKey, filterContext, next) => Task.CompletedTask;     //无法使用锁执行请求时（Semaphore池用尽）的回调
         options.OnExecutionLockTimeoutFallback = (cacheKey, filterContext, next) => Task.CompletedTask;     //执行锁定超时后的处理委托
+    });
+
+    //以下为可选配置
+
+    // 锁定执行的相关配置
+    services.PostConfigure<ResponseCachingExecutingLockOptions>(options =>
+    {
+        options.MinimumSemaphoreRetained = 50;  //信号池的最小保留大小
+        options.MaximumSemaphorePooled = 1000;  //信号池的最大大小
+
+        options.MinimumExecutingLockRetained = 50;  //执行锁池的最小保留大小
+        options.MaximumExecutingLockPooled = 1000;  //执行锁池的最大大小
+
+        options.SemaphoreRecycleInterval = TimeSpan.FromMinutes(4);     //信号池的回收间隔
+        options.ExecutingLockRecycleInterval = TimeSpan.FromMinutes(2);     //执行锁池的回收间隔
     });
 }
 ```

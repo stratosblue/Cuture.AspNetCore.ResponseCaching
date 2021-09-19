@@ -73,7 +73,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         /// <summary>
         /// 无法使用锁执行请求时（Semaphore池用尽）的回调
         /// </summary>
-        public Func<string, FilterContext, Task> OnCannotExecutionThroughLock { get; }
+        public CannotExecutionThroughLockDelegate OnCannotExecutionThroughLock { get; }
 
         /// <summary>
         /// 执行锁定超时的回调
@@ -140,7 +140,7 @@ namespace Cuture.AspNetCore.ResponseCaching
             Interceptors = interceptorAggregator;
             DumpStreamCapacity = Checks.ThrowIfDumpStreamInitialCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
 
-            OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultCannotExecutionThroughLockCallback.SetStatus429;
+            OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultExecutionLockTimeoutFallback.SetStatus429;
             OnExecutionLockTimeout = executingLockMetadata?.OnExecutionLockTimeout
                                      ?? options.OnExecutionLockTimeoutFallback
                                      ?? DefaultExecutionLockTimeoutFallback.SetStatus429;
