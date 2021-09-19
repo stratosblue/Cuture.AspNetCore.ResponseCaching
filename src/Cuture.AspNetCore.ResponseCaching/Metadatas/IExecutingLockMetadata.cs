@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Cuture.AspNetCore.ResponseCaching.Metadatas
 {
     /// <summary>
-    /// <inheritdoc cref="IResponseCachingMetadata"/> - 缓存通行模式
+    /// <inheritdoc cref="IResponseCachingMetadata"/> - 执行时的锁定模式
     /// </summary>
     public interface IExecutingLockMetadata : IResponseCachingMetadata
     {
@@ -19,9 +19,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Metadatas
         /// </summary>
         int? LockMillisecondsTimeout { get; }
 
-        /// <summary>
-        /// 缓存通行模式
-        /// </summary>
+        /// <inheritdoc cref="ExecutingLockMode"/>
         ExecutingLockMode LockMode { get; }
 
         /// <inheritdoc cref="ExecutionLockTimeoutFallbackDelegate"/>

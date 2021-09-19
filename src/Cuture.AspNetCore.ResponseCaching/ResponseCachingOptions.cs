@@ -73,11 +73,6 @@ namespace Cuture.AspNetCore.ResponseCaching
         }
 
         /// <summary>
-        /// 锁定执行时，默认的本地缓存可用时间（毫秒）
-        /// </summary>
-        public uint DefaultLocalCacheAvailableMilliseconds { get; set; } = 1500;
-
-        /// <summary>
         /// 默认锁定等待超时时间（毫秒）<para/>
         /// 默认值为 <see cref="ResponseCachingConstants.DefaultLockMillisecondsTimeout"/><para/>
         /// 如果值为 <see cref="Timeout.Infinite"/>(-1) 则无限等待

@@ -13,6 +13,7 @@ using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
 
@@ -241,14 +242,22 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder"></param>
         public static void EnableResponseCachingDiagnosticLogger(this IApplicationBuilder builder)
         {
-            builder.ApplicationServices.EnableResponseCachingDiagnosticLogger();
+            var serviceProvider = builder.ApplicationServices;
+            var disposable = serviceProvider.EnableResponseCachingDiagnosticLogger();
+            if (disposable is not null)
+            {
+                serviceProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping.Register(() =>
+                {
+                    disposable.Dispose();
+                });
+            }
         }
 
         /// <summary>
         /// 启用缓存诊断日志
         /// </summary>
         /// <param name="serviceProvider"></param>
-        public static void EnableResponseCachingDiagnosticLogger(this IServiceProvider serviceProvider)
+        public static IDisposable? EnableResponseCachingDiagnosticLogger(this IServiceProvider serviceProvider)
         {
             var diagnosticLoggerSubscriber = serviceProvider.GetService<DiagnosticLoggerSubscriber>();
             var diagnosticLoggerSubscriberDisposerAccessor = serviceProvider.GetService<DiagnosticLoggerSubscriberDisposerAccessor>();
@@ -256,13 +265,15 @@ namespace Microsoft.Extensions.DependencyInjection
             if (diagnosticLoggerSubscriber is null
                 || diagnosticLoggerSubscriberDisposerAccessor is null)
             {
-                return;
+                return null;
                 //throw new ResponseCachingException($"Must Add Diagnostic Logger Into {nameof(IServiceCollection)} Before Enable ResponseCaching Diagnostic Logger.");
             }
 
             var disposable = DiagnosticListener.AllListeners.Subscribe(diagnosticLoggerSubscriber);
 
             diagnosticLoggerSubscriberDisposerAccessor.Disposable = disposable;
+
+            return disposable;
         }
 
         /// <summary>

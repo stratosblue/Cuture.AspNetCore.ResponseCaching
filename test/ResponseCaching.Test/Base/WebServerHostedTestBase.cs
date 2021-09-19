@@ -38,7 +38,6 @@ namespace ResponseCaching.Test.Base
             if (WebHost != null)
             {
                 await WebHost.StopAsync();
-                WebHost.Services.ShutdownResponseCachingDiagnosticLogger();
                 WebHost.Dispose();
             }
         }
