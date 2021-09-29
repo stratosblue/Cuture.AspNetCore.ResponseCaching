@@ -16,10 +16,8 @@ jobs:
       uses: actions/setup-dotnet@v1.8.2
       with:
         dotnet-version: 5.0.x
-    - name: restore dependencies
-      run: dotnet restore
     - name: build
-      run: dotnet build --no-restore -c Release
+      run: dotnet build -c Release
     - name: pack
       run: dotnet pack -c Release -o ./output --include-symbols
     - name: push package
