@@ -9,7 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+
+#if DEBUG
 using Microsoft.OpenApi.Models;
+#endif
 
 using ResponseCaching.Test.WebHost.Test;
 
@@ -64,10 +67,12 @@ namespace ResponseCaching.Test.WebHost
             services.AddTransient<TestCustomCacheKeyGenerator>();
             services.AddSingleton<TestCustomModelKeyParser>();
 
+#if DEBUG
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
             });
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
