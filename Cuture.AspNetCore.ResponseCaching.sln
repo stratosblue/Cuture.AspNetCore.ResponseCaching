@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30309.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2CC68065-2E19-4D81-A345-6DA0CCCDBE74}"
 EndProject
@@ -15,12 +15,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cuture.AspNetCore.ResponseC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AC9C1A4A-DA93-439F-97EF-8D7ED1265F49}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		Directory.Build.props = Directory.Build.props
 		package.props = package.props
 		readme.md = readme.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResponseCaching.Test", "test\ResponseCaching.Test\ResponseCaching.Test.csproj", "{7F23E27C-E1B9-4B5F-867F-60F114B356D8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{68CBB8C4-828B-47F2-BCD9-7C749DD03FAC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{9505DE77-02FF-49E2-B7C2-F232B274084D}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\PublishNugetPackage.yml = .github\workflows\PublishNugetPackage.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +61,8 @@ Global
 		{A7A13E98-9212-4127-A077-FF416A741E5F} = {C96410C5-B98F-4E78-9DAE-B370014D5A8D}
 		{113E05BE-72A6-48C8-823B-B889F182FA6D} = {2CC68065-2E19-4D81-A345-6DA0CCCDBE74}
 		{7F23E27C-E1B9-4B5F-867F-60F114B356D8} = {C96410C5-B98F-4E78-9DAE-B370014D5A8D}
+		{68CBB8C4-828B-47F2-BCD9-7C749DD03FAC} = {AC9C1A4A-DA93-439F-97EF-8D7ED1265F49}
+		{9505DE77-02FF-49E2-B7C2-F232B274084D} = {68CBB8C4-828B-47F2-BCD9-7C749DD03FAC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5089FB3B-A6BB-47CC-AA94-A109FBB440B2}

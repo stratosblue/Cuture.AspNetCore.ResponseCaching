@@ -35,7 +35,7 @@ namespace Cuture.AspNetCore.ResponseCaching
         public TMetadata GetRequiredMetadata<TMetadata>() where TMetadata : class => Endpoint.Metadata.RequiredMetadata<TMetadata>();
 
         /// <inheritdoc/>
-        public override string ToString() => Endpoint.ToString();
+        public override string ToString() => Endpoint.ToString() ?? string.Empty;
 
         #endregion Public 方法
     }

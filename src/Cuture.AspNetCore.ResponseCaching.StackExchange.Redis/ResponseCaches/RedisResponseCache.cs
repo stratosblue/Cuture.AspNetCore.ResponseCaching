@@ -34,7 +34,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
 
         #region Private 字段
 
-        private static readonly RedisValue[] _fieldNames = new RedisValue[] { ContentTypeFieldName, BodyFieldName, ExpireFieldName };
+        private static readonly RedisValue[] s_fieldNames = new RedisValue[] { ContentTypeFieldName, BodyFieldName, ExpireFieldName };
 
         private readonly RedisValue _bodyFieldName = BodyFieldName;
         private readonly RedisValue _contenTypeFieldName = ContentTypeFieldName;
@@ -67,7 +67,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         /// <inheritdoc/>
         public async Task<ResponseCacheEntry?> GetAsync(string key)
         {
-            var redisValues = await _database.HashGetAsync(key, _fieldNames);
+            var redisValues = await _database.HashGetAsync(key, s_fieldNames);
             if (redisValues[0].IsNull || redisValues[1].IsNull || redisValues[2].IsNull)
             {
                 return null;
