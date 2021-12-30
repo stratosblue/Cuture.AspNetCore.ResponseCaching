@@ -111,7 +111,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
 
         private async Task<ResponseCacheEntry?> InternalStoreCacheAsync(ActionContext actionContext, string key, ResponseCacheEntry cacheEntry)
         {
-            await ResponseCache.SetAsync(key, cacheEntry);
+            await ResponseCache.SetAsync(key, cacheEntry, actionContext.HttpContext.RequestAborted);
             return cacheEntry;
         }
 
@@ -127,7 +127,7 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters
         /// <returns></returns>
         protected async Task<bool> TryServeFromCacheAsync(TFilterExecutingContext context, string key)
         {
-            var cacheEntry = await ResponseCache.GetAsync(key);
+            var cacheEntry = await ResponseCache.GetAsync(key, context.HttpContext.RequestAborted);
             if (cacheEntry != null)
             {
                 return await WriteCacheToResponseWithInterceptorAsync(context, cacheEntry);

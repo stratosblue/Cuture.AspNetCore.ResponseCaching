@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
@@ -35,7 +36,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         }
 
         /// <inheritdoc/>
-        public async Task<ResponseCacheEntry?> GetAsync(string key)
+        public async Task<ResponseCacheEntry?> GetAsync(string key, CancellationToken cancellationToken)
         {
             //HACK 此处未加锁，并发访问会穿透本地缓存
             var cacheEntry = _hotDataCache.Get(key);
@@ -44,7 +45,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
             {
                 return cacheEntry;
             }
-            cacheEntry = await _distributedCache.GetAsync(key);
+            cacheEntry = await _distributedCache.GetAsync(key, cancellationToken);
             if (cacheEntry is not null)
             {
                 _hotDataCache.Set(key, cacheEntry);
@@ -53,10 +54,10 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         }
 
         /// <inheritdoc/>
-        public Task SetAsync(string key, ResponseCacheEntry entry)
+        public Task SetAsync(string key, ResponseCacheEntry entry, CancellationToken cancellationToken)
         {
             _hotDataCache.Set(key, entry);
-            return _distributedCache.SetAsync(key, entry);
+            return _distributedCache.SetAsync(key, entry, cancellationToken);
         }
 
         #endregion Public 方法

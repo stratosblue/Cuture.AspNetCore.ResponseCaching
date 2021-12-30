@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -42,9 +43,9 @@ namespace ResponseCaching.Test.ResponseCaches
             var body = Encoding.UTF8.GetBytes(SimResponseContent);
             var entry = new ResponseCacheEntry(contentType, body, duration);
 
-            await ResponseCache.SetAsync(key, entry);
+            await ResponseCache.SetAsync(key, entry, CancellationToken.None);
 
-            var cachedEntry = await ResponseCache.GetAsync(key);
+            var cachedEntry = await ResponseCache.GetAsync(key, CancellationToken.None);
 
             Assert.IsNotNull(cachedEntry, "获取到缓存为空，redis所在系统时间与运行测试所在系统时间有误差时，可能会导致测试无法通过");
 
@@ -52,7 +53,7 @@ namespace ResponseCaching.Test.ResponseCaches
 
             await Task.Delay(TimeSpan.FromSeconds(duration + 1));
 
-            cachedEntry = await ResponseCache.GetAsync(key);
+            cachedEntry = await ResponseCache.GetAsync(key, CancellationToken.None);
 
             Assert.IsNull(cachedEntry);
         }
@@ -76,15 +77,15 @@ namespace ResponseCaching.Test.ResponseCaches
                 var body = Encoding.UTF8.GetBytes($"{SimResponseContent}_{index}");
                 var entry = new ResponseCacheEntry(contentType, body, duration);
 
-                await ResponseCache.SetAsync(key, entry);
+                await ResponseCache.SetAsync(key, entry, CancellationToken.None);
 
-                var cachedEntry = await ResponseCache.GetAsync(key);
+                var cachedEntry = await ResponseCache.GetAsync(key, CancellationToken.None);
 
                 TestUtil.EntryEquals(entry, cachedEntry);
 
                 await Task.Delay(TimeSpan.FromSeconds(duration + 1));
 
-                cachedEntry = await ResponseCache.GetAsync(key);
+                cachedEntry = await ResponseCache.GetAsync(key, CancellationToken.None);
 
                 Assert.IsNull(cachedEntry);
             });

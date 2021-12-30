@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -39,14 +40,14 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         }
 
         /// <inheritdoc/>
-        public Task<ResponseCacheEntry?> GetAsync(string key)
+        public Task<ResponseCacheEntry?> GetAsync(string key, CancellationToken cancellationToken)
         {
             _memoryCache.TryGetValue<ResponseCacheEntry>(key, out var cacheEntry);
             return Task.FromResult(cacheEntry)!;
         }
 
         /// <inheritdoc/>
-        public Task SetAsync(string key, ResponseCacheEntry entry)
+        public Task SetAsync(string key, ResponseCacheEntry entry, CancellationToken cancellationToken)
         {
             _memoryCache.Set(key, entry, entry.GetAbsoluteExpirationDateTimeOffset());
             return Task.CompletedTask;

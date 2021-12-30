@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
@@ -38,7 +39,7 @@ namespace ResponseCaching.Test.RequestTests
             return 0;
         }
 
-        public Task<ResponseCacheEntry> GetAsync(string key)
+        public Task<ResponseCacheEntry> GetAsync(string key, CancellationToken cancellationToken)
         {
             if (_caches.TryGetValue(key, out var cacheEntry))
             {
@@ -63,7 +64,7 @@ namespace ResponseCaching.Test.RequestTests
 
         public string[] GetKeys() => _count.Keys.ToArray();
 
-        public Task SetAsync(string key, ResponseCacheEntry entry)
+        public Task SetAsync(string key, ResponseCacheEntry entry, CancellationToken cancellationToken)
         {
             _caches.AddOrUpdate(key, entry, (_, _) => entry);
             return Task.CompletedTask;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Options;
@@ -65,7 +66,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         #region Public 方法
 
         /// <inheritdoc/>
-        public async Task<ResponseCacheEntry?> GetAsync(string key)
+        public async Task<ResponseCacheEntry?> GetAsync(string key, CancellationToken cancellationToken)
         {
             var redisValues = await _database.HashGetAsync(key, s_fieldNames);
             if (redisValues[0].IsNull || redisValues[1].IsNull || redisValues[2].IsNull)
@@ -81,7 +82,7 @@ namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches
         }
 
         /// <inheritdoc/>
-        public async Task SetAsync(string key, ResponseCacheEntry entry)
+        public async Task SetAsync(string key, ResponseCacheEntry entry, CancellationToken cancellationToken)
         {
             //HACK 设置值与设置过期时间不是原子性操作，可能存在残留。不影响缓存正确性，是否有必要进行删除？
             RedisKey redisKey = key;
