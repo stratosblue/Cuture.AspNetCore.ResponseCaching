@@ -18,6 +18,8 @@
 
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
+
+    <PackageTags>aspnetcore;cache;caching;responsecache;responsecaching;redis</PackageTags>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
