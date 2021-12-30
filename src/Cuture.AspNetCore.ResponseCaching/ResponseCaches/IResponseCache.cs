@@ -16,7 +16,7 @@ public interface IResponseCache
     /// <param name="key"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<ResponseCacheEntry?> GetAsync(string key, CancellationToken cancellationToken);
+    Task<ResponseCacheEntry?> GetAsync(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// 设置缓存
@@ -25,7 +25,7 @@ public interface IResponseCache
     /// <param name="entry"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task SetAsync(string key, ResponseCacheEntry entry, CancellationToken cancellationToken);
+    Task SetAsync(string key, ResponseCacheEntry entry, CancellationToken cancellationToken = default);
 
     #endregion Public 方法
 }
