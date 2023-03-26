@@ -18,7 +18,7 @@ internal sealed class ExclusiveExecutingLockLifecycleExecutor<TCachePayload>
 
     #region Public 方法
 
-    protected override ExclusiveExecutingLock<TCachePayload> Create(SemaphoreSlim semaphore) 
+    protected override ExclusiveExecutingLock<TCachePayload> Create(SemaphoreSlim semaphore)
         => new(semaphore);
 
     #endregion Public 方法

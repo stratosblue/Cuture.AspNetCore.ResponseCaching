@@ -1,12 +1,12 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ResponseCaching.Test.WebHost.Models;
 
-#pragma warning disable CS0660 // ÀàĞÍ¶¨ÒåÔËËã·û == »òÔËËã·û !=£¬µ«²»ÖØĞ´ Object.Equals(object o)
+#pragma warning disable CS0660 // ç±»å‹å®šä¹‰è¿ç®—ç¬¦ == æˆ–è¿ç®—ç¬¦ !=ï¼Œä½†ä¸é‡å†™ Object.Equals(object o)
 public class WeatherForecast : IEquatable<WeatherForecast>
-#pragma warning restore CS0660 // ÀàĞÍ¶¨ÒåÔËËã·û == »òÔËËã·û !=£¬µ«²»ÖØĞ´ Object.Equals(object o)
+#pragma warning restore CS0660 // ç±»å‹å®šä¹‰è¿ç®—ç¬¦ == æˆ–è¿ç®—ç¬¦ !=ï¼Œä½†ä¸é‡å†™ Object.Equals(object o)
 {
     public DateTime Date { get; set; }
 
