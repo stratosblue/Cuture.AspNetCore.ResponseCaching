@@ -1,39 +1,44 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+	<PropertyGroup>
+		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
 
-    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+		<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 
-    <IsPackable>false</IsPackable>
-    <UserSecretsId>59ec6951-9d94-4c2c-ba9c-ead1c523ce5d</UserSecretsId>
-  </PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<UserSecretsId>59ec6951-9d94-4c2c-ba9c-ead1c523ce5d</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="5.*" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="IdentityModel" Version="5.*" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(Configuration)' == 'DEBUG'">
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.*" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'DEBUG'">
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.*" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.*" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.*" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.*" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.*" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.*" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.*" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.*" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.*" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.*" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.*" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.*" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.*" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Cuture.AspNetCore.ResponseCaching.StackExchange.Redis\Cuture.AspNetCore.ResponseCaching.StackExchange.Redis.csproj" />
-    <ProjectReference Include="..\..\src\Cuture.AspNetCore.ResponseCaching\Cuture.AspNetCore.ResponseCaching.csproj" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.*" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Cuture.AspNetCore.ResponseCaching.StackExchange.Redis\Cuture.AspNetCore.ResponseCaching.StackExchange.Redis.csproj" />
+		<ProjectReference Include="..\..\src\Cuture.AspNetCore.ResponseCaching\Cuture.AspNetCore.ResponseCaching.csproj" />
+	</ItemGroup>
 </Project>
