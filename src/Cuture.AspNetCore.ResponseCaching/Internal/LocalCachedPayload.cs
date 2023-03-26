@@ -1,17 +1,16 @@
-﻿namespace Cuture.AspNetCore.ResponseCaching.Internal
+﻿namespace Cuture.AspNetCore.ResponseCaching.Internal;
+
+/// <summary>
+/// 本地缓存的响应数据
+/// </summary>
+/// <typeparam name="TPayload"></typeparam>
+internal struct LocalCachedPayload<TPayload>
 {
-    /// <summary>
-    /// 本地缓存的响应数据
-    /// </summary>
-    /// <typeparam name="TPayload"></typeparam>
-    internal struct LocalCachedPayload<TPayload>
-    {
-        #region Public 字段
+    #region Public 字段
 
-        public long ExpireTime;
+    public long ExpireTime;
 
-        public TPayload Payload;
+    public TPayload Payload;
 
-        #endregion Public 字段
-    }
+    #endregion Public 字段
 }

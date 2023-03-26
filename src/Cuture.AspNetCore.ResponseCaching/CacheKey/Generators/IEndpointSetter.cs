@@ -1,20 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators
+namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
+
+/// <summary>
+/// <see cref="Endpoint"/> 设定接口
+/// </summary>
+public interface IEndpointSetter
 {
+    #region Public 方法
+
     /// <summary>
-    /// <see cref="Endpoint"/> 设定接口
+    /// 设置 <see cref="Endpoint"/>
     /// </summary>
-    public interface IEndpointSetter
-    {
-        #region Public 方法
+    /// <param name="endpoint"></param>
+    void SetEndpoint(Endpoint endpoint);
 
-        /// <summary>
-        /// 设置 <see cref="Endpoint"/>
-        /// </summary>
-        /// <param name="endpoint"></param>
-        void SetEndpoint(Endpoint endpoint);
-
-        #endregion Public 方法
-    }
+    #endregion Public 方法
 }

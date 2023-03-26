@@ -1,19 +1,18 @@
-﻿namespace Cuture.AspNetCore.ResponseCaching
+﻿namespace Cuture.AspNetCore.ResponseCaching;
+
+/// <summary>
+/// Model缓存key解析器
+/// </summary>
+public interface IModelKeyParser
 {
+    #region Public 方法
+
     /// <summary>
-    /// Model缓存key解析器
+    /// 解析为key
     /// </summary>
-    public interface IModelKeyParser
-    {
-        #region Public 方法
+    /// <param name="model"></param>
+    /// <returns><paramref name="model"/>解析后等价的key字符串</returns>
+    string? Parse(object? model);
 
-        /// <summary>
-        /// 解析为key
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns><paramref name="model"/>解析后等价的key字符串</returns>
-        string? Parse(object? model);
-
-        #endregion Public 方法
-    }
+    #endregion Public 方法
 }

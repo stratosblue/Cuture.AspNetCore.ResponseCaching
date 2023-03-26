@@ -7,20 +7,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ResponseCaching.Test.WebHost.Models;
 
-namespace ResponseCaching.Test.RequestTests
+namespace ResponseCaching.Test.RequestTests;
+
+[TestClass]
+public class CacheByFormTest : BaseRequestTest
 {
-    [TestClass]
-    public class CacheByFormTest : BaseRequestTest
+    protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
     {
-        protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
-        {
-            return new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
-                () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=1&pageSize=5").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=1&pageSize=6").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=2&pageSize=4").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=2&pageSize=6").TryGetAsObjectAsync<WeatherForecast[]>(),
-                () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=3&pageSize=3").TryGetAsObjectAsync<WeatherForecast[]>(),
-            };
-        }
+        return new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
+            () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=1&pageSize=5").TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=1&pageSize=6").TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=2&pageSize=4").TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=2&pageSize=6").TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/CacheByForm/Post".CreateHttpRequest().UsePost().WithFormContent("page=3&pageSize=3").TryGetAsObjectAsync<WeatherForecast[]>(),
+        };
     }
 }

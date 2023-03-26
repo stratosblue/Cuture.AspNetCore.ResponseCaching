@@ -1,18 +1,17 @@
-﻿namespace Cuture.AspNetCore.ResponseCaching
+﻿namespace Cuture.AspNetCore.ResponseCaching;
+
+/// <summary>
+/// 过滤器类型
+/// </summary>
+public enum FilterType
 {
     /// <summary>
-    /// 过滤器类型
+    /// ResourceFilter (在模型绑定前)
     /// </summary>
-    public enum FilterType
-    {
-        /// <summary>
-        /// ResourceFilter (在模型绑定前)
-        /// </summary>
-        Resource,
+    Resource,
 
-        /// <summary>
-        /// ActionFilter (在模型绑定后)
-        /// </summary>
-        Action
-    }
+    /// <summary>
+    /// ActionFilter (在模型绑定后)
+    /// </summary>
+    Action
 }

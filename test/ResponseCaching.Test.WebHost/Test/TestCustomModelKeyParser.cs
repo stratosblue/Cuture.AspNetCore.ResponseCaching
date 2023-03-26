@@ -4,26 +4,25 @@ using Cuture.AspNetCore.ResponseCaching;
 
 using ResponseCaching.Test.WebHost.Dtos;
 
-namespace ResponseCaching.Test.WebHost.Test
+namespace ResponseCaching.Test.WebHost.Test;
+
+public class TestCustomModelKeyParser : IModelKeyParser
 {
-    public class TestCustomModelKeyParser : IModelKeyParser
+    #region Public 方法
+
+    public string Parse(object model)
     {
-        #region Public 方法
-
-        public string Parse(object model)
+        if (model is PageResultRequestDto requestDto)
         {
-            if (model is PageResultRequestDto requestDto)
-            {
-                Console.WriteLine($"{nameof(TestCustomModelKeyParser)} for PageResultRequestDto - {requestDto.AsCacheKey()}");
-                return "constant-key";
-            }
-            else
-            {
-                Console.WriteLine($"{nameof(TestCustomModelKeyParser)} for {model}");
-            }
-            return null;
+            Console.WriteLine($"{nameof(TestCustomModelKeyParser)} for PageResultRequestDto - {requestDto.AsCacheKey()}");
+            return "constant-key";
         }
-
-        #endregion Public 方法
+        else
+        {
+            Console.WriteLine($"{nameof(TestCustomModelKeyParser)} for {model}");
+        }
+        return null;
     }
+
+    #endregion Public 方法
 }

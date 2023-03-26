@@ -5,38 +5,37 @@ using System.Threading;
 
 using ResponseCaching.Test.WebHost.Models;
 
-namespace ResponseCaching.Test.WebHost.Test
+namespace ResponseCaching.Test.WebHost.Test;
+
+public static class TestDataGenerator
 {
-    public static class TestDataGenerator
+    public const int Count = 25;
+
+    private static readonly string[] s_summaries = new[]
     {
-        public const int Count = 25;
+        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    };
 
-        private static readonly string[] s_summaries = new[]
+    public static IEnumerable<WeatherForecast> GetData(int count)
+    {
+        return GetData(0, count);
+    }
+
+    public static IEnumerable<WeatherForecast> GetData(int skip = 0, int count = Count)
+    {
+        var random = SharedRandom.Shared;
+        return Enumerable.Range(skip + 1, count).Select(index => new WeatherForecast
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+            Date = DateTime.Now.AddDays(index),
+            TemperatureC = random.Next(-20, 55),
+            Summary = s_summaries[random.Next(s_summaries.Length)]
+        }).ToArray();
+    }
 
-        public static IEnumerable<WeatherForecast> GetData(int count)
-        {
-            return GetData(0, count);
-        }
+    private static class SharedRandom
+    {
+        private static readonly ThreadLocal<Random> s_random = new(() => new(), false);
 
-        public static IEnumerable<WeatherForecast> GetData(int skip = 0, int count = Count)
-        {
-            var random = SharedRandom.Shared;
-            return Enumerable.Range(skip + 1, count).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = random.Next(-20, 55),
-                Summary = s_summaries[random.Next(s_summaries.Length)]
-            }).ToArray();
-        }
-
-        private static class SharedRandom
-        {
-            private static readonly ThreadLocal<Random> s_random = new(() => new(), false);
-
-            public static Random Shared => s_random.Value;
-        }
+        public static Random Shared => s_random.Value;
     }
 }

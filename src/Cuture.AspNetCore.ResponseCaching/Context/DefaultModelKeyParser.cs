@@ -1,18 +1,17 @@
-﻿namespace Cuture.AspNetCore.ResponseCaching
+﻿namespace Cuture.AspNetCore.ResponseCaching;
+
+internal class DefaultModelKeyParser : IModelKeyParser
 {
-    internal class DefaultModelKeyParser : IModelKeyParser
+    #region Public 方法
+
+    public string? Parse(object? model)
     {
-        #region Public 方法
-
-        public string? Parse(object? model)
+        if (model is ICacheKeyable keyable)
         {
-            if (model is ICacheKeyable keyable)
-            {
-                return keyable.AsCacheKey();
-            }
-            return model?.ToString();
+            return keyable.AsCacheKey();
         }
-
-        #endregion Public 方法
+        return model?.ToString();
     }
+
+    #endregion Public 方法
 }

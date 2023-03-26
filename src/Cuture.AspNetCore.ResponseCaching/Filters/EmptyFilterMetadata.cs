@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Cuture.AspNetCore.ResponseCaching.Filters
+namespace Cuture.AspNetCore.ResponseCaching.Filters;
+
+/// <summary>
+/// 空过滤器
+/// </summary>
+internal class EmptyFilterMetadata : IFilterMetadata
 {
+    #region Public 属性
+
     /// <summary>
-    /// 空过滤器
+    /// 静态实例
     /// </summary>
-    internal class EmptyFilterMetadata : IFilterMetadata
-    {
-        #region Public 属性
+    public static EmptyFilterMetadata Instance { get; } = new();
 
-        /// <summary>
-        /// 静态实例
-        /// </summary>
-        public static EmptyFilterMetadata Instance { get; } = new();
-
-        #endregion Public 属性
-    }
+    #endregion Public 属性
 }

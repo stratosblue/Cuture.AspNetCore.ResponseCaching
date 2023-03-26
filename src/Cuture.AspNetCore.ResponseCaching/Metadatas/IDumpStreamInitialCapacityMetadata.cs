@@ -1,17 +1,16 @@
-﻿namespace Cuture.AspNetCore.ResponseCaching.Metadatas
+﻿namespace Cuture.AspNetCore.ResponseCaching.Metadatas;
+
+/// <summary>
+/// <inheritdoc cref="IResponseCachingMetadata"/> - Dump响应的Stream初始容量
+/// </summary>
+public interface IDumpStreamInitialCapacityMetadata : IResponseCachingMetadata
 {
+    #region Public 属性
+
     /// <summary>
-    /// <inheritdoc cref="IResponseCachingMetadata"/> - Dump响应的Stream初始容量
+    /// Dump响应的Stream初始容量
     /// </summary>
-    public interface IDumpStreamInitialCapacityMetadata : IResponseCachingMetadata
-    {
-        #region Public 属性
+    int Capacity { get; }
 
-        /// <summary>
-        /// Dump响应的Stream初始容量
-        /// </summary>
-        int Capacity { get; }
-
-        #endregion Public 属性
-    }
+    #endregion Public 属性
 }

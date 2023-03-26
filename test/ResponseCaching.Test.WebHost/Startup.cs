@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Text;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -18,87 +18,86 @@ using ResponseCaching.Test.WebHost.Test;
 
 using StackExchange.Redis;
 
-namespace ResponseCaching.Test.WebHost
+namespace ResponseCaching.Test.WebHost;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        Configuration = configuration;
+    }
 
-        public IConfiguration Configuration { get; }
+    public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddResponseCaching();
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddResponseCaching();
 
-            var redisConfigureString = Configuration.GetValue<string>("ResponseCache_Test_Redis");
-            services.AddCaching(Configuration.GetSection("Caching:ResponseCaching"))
-                    //.UseRedisResponseCache(redisConfigureString, Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
-                    .AddDiagnosticDebugLogger();
+        var redisConfigureString = Configuration.GetValue<string>("ResponseCache_Test_Redis");
+        services.AddCaching(Configuration.GetSection("Caching:ResponseCaching"))
+                //.UseRedisResponseCache(redisConfigureString, Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
+                .AddDiagnosticDebugLogger();
 
-            //HACK ÇåÀí»º´æ£¬±ÜÃâÓ°Ïì²âÊÔ -- Á¬½Ó×Ö·û´®ÐèÒªÌí¼Ó allowAdmin=true
-            //{
-            //    var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfigureString);
-            //    connectionMultiplexer.GetServer(redisConfigureString.Split(',')[0]).FlushAllDatabases();
-            //}
+        //HACK æ¸…ç†ç¼“å­˜ï¼Œé¿å…å½±å“æµ‹è¯• -- è¿žæŽ¥å­—ç¬¦ä¸²éœ€è¦æ·»åŠ  allowAdmin=true
+        //{
+        //    var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfigureString);
+        //    connectionMultiplexer.GetServer(redisConfigureString.Split(',')[0]).FlushAllDatabases();
+        //}
 
-            services.AddControllers();
+        services.AddControllers();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
                 {
-                    x.RequireHttpsMetadata = false;
-                    x.SaveToken = true;
-                    x.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("123456789123456789")),
-                        ValidIssuer = "Issuer",
-                        ValidAudience = "Audience",
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("123456789123456789")),
+                    ValidIssuer = "Issuer",
+                    ValidAudience = "Audience",
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
 
-            services.AddTransient<TestCustomCacheKeyGenerator>();
-            services.AddSingleton<TestCustomModelKeyParser>();
+        services.AddTransient<TestCustomCacheKeyGenerator>();
+        services.AddSingleton<TestCustomModelKeyParser>();
 
 #if DEBUG
-            services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
-            });
-#endif
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        services.AddSwaggerGen(options =>
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
+        });
+#endif
+    }
+
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
 
 #if DEBUG
-            app.UseSwagger();
-            app.UseSwaggerUI();
+        app.UseSwagger();
+        app.UseSwaggerUI();
 #endif
 
-            app.EnableResponseCachingDiagnosticLogger();
+        app.EnableResponseCachingDiagnosticLogger();
 
-            app.UseRouting();
+        app.UseRouting();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
     }
 }

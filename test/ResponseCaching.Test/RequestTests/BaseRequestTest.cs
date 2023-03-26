@@ -10,60 +10,59 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ResponseCaching.Test.Base;
 using ResponseCaching.Test.WebHost.Models;
 
-namespace ResponseCaching.Test.RequestTests
+namespace ResponseCaching.Test.RequestTests;
+
+public abstract class BaseRequestTest : WebServerHostedTestBase
 {
-    public abstract class BaseRequestTest : WebServerHostedTestBase
+    protected virtual int ReRequestTimes { get; } = 3;
+
+    /// <summary>
+    /// 请求互相检查
+    /// </summary>
+    protected virtual bool CheckEachOtherRequest { get; } = true;
+
+    protected abstract Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs();
+
+    protected virtual Task BeforeRunning() => Task.CompletedTask;
+
+    [TestMethod]
+    public virtual async Task ExecuteAsync()
     {
-        protected virtual int ReRequestTimes { get; } = 3;
+        await BeforeRunning();
 
-        /// <summary>
-        /// 请求互相检查
-        /// </summary>
-        protected virtual bool CheckEachOtherRequest { get; } = true;
+        var funcs = GetAllRequestFuncs();
 
-        protected abstract Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs();
+        var data = await InternalRunAsync(funcs);
 
-        protected virtual Task BeforeRunning() => Task.CompletedTask;
+        Assert.IsTrue(data.Length > 0);
 
-        [TestMethod]
-        public virtual async Task ExecuteAsync()
+        if (CheckEachOtherRequest)
         {
-            await BeforeRunning();
+            CheckForEachOther(data, false);
+        }
 
-            var funcs = GetAllRequestFuncs();
+        var tasks = Array(ReRequestTimes).Select(m => InternalRunAsync(funcs)).ToArray();
 
-            var data = await InternalRunAsync(funcs);
+        await Task.WhenAll(tasks);
 
-            Assert.IsTrue(data.Length > 0);
+        var allValues = tasks.Select(m => m.Result).ToArray();
 
-            if (CheckEachOtherRequest)
+        for (int time = 0; time < ReRequestTimes; time++)
+        {
+            var values = allValues[time];
+
+            Assert.AreEqual(data.Length, values.Length);
+
+            for (int i = 0; i < values.Length; i++)
             {
-                CheckForEachOther(data, false);
-            }
+                var target = data[i];
+                var value = values[i];
+                Assert.AreEqual(target.Length, value.Length);
 
-            var tasks = Array(ReRequestTimes).Select(m => InternalRunAsync(funcs)).ToArray();
-
-            await Task.WhenAll(tasks);
-
-            var allValues = tasks.Select(m => m.Result).ToArray();
-
-            for (int time = 0; time < ReRequestTimes; time++)
-            {
-                var values = allValues[time];
-
-                Assert.AreEqual(data.Length, values.Length);
-
-                for (int i = 0; i < values.Length; i++)
+                for (int index = 0; index < target.Length; index++)
                 {
-                    var target = data[i];
-                    var value = values[i];
-                    Assert.AreEqual(target.Length, value.Length);
-
-                    for (int index = 0; index < target.Length; index++)
-                    {
-                        Debug.WriteLine($"index-{index}: {target[index]} --- {value[index]}");
-                        Assert.IsTrue(target[index].Equals(value[index]), "Fail at {0} , item1:{1} , item2:{2}", index, target[index], value[index]);
-                    }
+                    Debug.WriteLine($"index-{index}: {target[index]} --- {value[index]}");
+                    Assert.IsTrue(target[index].Equals(value[index]), "Fail at {0} , item1:{1} , item2:{2}", index, target[index], value[index]);
                 }
             }
         }

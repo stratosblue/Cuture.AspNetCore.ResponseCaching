@@ -6,93 +6,92 @@ using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Cuture.AspNetCore.ResponseCaching.Filters
+namespace Cuture.AspNetCore.ResponseCaching.Filters;
+
+/// <summary>
+/// 默认的基于IAsyncResourceFilter的缓存过滤Filter
+/// </summary>
+public class DefaultLockedResourceCacheFilter : DefaultResourceCacheFilter
 {
+    #region Private 字段
+
+    private readonly IExecutingLockPool<ResponseCacheEntry> _executingLockPool;
+
+    #endregion Private 字段
+
+    #region Public 构造函数
+
     /// <summary>
-    /// 默认的基于IAsyncResourceFilter的缓存过滤Filter
+    /// 默认的基于ResourceFilter的缓存过滤Filter
     /// </summary>
-    public class DefaultLockedResourceCacheFilter : DefaultResourceCacheFilter
+    /// <param name="context"></param>
+    /// <param name="executingLockPool"></param>
+    /// <param name="cachingDiagnosticsAccessor"></param>
+    public DefaultLockedResourceCacheFilter(ResponseCachingContext context,
+                                            IExecutingLockPool<ResponseCacheEntry> executingLockPool,
+                                            CachingDiagnosticsAccessor cachingDiagnosticsAccessor)
+        : base(context, cachingDiagnosticsAccessor)
     {
-        #region Private 字段
+        _executingLockPool = executingLockPool ?? throw new ArgumentNullException(nameof(executingLockPool));
+    }
 
-        private readonly IExecutingLockPool<ResponseCacheEntry> _executingLockPool;
+    #endregion Public 构造函数
 
-        #endregion Private 字段
+    #region Protected 方法
 
-        #region Public 构造函数
-
-        /// <summary>
-        /// 默认的基于ResourceFilter的缓存过滤Filter
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="executingLockPool"></param>
-        /// <param name="cachingDiagnosticsAccessor"></param>
-        public DefaultLockedResourceCacheFilter(ResponseCachingContext context,
-                                                IExecutingLockPool<ResponseCacheEntry> executingLockPool,
-                                                CachingDiagnosticsAccessor cachingDiagnosticsAccessor)
-            : base(context, cachingDiagnosticsAccessor)
+    /// <summary>
+    /// 执行请求
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="next"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    protected override async Task ExecutingRequestAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
+    {
+        var @lock = _executingLockPool.GetLock(key);
+        if (@lock is null)
         {
-            _executingLockPool = executingLockPool ?? throw new ArgumentNullException(nameof(executingLockPool));
+            CachingDiagnostics.CannotExecutionThroughLock(key, context, Context);
+            await Context.OnCannotExecutionThroughLock(key, context, () => next());
+            return;
         }
 
-        #endregion Public 构造函数
+        bool gotLock = false;
 
-        #region Protected 方法
-
-        /// <summary>
-        /// 执行请求
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="next"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        protected override async Task ExecutingRequestAsync(ResourceExecutingContext context, ResourceExecutionDelegate next, string key)
+        try
         {
-            var @lock = _executingLockPool.GetLock(key);
-            if (@lock is null)
+            var waitTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            gotLock = await @lock.WaitAsync(Context.LockMillisecondsTimeout, context.HttpContext.RequestAborted);
+
+            if (!gotLock)   //没有获取到锁
             {
-                CachingDiagnostics.CannotExecutionThroughLock(key, context, Context);
-                await Context.OnCannotExecutionThroughLock(key, context, () => next());
+                await Context.OnExecutionLockTimeout(key, context, () => next());
                 return;
             }
 
-            bool gotLock = false;
-
-            try
+            if (@lock.TryGetLocalCache(key, waitTime, out var responseCacheEntry))
             {
-                var waitTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-
-                gotLock = await @lock.WaitAsync(Context.LockMillisecondsTimeout, context.HttpContext.RequestAborted);
-
-                if (!gotLock)   //没有获取到锁
-                {
-                    await Context.OnExecutionLockTimeout(key, context, () => next());
-                    return;
-                }
-
-                if (@lock.TryGetLocalCache(key, waitTime, out var responseCacheEntry))
-                {
-                    _ = WriteCacheToResponseWithInterceptorAsync(context, responseCacheEntry);
-                }
-                else
-                {
-                    responseCacheEntry = await DumpAndCacheResponseAsync(context, next, key);
-                    if (responseCacheEntry is not null)
-                    {
-                        @lock.SetLocalCache(key, responseCacheEntry, DateTimeOffset.Now.ToUnixTimeMilliseconds() + Context.DurationMilliseconds);
-                    }
-                }
+                _ = WriteCacheToResponseWithInterceptorAsync(context, responseCacheEntry);
             }
-            finally
+            else
             {
-                if (gotLock)
+                responseCacheEntry = await DumpAndCacheResponseAsync(context, next, key);
+                if (responseCacheEntry is not null)
                 {
-                    @lock.Release();
+                    @lock.SetLocalCache(key, responseCacheEntry, DateTimeOffset.Now.ToUnixTimeMilliseconds() + Context.DurationMilliseconds);
                 }
-                _executingLockPool.Return(@lock);
             }
         }
-
-        #endregion Protected 方法
+        finally
+        {
+            if (gotLock)
+            {
+                @lock.Release();
+            }
+            _executingLockPool.Return(@lock);
+        }
     }
+
+    #endregion Protected 方法
 }
