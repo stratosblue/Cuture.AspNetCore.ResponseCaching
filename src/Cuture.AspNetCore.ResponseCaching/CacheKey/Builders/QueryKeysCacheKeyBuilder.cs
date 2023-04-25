@@ -16,8 +16,6 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
 {
     #region Private 字段
 
-    private readonly bool? _queryAll;
-
     /// <summary>
     /// 请求查询参数列表
     /// </summary>
@@ -36,7 +34,6 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
     public QueryKeysCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> queryKeys) : base(innerBuilder, strictMode)
     {
         _queryKeys = queryKeys?.ToArray() ?? throw new ArgumentNullException(nameof(queryKeys));
-        _queryAll = _queryKeys?.Length == 0;
     }
 
     #endregion Public 构造函数
@@ -46,12 +43,12 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
     /// <inheritdoc/>
     public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
     {
-        var queryKeys = _queryKeys;
-        if (_queryAll == true)
-        {
-            queryKeys = filterContext.HttpContext.Request.Query.Keys.ToArray();
-        }
         var query = filterContext.HttpContext.Request.Query;
+        var queryKeys = _queryKeys;
+        if (queryKeys.Length == 0)
+        {
+            queryKeys = query.Keys.ToArray();
+        }
         foreach (var queryKey in queryKeys)
         {
             if (query.TryGetValue(queryKey, out var value))
