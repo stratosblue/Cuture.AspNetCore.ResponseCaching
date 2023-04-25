@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -15,6 +15,8 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Builders;
 public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
 {
     #region Private 字段
+
+    private readonly bool? _queryAll;
 
     /// <summary>
     /// 请求查询参数列表
@@ -34,6 +36,7 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
     public QueryKeysCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> queryKeys) : base(innerBuilder, strictMode)
     {
         _queryKeys = queryKeys?.ToArray() ?? throw new ArgumentNullException(nameof(queryKeys));
+        _queryAll = _queryKeys?.Length == 0;
     }
 
     #endregion Public 构造函数
@@ -43,8 +46,13 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
     /// <inheritdoc/>
     public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
     {
+        var queryKeys = _queryKeys;
+        if (_queryAll == true)
+        {
+            queryKeys = filterContext.HttpContext.Request.Query.Keys.ToArray();
+        }
         var query = filterContext.HttpContext.Request.Query;
-        foreach (var queryKey in _queryKeys)
+        foreach (var queryKey in queryKeys)
         {
             if (query.TryGetValue(queryKey, out var value))
             {
