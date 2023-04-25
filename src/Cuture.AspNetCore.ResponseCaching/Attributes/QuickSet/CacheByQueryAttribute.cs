@@ -17,7 +17,7 @@ public class CacheByQueryAttribute : ResponseCachingAttribute
     /// <param name="queryKeys">依据的具体查询键</param>
     public CacheByQueryAttribute(int duration, params string[] queryKeys) : base(duration, CacheMode.Custom)
     {
-        if (queryKeys is null || queryKeys.Length == 0)
+        if (queryKeys is null)
         {
             throw new ArgumentOutOfRangeException(nameof(queryKeys));
         }
