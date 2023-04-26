@@ -54,8 +54,9 @@ public static class ResponseCachingServicesExtensions
     public static ResponseCachingServiceBuilder UseRedisResponseCache(this ResponseCachingServiceBuilder builder, IConfiguration configuration)
     {
         var connectionConfiguration = configuration.GetValue<string>(nameof(RedisResponseCacheOptions.Configuration));
+        var cacheKeyPrefix = configuration.GetValue<string>(nameof(RedisResponseCacheOptions.CacheKeyPrefix));
         var connectionMultiplexer = ConnectionMultiplexer.Connect(connectionConfiguration);
-        return builder.UseRedisResponseCache(connectionMultiplexer);
+        return builder.UseRedisResponseCache(connectionMultiplexer, cacheKeyPrefix);
     }
 
     #endregion Public 方法

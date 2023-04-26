@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -44,7 +44,12 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
     public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
     {
         var query = filterContext.HttpContext.Request.Query;
-        foreach (var queryKey in _queryKeys)
+        var queryKeys = _queryKeys;
+        if (queryKeys.Length == 0)
+        {
+            queryKeys = query.Keys.ToArray();
+        }
+        foreach (var queryKey in queryKeys)
         {
             if (query.TryGetValue(queryKey, out var value))
             {

@@ -147,8 +147,7 @@ internal class DefaultResponseCachingFilterBuilder : IResponseCachingFilterBuild
                     {
                         keyBuilder = new ClaimsCacheKeyBuilder(keyBuilder, strictMode, varyByClaims);
                     }
-                    if (Metadata<IResponseQueryCachePatternMetadata>()?.VaryByQueryKeys is string[] varyByQueryKeys
-                        && varyByQueryKeys.Length > 0)
+                    if (Metadata<IResponseQueryCachePatternMetadata>()?.VaryByQueryKeys is string[] varyByQueryKeys)
                     {
                         keyBuilder = new QueryKeysCacheKeyBuilder(keyBuilder, strictMode, varyByQueryKeys);
                     }
