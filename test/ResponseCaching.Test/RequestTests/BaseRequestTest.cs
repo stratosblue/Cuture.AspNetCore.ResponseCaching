@@ -14,16 +14,23 @@ namespace ResponseCaching.Test.RequestTests;
 
 public abstract class BaseRequestTest : WebServerHostedTestBase
 {
-    protected virtual int ReRequestTimes { get; } = 3;
+    #region Protected 属性
 
     /// <summary>
     /// 请求互相检查
     /// </summary>
     protected virtual bool CheckEachOtherRequest { get; } = true;
 
-    protected abstract Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs();
+    protected virtual int ReRequestTimes { get; } = 3;
 
-    protected virtual Task BeforeRunning() => Task.CompletedTask;
+    /// <summary>
+    /// <inheritdoc cref="CheckEachOtherRequest"/> 时检查相同还是不同
+    /// </summary>
+    protected virtual bool ShouldEqualEachOtherRequest { get; } = false;
+
+    #endregion Protected 属性
+
+    #region Public 方法
 
     [TestMethod]
     public virtual async Task ExecuteAsync()
@@ -38,7 +45,7 @@ public abstract class BaseRequestTest : WebServerHostedTestBase
 
         if (CheckEachOtherRequest)
         {
-            CheckForEachOther(data, false);
+            CheckForEachOther(data, ShouldEqualEachOtherRequest);
         }
 
         var tasks = Array(ReRequestTimes).Select(m => InternalRunAsync(funcs)).ToArray();
@@ -67,4 +74,14 @@ public abstract class BaseRequestTest : WebServerHostedTestBase
             }
         }
     }
+
+    #endregion Public 方法
+
+    #region Protected 方法
+
+    protected virtual Task BeforeRunning() => Task.CompletedTask;
+
+    protected abstract Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs();
+
+    #endregion Protected 方法
 }

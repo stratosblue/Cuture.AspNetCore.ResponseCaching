@@ -1,5 +1,6 @@
-﻿using System.Threading.Tasks;
-
+﻿using System.Buffers;
+using System.Threading.Tasks;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
@@ -9,17 +10,37 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 /// </summary>
 public class RequestPathCacheKeyGenerator : ICacheKeyGenerator
 {
+    #region Private 字段
+
+    private readonly ActionPathCache _actionPathCache = new();
+
+    #endregion Private 字段
+
     #region Public 方法
 
     /// <inheritdoc/>
     public ValueTask<string> GenerateKeyAsync(FilterContext filterContext)
     {
-        var path = filterContext.HttpContext.Request.Path.Value!;
-        if (path.EndsWith('/'))
+        var method = filterContext.HttpContext.Request.NormalizeMethodNameAsKeyPrefix();
+
+        var path = new string(_actionPathCache.GetPath(filterContext));
+
+        char[]? buffer = null;
+        try
         {
-            return new ValueTask<string>(path[0..^1]);
+            var length = method.Length + path.Length;
+            buffer = ArrayPool<char>.Shared.Rent(length);
+            method.CopyTo(buffer);
+            path.CopyTo(0, buffer, method.Length, path.Length);
+            return new ValueTask<string>(new string(buffer, 0, length));
         }
-        return new ValueTask<string>(path);
+        finally
+        {
+            if (buffer is not null)
+            {
+                ArrayPool<char>.Shared.Return(buffer);
+            }
+        }
     }
 
     #endregion Public 方法

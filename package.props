@@ -6,8 +6,8 @@
 
   <!--Package Info-->
   <PropertyGroup>
-    <VersionPrefix>2.0.1</VersionPrefix>
-    <!--<VersionSuffix>preview-01</VersionSuffix>-->
+    <VersionPrefix>2.0.2</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
 
     <Description>基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`服务端缓存组件</Description>
 

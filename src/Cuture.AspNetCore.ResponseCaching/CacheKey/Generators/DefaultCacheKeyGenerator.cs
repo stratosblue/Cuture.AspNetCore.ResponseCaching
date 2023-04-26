@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Builders;
-
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.ObjectPool;
 
@@ -15,6 +15,8 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 public class DefaultCacheKeyGenerator : ICacheKeyGenerator
 {
     #region Private 字段
+
+    private readonly ActionPathCache _actionPathCache = new();
 
     private readonly CacheKeyBuilder _innerBuilder;
 
@@ -44,16 +46,9 @@ public class DefaultCacheKeyGenerator : ICacheKeyGenerator
         var keyBuilder = _stringBuilderPool.Get();
         try
         {
-            var path = filterContext.HttpContext.Request.Path.Value!;
+            keyBuilder.Append(filterContext.HttpContext.Request.NormalizeMethodNameAsKeyPrefix());
+            keyBuilder.Append(_actionPathCache.GetPath(filterContext));
 
-            if (path.EndsWith('/'))
-            {
-                keyBuilder.Append(path, 0, path.Length - 1);
-            }
-            else
-            {
-                keyBuilder.Append(path, 0, path.Length);
-            }
             return await _innerBuilder.BuildAsync(filterContext, keyBuilder);
         }
         finally

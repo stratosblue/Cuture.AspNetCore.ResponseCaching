@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Extensions;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -43,17 +44,40 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
     /// <inheritdoc/>
     public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
     {
-        var query = filterContext.HttpContext.Request.Query;
-        var queryKeys = _queryKeys;
-        if (queryKeys.Length == 0)
+        //未指定key，则使用全部
+        if (_queryKeys.Length == 0)
         {
-            queryKeys = query.Keys.ToArray();
+            var queryString = filterContext.HttpContext.Request.QueryString;
+            if (queryString.HasValue)
+            {
+                char[]? buffer = null;
+                try
+                {
+                    buffer = ArrayPool<char>.Shared.Rent(queryString.Value!.Length);
+                    var length = QueryStringOrderUtil.Order(queryString, buffer);
+                    keyBuilder.Append(CombineChar);
+                    keyBuilder.Append(buffer, 0, length);
+                }
+                finally
+                {
+                    if (buffer is not null)
+                    {
+                        ArrayPool<char>.Shared.Return(buffer);
+                    }
+                }
+            }
+
+            return base.BuildAsync(filterContext, keyBuilder);
         }
-        foreach (var queryKey in queryKeys)
+
+        var query = filterContext.HttpContext.Request.Query;
+        foreach (var queryKey in _queryKeys)
         {
             if (query.TryGetValue(queryKey, out var value))
             {
                 keyBuilder.Append(CombineChar);
+                keyBuilder.Append(queryKey);
+                keyBuilder.Append('=');
                 keyBuilder.Append(value);
             }
             else

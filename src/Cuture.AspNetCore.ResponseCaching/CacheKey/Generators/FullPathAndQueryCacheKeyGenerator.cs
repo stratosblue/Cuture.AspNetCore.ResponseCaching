@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Http.Extensions;
+﻿using System;
+using System.Buffers;
+using System.Threading.Tasks;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
@@ -10,10 +11,53 @@ namespace Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 /// </summary>
 public class FullPathAndQueryCacheKeyGenerator : ICacheKeyGenerator
 {
+    #region Private 字段
+
+    private readonly ActionPathCache _actionPathCache = new();
+
+    #endregion Private 字段
+
     #region Public 方法
 
     /// <inheritdoc/>
-    public ValueTask<string> GenerateKeyAsync(FilterContext filterContext) => new ValueTask<string>(filterContext.HttpContext.Request.GetEncodedPathAndQuery());
+    public ValueTask<string> GenerateKeyAsync(FilterContext filterContext)
+    {
+        var method = filterContext.HttpContext.Request.NormalizeMethodNameAsKeyPrefix();
+
+        var path = _actionPathCache.GetPath(filterContext);
+
+        var queryString = filterContext.HttpContext.Request.QueryString;
+        if (!queryString.HasValue)
+        {
+            return new(new string(method) + new string(path));
+        }
+
+        char[]? buffer = null;
+        try
+        {
+            buffer = ArrayPool<char>.Shared.Rent(method.Length + path.Length + queryString.Value!.Length);
+
+            var span = buffer.AsSpan();
+            method.CopyTo(span);
+            span = span.Slice(method.Length);
+
+            path.CopyTo(span);
+            span = span.Slice(path.Length);
+
+            span[0] = '?';
+
+            var length = QueryStringOrderUtil.Order(queryString, span.Slice(1));
+
+            return new ValueTask<string>(new string(buffer, 0, method.Length + path.Length + length));
+        }
+        finally
+        {
+            if (buffer is not null)
+            {
+                ArrayPool<char>.Shared.Return(buffer);
+            }
+        }
+    }
 
     #endregion Public 方法
 }
