@@ -91,7 +91,7 @@ public class RedisResponseCache : IDistributedResponseCache
             new HashEntry(_bodyFieldName, entry.Body),
             new HashEntry(_expireFieldName, entry.Expire),
         });
-        _ = _database.KeyExpireAsync(redisKey, DateTimeOffset.FromUnixTimeMilliseconds(entry.Expire).UtcDateTime);
+        _ = _database.KeyExpireAsync(redisKey, DateTimeOffset.FromUnixTimeMilliseconds(entry.Expire).UtcDateTime, CommandFlags.FireAndForget);
     }
 
     #endregion Public 方法

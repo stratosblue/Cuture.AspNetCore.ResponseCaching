@@ -20,7 +20,9 @@ public abstract class CacheFilterBase<TFilterExecutingContext> : IDisposable whe
     #region Private 字段
 
     private readonly CachingDiagnosticsAccessor _cachingDiagnosticsAccessor;
+
     private readonly OnCacheStoringDelegate<ActionContext> _onCacheStoringDelegate;
+
     private bool _disposedValue;
 
     #endregion Private 字段
@@ -76,7 +78,7 @@ public abstract class CacheFilterBase<TFilterExecutingContext> : IDisposable whe
     /// <param name="key"></param>
     /// <param name="cacheEntry"></param>
     /// <returns></returns>
-    protected async Task<ResponseCacheEntry?> CheckAndStoreCacheAsync(ResourceExecutingContext executingContext,
+    protected Task<ResponseCacheEntry?> CheckAndStoreCacheAsync(ResourceExecutingContext executingContext,
                                                                       ResourceExecutedContext executedContext,
                                                                       string key,
                                                                       ResponseCacheEntry cacheEntry)
@@ -85,7 +87,7 @@ public abstract class CacheFilterBase<TFilterExecutingContext> : IDisposable whe
         {
             if (cacheEntry.Body.Length <= Context.MaxCacheableResponseLength)
             {
-                return await Context.Interceptors.OnCacheStoringAsync(executingContext, key, cacheEntry, StoreCacheAsync);
+                return StoreCacheAsync(executingContext, key, cacheEntry);
             }
             else
             {
@@ -93,7 +95,7 @@ public abstract class CacheFilterBase<TFilterExecutingContext> : IDisposable whe
             }
         }
 
-        return null;
+        return Task.FromResult<ResponseCacheEntry?>(null);
     }
 
     /// <summary>

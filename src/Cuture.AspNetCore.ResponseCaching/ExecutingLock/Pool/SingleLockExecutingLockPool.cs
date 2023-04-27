@@ -26,8 +26,10 @@ internal class SingleLockExecutingLockPool<TCachePayload, TExecutingLock>
 
     #region Private 字段
 
+    private readonly LockHolder _lockHolder = new();
+
     private readonly INakedBoundedObjectPool<TExecutingLock> _lockPool;
-    private readonly LockHolder lockHolder = new();
+
     private bool _disposedValue;
 
     #endregion Private 字段
@@ -52,16 +54,16 @@ internal class SingleLockExecutingLockPool<TCachePayload, TExecutingLock>
     {
         CheckDisposed();
 
-        lock (lockHolder)
+        lock (_lockHolder)
         {
-            if (lockHolder.Lock is not TExecutingLock @lock)
+            if (_lockHolder.Lock is not TExecutingLock @lock)
             {
                 @lock = _lockPool.Rent()!;
                 if (@lock is null)
                 {
                     return null;
                 }
-                lockHolder.Lock = @lock;
+                _lockHolder.Lock = @lock;
             }
             Interlocked.Add(ref @lock.ReferenceCount, 1);
             return @lock;
@@ -71,15 +73,15 @@ internal class SingleLockExecutingLockPool<TCachePayload, TExecutingLock>
     public void Return(IExecutingLock<TCachePayload> item)
     {
         if (item is TExecutingLock executingLock
-            && ReferenceEquals(executingLock, lockHolder.Lock)
+            && ReferenceEquals(executingLock, _lockHolder.Lock)
             && Interlocked.Add(ref executingLock.ReferenceCount, -1) == 0)
         {
-            lock (lockHolder)
+            lock (_lockHolder)
             {
-                if (lockHolder.Lock != null
+                if (_lockHolder.Lock != null
                     && executingLock.ReferenceCount == 0)
                 {
-                    lockHolder.Lock = null;
+                    _lockHolder.Lock = null;
                 }
                 else
                 {
@@ -121,8 +123,8 @@ internal class SingleLockExecutingLockPool<TCachePayload, TExecutingLock>
     {
         if (!_disposedValue)
         {
-            var @lock = lockHolder.Lock;
-            lockHolder.Lock = null;
+            var @lock = _lockHolder.Lock;
+            _lockHolder.Lock = null;
             if (@lock != null)
             {
                 _lockPool.Return(@lock);

@@ -53,7 +53,6 @@ internal class DefaultResponseCachingFilterBuilder : IResponseCachingFilterBuild
         var interceptorAggregator = new InterceptorAggregator(GetCachingProcessInterceptor(buildContext));
 
         var lockMode = buildContext.GetMetadata<IExecutingLockMetadata>()?.LockMode ?? buildContext.Options.DefaultExecutingLockMode;
-        lockMode = Checks.ThrowIfExecutingLockModeIsNone(lockMode);
 
         var dumpStreamCapacity = buildContext.GetMetadata<IDumpStreamInitialCapacityMetadata>()?.Capacity
                                  ?? ResponseCachingConstants.DefaultDumpCapacity;

@@ -21,7 +21,7 @@ public class DefaultActionCacheFilter : CacheFilterBase<ActionExecutingContext>,
     /// <summary>
     /// 空的缓存项信息
     /// </summary>
-    protected static readonly (string? key, ResponseCacheEntry? cacheEntry) EmptyCacheEntryInfo = new();
+    protected static readonly (string? key, ResponseCacheEntry? cacheEntry) s_emptyCacheEntryInfo = new();
 
     #endregion Protected 字段
 
@@ -194,7 +194,7 @@ public class DefaultActionCacheFilter : CacheFilterBase<ActionExecutingContext>,
             }
         }
 
-        return EmptyCacheEntryInfo;
+        return s_emptyCacheEntryInfo;
     }
 
     #endregion Protected 方法

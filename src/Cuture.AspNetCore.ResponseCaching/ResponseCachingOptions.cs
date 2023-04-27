@@ -36,12 +36,18 @@ public class ResponseCachingOptions
     #region Private 字段
 
     private CacheStoreLocation _defaultCacheStoreLocation = CacheStoreLocation.Memory;
+
+    private int _defaultLockMillisecondsTimeout = ResponseCachingConstants.DefaultLockMillisecondsTimeout;
+
     private ExecutingLockMode _defaultLockMode = ExecutingLockMode.None;
+
     private CacheKeyStrictMode _defaultStrictMode = CacheKeyStrictMode.Ignore;
+
     private int _maxCacheableResponseLength = ResponseCachingConstants.DefaultMaxCacheableResponseLength;
+
     private int _maxCacheKeyLength = ResponseCachingConstants.DefaultMaxCacheKeyLength;
+
     private IMemoryCache _resultLocalCache = CreatedDefaultResultLocalCache();
-    private int defaultLockMillisecondsTimeout = ResponseCachingConstants.DefaultLockMillisecondsTimeout;
 
     #endregion Private 字段
 
@@ -88,8 +94,8 @@ public class ResponseCachingOptions
     /// </summary>
     public int DefaultLockMillisecondsTimeout
     {
-        get => defaultLockMillisecondsTimeout;
-        set => defaultLockMillisecondsTimeout = Checks.ThrowIfLockMillisecondsTimeoutInvalid(value).Value;
+        get => _defaultLockMillisecondsTimeout;
+        set => _defaultLockMillisecondsTimeout = Checks.ThrowIfLockMillisecondsTimeoutInvalid(value).Value;
     }
 
     /// <summary>
