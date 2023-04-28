@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cuture.AspNetCore.ResponseCaching.Internal;
@@ -34,7 +33,7 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
     /// <param name="queryKeys"></param>
     public QueryKeysCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> queryKeys) : base(innerBuilder, strictMode)
     {
-        _queryKeys = queryKeys?.ToArray() ?? throw new ArgumentNullException(nameof(queryKeys));
+        _queryKeys = queryKeys?.ToLowerArray() ?? throw new ArgumentNullException(nameof(queryKeys));
     }
 
     #endregion Public 构造函数
@@ -67,18 +66,17 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
                 }
             }
 
-            return base.BuildAsync(filterContext, keyBuilder);
+            return base.BuildAsync(filterContext, keyBuilder.TrimEndAnd());
         }
+
+        keyBuilder.Append(CombineChar);
 
         var query = filterContext.HttpContext.Request.Query;
         foreach (var queryKey in _queryKeys)
         {
             if (query.TryGetValue(queryKey, out var value))
             {
-                keyBuilder.Append(CombineChar);
-                keyBuilder.Append(queryKey);
-                keyBuilder.Append('=');
-                keyBuilder.Append(value);
+                keyBuilder.Append($"{queryKey}={value}&");
             }
             else
             {
@@ -88,7 +86,7 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
                 }
             }
         }
-        return base.BuildAsync(filterContext, keyBuilder);
+        return base.BuildAsync(filterContext, keyBuilder.TrimEndAnd());
     }
 
     #endregion Public 方法

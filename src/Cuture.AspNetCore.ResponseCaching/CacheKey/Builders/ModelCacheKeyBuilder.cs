@@ -58,22 +58,22 @@ public class ModelCacheKeyBuilder : CacheKeyBuilder
     {
         if (filterContext is ActionExecutingContext executingContext)
         {
+            keyBuilder.Append(CombineChar);
+
             if (_useAllModel)
             {
                 foreach (var item in executingContext.ActionArguments)
                 {
-                    keyBuilder.Append(CombineChar);
-                    keyBuilder.Append(_modelKeyParser.Parse(item.Value));
+                    keyBuilder.Append($"{item.Key}={_modelKeyParser.Parse(item.Value)}&");
                 }
-                return base.BuildAsync(filterContext, keyBuilder);
+                return base.BuildAsync(filterContext, keyBuilder.TrimEndAnd());
             }
 
             foreach (var key in _modelNames)
             {
                 if (executingContext.ActionArguments.TryGetValue(key, out var value))
                 {
-                    keyBuilder.Append(CombineChar);
-                    keyBuilder.Append(_modelKeyParser.Parse(value));
+                    keyBuilder.Append($"{key}={_modelKeyParser.Parse(value)}&");
                 }
                 else
                 {
@@ -83,7 +83,7 @@ public class ModelCacheKeyBuilder : CacheKeyBuilder
                     }
                 }
             }
-            return base.BuildAsync(filterContext, keyBuilder);
+            return base.BuildAsync(filterContext, keyBuilder.TrimEndAnd());
         }
 
         throw new ResponseCachingException("not find ActionArguments in HttpContext.Items");

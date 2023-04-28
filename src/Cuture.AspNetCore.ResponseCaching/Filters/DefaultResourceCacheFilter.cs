@@ -49,7 +49,6 @@ public class DefaultResourceCacheFilter : CacheFilterBase<ResourceExecutingConte
         try
         {
             var key = (await Context.KeyGenerator.GenerateKeyAsync(executingContext)).ToLowerInvariant();
-
             cachingDiagnostics.CacheKeyGenerated(executingContext, key, Context.KeyGenerator, Context);
 
             if (key.Length > Context.MaxCacheKeyLength)

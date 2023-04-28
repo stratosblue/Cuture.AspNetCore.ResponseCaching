@@ -44,7 +44,7 @@ public class FullPathAndQueryCacheKeyGenerator : ICacheKeyGenerator
             path.CopyTo(span);
             span = span.Slice(path.Length);
 
-            span[0] = '?';
+            span[0] = ResponseCachingConstants.CombineChar;
 
             var length = QueryStringOrderUtil.Order(queryString, span.Slice(1));
 

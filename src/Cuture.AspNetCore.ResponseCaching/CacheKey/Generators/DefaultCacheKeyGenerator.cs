@@ -76,7 +76,7 @@ public class DefaultCacheKeyGenerator : ICacheKeyGenerator
             {
                 return pool;
             }
-            pool = new DefaultObjectPoolProvider() { MaximumRetained = Environment.ProcessorCount * 4 }.CreateStringBuilderPool();
+            pool = new DefaultObjectPoolProvider() { MaximumRetained = Environment.ProcessorCount * 4 }.CreateStringBuilderPool(128, 4096);
             s_sharedStringBuilderPool.SetTarget(pool);
             return pool;
         }

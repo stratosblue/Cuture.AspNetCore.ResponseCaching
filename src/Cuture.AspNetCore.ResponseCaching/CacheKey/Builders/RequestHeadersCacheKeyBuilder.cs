@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,7 +32,7 @@ public class RequestHeadersCacheKeyBuilder : CacheKeyBuilder
     /// <param name="headers"></param>
     public RequestHeadersCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> headers) : base(innerBuilder, strictMode)
     {
-        _headers = headers?.ToArray() ?? throw new ArgumentNullException(nameof(headers));
+        _headers = headers?.ToLowerArray() ?? throw new ArgumentNullException(nameof(headers));
     }
 
     #endregion Public 构造函数
@@ -43,13 +42,15 @@ public class RequestHeadersCacheKeyBuilder : CacheKeyBuilder
     /// <inheritdoc/>
     public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
     {
+        keyBuilder.Append(ResponseCachingConstants.CombineChar);
+
         var headers = filterContext.HttpContext.Request.Headers;
+
         foreach (var header in _headers)
         {
             if (headers.TryGetValue(header, out var value))
             {
-                keyBuilder.Append(CombineChar);
-                keyBuilder.Append(value);
+                keyBuilder.Append($"{header}={value}&");
             }
             else
             {
@@ -59,7 +60,7 @@ public class RequestHeadersCacheKeyBuilder : CacheKeyBuilder
                 }
             }
         }
-        return base.BuildAsync(filterContext, keyBuilder);
+        return base.BuildAsync(filterContext, keyBuilder.TrimEndAnd());
     }
 
     #endregion Public 方法

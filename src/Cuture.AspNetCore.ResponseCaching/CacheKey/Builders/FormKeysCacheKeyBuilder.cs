@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,7 +32,7 @@ public class FormKeysCacheKeyBuilder : CacheKeyBuilder
     /// <param name="formKeys"></param>
     public FormKeysCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> formKeys) : base(innerBuilder, strictMode)
     {
-        _formKeys = formKeys?.ToArray() ?? throw new ArgumentNullException(nameof(formKeys));
+        _formKeys = formKeys?.ToLowerArray() ?? throw new ArgumentNullException(nameof(formKeys));
     }
 
     #endregion Public 构造函数
@@ -50,13 +49,16 @@ public class FormKeysCacheKeyBuilder : CacheKeyBuilder
                 return new ValueTask<string>();
             }
         }
+
+        keyBuilder.Append(CombineChar);
+
         var form = filterContext.HttpContext.Request.Form;
+
         foreach (var key in _formKeys)
         {
             if (form.TryGetValue(key, out var value))
             {
-                keyBuilder.Append(CombineChar);
-                keyBuilder.Append(value);
+                keyBuilder.Append($"{key}={value}&");
             }
             else
             {
@@ -66,7 +68,7 @@ public class FormKeysCacheKeyBuilder : CacheKeyBuilder
                 }
             }
         }
-        return base.BuildAsync(filterContext, keyBuilder);
+        return base.BuildAsync(filterContext, keyBuilder.TrimEndAnd());
     }
 
     #endregion Public 方法

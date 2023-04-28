@@ -13,16 +13,16 @@ internal static class HttpRequestExtensions
 
         return httpRequest.Method switch
         {
-            "GET" => $"GET{CombineChar}",
-            "POST" => $"POST{CombineChar}",
-            "PUT" => $"PUT{CombineChar}",
-            "DELETE" => $"DELETE{CombineChar}",
-            "PATCH" => $"PATCH{CombineChar}",
-            "OPTIONS" => $"OPTIONS{CombineChar}",
-            "HEAD" => $"HEAD{CombineChar}",
-            "CONNECT" => $"CONNECT{CombineChar}",
-            "TRACE" => $"TRACE{CombineChar}",
-            _ => $"{httpRequest.Method.ToUpperInvariant()}{CombineChar}",
+            "GET" => $"get{CombineChar}",
+            "POST" => $"post{CombineChar}",
+            "PUT" => $"put{CombineChar}",
+            "DELETE" => $"delete{CombineChar}",
+            "PATCH" => $"patch{CombineChar}",
+            "OPTIONS" => $"options{CombineChar}",
+            "HEAD" => $"head{CombineChar}",
+            "CONNECT" => $"connect{CombineChar}",
+            "TRACE" => $"trace{CombineChar}",
+            _ => $"{httpRequest.Method.ToLowerInvariant()}{CombineChar}",
         };
     }
 

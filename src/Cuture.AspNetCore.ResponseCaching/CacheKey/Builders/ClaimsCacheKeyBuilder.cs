@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,7 +33,7 @@ public class ClaimsCacheKeyBuilder : CacheKeyBuilder
     /// <param name="claimTypes">ClaimType列表</param>
     public ClaimsCacheKeyBuilder(CacheKeyBuilder? innerBuilder, CacheKeyStrictMode strictMode, IEnumerable<string> claimTypes) : base(innerBuilder, strictMode)
     {
-        _claimTypes = claimTypes?.ToArray() ?? throw new ArgumentNullException(nameof(claimTypes));
+        _claimTypes = claimTypes?.ToLowerArray() ?? throw new ArgumentNullException(nameof(claimTypes));
     }
 
     #endregion Public 构造函数
@@ -44,12 +43,13 @@ public class ClaimsCacheKeyBuilder : CacheKeyBuilder
     /// <inheritdoc/>
     public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
     {
+        keyBuilder.Append(CombineChar);
+
         foreach (var claimType in _claimTypes)
         {
             if (filterContext.HttpContext.User.FindFirst(claimType) is Claim claim)
             {
-                keyBuilder.Append(CombineChar);
-                keyBuilder.Append(claim.Value);
+                keyBuilder.Append($"{claimType}={claim.Value}&");
             }
             else
             {
@@ -59,7 +59,7 @@ public class ClaimsCacheKeyBuilder : CacheKeyBuilder
                 }
             }
         }
-        return base.BuildAsync(filterContext, keyBuilder);
+        return base.BuildAsync(filterContext, keyBuilder.TrimEndAnd());
     }
 
     #endregion Public 方法
