@@ -235,11 +235,8 @@ internal class DefaultResponseCachingFilterBuilder : IResponseCachingFilterBuild
                         var metadata = context.GetMetadata<IHotDataCacheMetadata>()
                                        ?? throw new ResponseCachingException($"No {nameof(IHotDataCacheMetadata)} found for {context.EndpointAccessor}");
 
-                        var hotDataCache = hotDataCacheBuilder.Build(context.ServiceProvider, metadata);
-                        if (hotDataCache is null)
-                        {
-                            throw new ResponseCachingException($"The data cache {hotDataCacheBuilder.GetType()} provided is null.");
-                        }
+                        var hotDataCache = hotDataCacheBuilder.Build(context.ServiceProvider, metadata)
+                                           ?? throw new ResponseCachingException($"The data cache {hotDataCacheBuilder.GetType()} provided is null.");
                         return new ResponseCacheHotDataCacheWrapper(responseCache, hotDataCache);
                     }
 

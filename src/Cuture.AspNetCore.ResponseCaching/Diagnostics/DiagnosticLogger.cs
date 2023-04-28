@@ -59,7 +59,7 @@ public sealed class DiagnosticLogger : IObserver<KeyValuePair<string, object>>
             case CacheKeyGeneratedEventData.EventName:
                 if (value.Value is CacheKeyGeneratedEventData cacheKeyGeneratedEventData)
                 {
-                    _logger.LogInformation("Cache key for request-\"{TraceIdentifier}\" has generated, the key is \"{1}\"",
+                    _logger.LogInformation("Cache key for request-\"{TraceIdentifier}\" has generated, the key is \"{Key}\"",
                                            cacheKeyGeneratedEventData.FilterContext.HttpContext.TraceIdentifier,
                                            cacheKeyGeneratedEventData.Key);
                 }

@@ -32,7 +32,7 @@ public class DefiniteCacheKeyGenerator : ICacheKeyGenerator
     #region Public 方法
 
     /// <inheritdoc/>
-    public ValueTask<string> GenerateKeyAsync(FilterContext filterContext) => new ValueTask<string>(_key);
+    public ValueTask<string> GenerateKeyAsync(FilterContext filterContext) => new(_key);
 
     #endregion Public 方法
 }

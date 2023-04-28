@@ -42,11 +42,7 @@ public class ResponseCacheableAttribute : Attribute, IFilterFactory, IOrderedFil
         try
         {
             _createInstanceLock.Enter(ref locked);
-            if (_filterMetadata is null)
-            {
-                _filterMetadata = CreateFilter(serviceProvider);
-            }
-            return _filterMetadata;
+            return _filterMetadata ??= CreateFilter(serviceProvider);
         }
         finally
         {

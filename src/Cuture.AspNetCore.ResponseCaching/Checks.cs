@@ -22,7 +22,7 @@ public static class Checks
     /// <param name="capacity"></param>
     /// <param name="capacityExpression"></param>
     /// <returns></returns>
-    public static int ThrowIfDumpStreamInitialCapacityTooSmall(int capacity, [CallerArgumentExpression("capacity")] string? capacityExpression = null)
+    public static int ThrowIfDumpStreamInitialCapacityTooSmall(int capacity, [CallerArgumentExpression(nameof(capacity))] string? capacityExpression = null)
     {
         if (capacity < ResponseCachingConstants.DefaultMinMaxCacheableResponseLength)
         {
@@ -67,7 +67,7 @@ public static class Checks
     /// </summary>
     /// <param name="lockMillisecondsTimeout"></param>
     /// <returns></returns>
-    [return: NotNullIfNotNull("lockMillisecondsTimeout")]
+    [return: NotNullIfNotNull(nameof(lockMillisecondsTimeout))]
     public static int? ThrowIfLockMillisecondsTimeoutInvalid(int? lockMillisecondsTimeout)
     {
         if (lockMillisecondsTimeout is null)
@@ -88,7 +88,7 @@ public static class Checks
     /// <param name="maxCacheableResponseLength"></param>
     /// <param name="variableExpression"></param>
     /// <returns></returns>
-    public static int ThrowIfMaxCacheableResponseLengthTooSmall(int maxCacheableResponseLength, [CallerArgumentExpression("maxCacheableResponseLength")] string? variableExpression = null)
+    public static int ThrowIfMaxCacheableResponseLengthTooSmall(int maxCacheableResponseLength, [CallerArgumentExpression(nameof(maxCacheableResponseLength))] string? variableExpression = null)
     {
         if (maxCacheableResponseLength < ResponseCachingConstants.DefaultMinMaxCacheableResponseLength)
         {

@@ -301,6 +301,6 @@ dotnet_naming_style.以_为前缀.required_suffix =
 dotnet_naming_style.以_为前缀.word_separator = 
 dotnet_naming_style.以_为前缀.capitalization = camel_case
 
-[*.csproj]
+[*.{csproj,props}]
 indent_size = 2
 tab_width = 2

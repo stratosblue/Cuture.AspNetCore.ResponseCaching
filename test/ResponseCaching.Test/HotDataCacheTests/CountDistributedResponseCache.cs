@@ -12,9 +12,9 @@ public class CountDistributedResponseCache : IDistributedResponseCache
 {
     #region Private 字段
 
-    private readonly ConcurrentDictionary<string, ResponseCacheEntry> _caches = new ConcurrentDictionary<string, ResponseCacheEntry>();
+    private readonly ConcurrentDictionary<string, ResponseCacheEntry> _caches = new();
 
-    private readonly Dictionary<string, int> _count = new Dictionary<string, int>();
+    private readonly Dictionary<string, int> _count = new();
 
     #endregion Private 字段
 
