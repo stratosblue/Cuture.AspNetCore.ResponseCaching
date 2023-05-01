@@ -13,12 +13,17 @@ using ResponseCaching.Test.WebHost.Models;
 namespace ResponseCaching.Test.RequestTests;
 
 [TestClass]
-public class CacheByAllMixedTest : BaseRequestTest
+public class CacheByAllMixedTest : RequestTestBase
 {
-    private const int CookieCount = 5;
-    private string[] _cookies = null;
+    #region Private 字段
 
-    protected override bool CheckEachOtherRequest => false;
+    private const int CookieCount = 5;
+
+    private string[] _cookies = null!;
+
+    #endregion Private 字段
+
+    #region Public 方法
 
     [TestInitialize]
     public override async Task InitAsync()
@@ -36,7 +41,17 @@ public class CacheByAllMixedTest : BaseRequestTest
         _cookies = cookies.ToArray();
     }
 
-    protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
+    [TestMethod]
+    public async Task Should_Different_With_CacheByAllMixed()
+    {
+        await ExecuteAsync(GetAllRequestFuncs(), true, false, 3);
+    }
+
+    #endregion Public 方法
+
+    #region Private 方法
+
+    private Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
     {
         var result = new List<Func<Task<TextHttpOperationResult<WeatherForecast[]>>>>();
 
@@ -70,11 +85,12 @@ public class CacheByAllMixedTest : BaseRequestTest
                             }
                         }
                     }
-
                 }
             }
         }
 
         return result.ToArray();
     }
+
+    #endregion Private 方法
 }

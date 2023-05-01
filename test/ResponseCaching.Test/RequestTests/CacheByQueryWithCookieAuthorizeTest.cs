@@ -12,9 +12,15 @@ using ResponseCaching.Test.WebHost.Models;
 namespace ResponseCaching.Test.RequestTests;
 
 [TestClass]
-public class CacheByQueryWithCookieAuthorizeTest : BaseRequestTest
+public class CacheByQueryWithCookieAuthorizeTest : RequestTestBase
 {
+    #region Private 字段
+
     private string[] _cookies = null;
+
+    #endregion Private 字段
+
+    #region Public 方法
 
     [TestInitialize]
     public override async Task InitAsync()
@@ -32,14 +38,18 @@ public class CacheByQueryWithCookieAuthorizeTest : BaseRequestTest
         _cookies = cookies.ToArray();
     }
 
-    protected override Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] GetAllRequestFuncs()
+    [TestMethod]
+    public async Task Should_Different_With_Different_Cookie()
     {
-        return new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
+        var funcs = new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
             () => $"{BaseUrl}/CacheByQueryWithAuthorize/Get?page=1&pageSize=5".CreateHttpRequest().UseCookie(_cookies[0]).TryGetAsObjectAsync<WeatherForecast[]>(),
             () => $"{BaseUrl}/CacheByQueryWithAuthorize/Get?page=1&pageSize=6".CreateHttpRequest().UseCookie(_cookies[1]).TryGetAsObjectAsync<WeatherForecast[]>(),
             () => $"{BaseUrl}/CacheByQueryWithAuthorize/Get?page=2&pageSize=4".CreateHttpRequest().UseCookie(_cookies[2]).TryGetAsObjectAsync<WeatherForecast[]>(),
             () => $"{BaseUrl}/CacheByQueryWithAuthorize/Get?page=2&pageSize=6".CreateHttpRequest().UseCookie(_cookies[3]).TryGetAsObjectAsync<WeatherForecast[]>(),
             () => $"{BaseUrl}/CacheByQueryWithAuthorize/Get?page=3&pageSize=3".CreateHttpRequest().UseCookie(_cookies[4]).TryGetAsObjectAsync<WeatherForecast[]>(),
         };
+        await ExecuteAsync(funcs, true, false, 3);
     }
+
+    #endregion Public 方法
 }

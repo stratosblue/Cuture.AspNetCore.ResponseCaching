@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Cuture.Http;
 
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -85,7 +84,6 @@ public abstract class WebServerHostedTestBase
 
     protected void AreNotEqual<T>(IEnumerable<T> items1, IEnumerable<T> items2) where T : IEquatable<T>
     {
-        Assert.AreNotEqual(items1, items2);
         if (items1 != null
             && items2 != null)
         {
@@ -121,6 +119,12 @@ public abstract class WebServerHostedTestBase
     /// <returns></returns>
     protected int[] Array(int count) => new int[count];
 
+    /// <summary>
+    /// 对比同一批请求中的响应是否相同
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="data"></param>
+    /// <param name="equal">是否应该相同</param>
     protected void CheckForEachOther<T>(T[][] data, bool equal) where T : IEquatable<T>
     {
         for (int i = 0; i < data.Length - 1; i++)
