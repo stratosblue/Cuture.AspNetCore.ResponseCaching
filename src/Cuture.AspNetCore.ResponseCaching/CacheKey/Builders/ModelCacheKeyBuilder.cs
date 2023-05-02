@@ -44,7 +44,7 @@ public class ModelCacheKeyBuilder : CacheKeyBuilder
                                 IEnumerable<string> modelNames,
                                 IModelKeyParser modelKeyParser) : base(innerBuilder, strictMode)
     {
-        _modelNames = modelNames?.ToArray() ?? throw new ArgumentNullException(nameof(modelNames));
+        _modelNames = modelNames?.ToLowerArray() ?? throw new ArgumentNullException(nameof(modelNames));
         _useAllModel = _modelNames.Length == 0;
         _modelKeyParser = modelKeyParser;
     }

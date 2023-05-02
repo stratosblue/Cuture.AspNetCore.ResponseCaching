@@ -24,7 +24,11 @@ public class DefiniteCacheKeyGenerator : ICacheKeyGenerator
     /// <param name="key"></param>
     public DefiniteCacheKeyGenerator(string key)
     {
-        _key = key ?? throw new ArgumentNullException(nameof(key));
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+        _key = key;
     }
 
     #endregion Public 构造函数

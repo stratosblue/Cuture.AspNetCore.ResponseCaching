@@ -177,7 +177,7 @@ public class DefaultActionCacheFilter : CacheFilterBase<ActionExecutingContext>,
 
                 if (responseBody.Length <= Context.MaxCacheableResponseLength)
                 {
-                    var cacheEntry = new ResponseCacheEntry(executingContext.HttpContext.Response.ContentType, responseBody, Context.Duration);
+                    var cacheEntry = new ResponseCacheEntry(executingContext.HttpContext.Response.ContentType ?? string.Empty, responseBody, Context.Duration);
 
                     cacheEntry = await StoreCacheAsync(executingContext, key, cacheEntry);
                     return (key, cacheEntry);

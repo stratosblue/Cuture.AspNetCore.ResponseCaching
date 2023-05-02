@@ -107,7 +107,7 @@ public class DefaultResourceCacheFilter : CacheFilterBase<ResourceExecutingConte
             dumpStream.Position = 0;
             await dumpStream.CopyToAsync(originalBody);
 
-            cacheEntry = new ResponseCacheEntry(response.ContentType, dumpStream.ToArray().AsMemory(), Context.Duration);
+            cacheEntry = new ResponseCacheEntry(response.ContentType ?? string.Empty, dumpStream.ToArray().AsMemory(), Context.Duration);
         }
         finally
         {

@@ -57,7 +57,7 @@ public abstract class CacheFilterBase<TFilterExecutingContext> : IDisposable whe
     public CacheFilterBase(ResponseCachingContext context, CachingDiagnosticsAccessor cachingDiagnosticsAccessor)
     {
         Context = context ?? throw new ArgumentNullException(nameof(context));
-        _cachingDiagnosticsAccessor = cachingDiagnosticsAccessor;
+        _cachingDiagnosticsAccessor = cachingDiagnosticsAccessor ?? throw new ArgumentNullException(nameof(cachingDiagnosticsAccessor));
         CachingDiagnostics = _cachingDiagnosticsAccessor.CachingDiagnostics;
         Logger = CachingDiagnostics.Logger;
         ResponseCache = Context.ResponseCache;
@@ -144,11 +144,13 @@ public abstract class CacheFilterBase<TFilterExecutingContext> : IDisposable whe
     /// <param name="context"></param>
     /// <param name="cacheEntry"></param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected async Task<bool> WriteCacheToResponseAsync(ActionContext context, ResponseCacheEntry cacheEntry)
     {
         CachingDiagnostics.ResponseFromCache(context, cacheEntry, Context);
-        context.HttpContext.Response.ContentType = cacheEntry.ContentType;
+        if (cacheEntry.ContentType.Length > 0)
+        {
+            context.HttpContext.Response.ContentType = cacheEntry.ContentType;
+        }
         await context.HttpContext.Response.BodyWriter.WriteAsync(cacheEntry.Body, context.HttpContext.RequestAborted);
         return true;
     }
