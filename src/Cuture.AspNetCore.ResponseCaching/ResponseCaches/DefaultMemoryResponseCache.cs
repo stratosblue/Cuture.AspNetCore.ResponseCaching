@@ -47,6 +47,13 @@ public sealed class DefaultMemoryResponseCache : IMemoryResponseCache, IDisposab
     }
 
     /// <inheritdoc/>
+    public Task<bool?> RemoveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        _memoryCache.Remove(key);
+        return Task.FromResult<bool?>(null);
+    }
+
+    /// <inheritdoc/>
     public Task SetAsync(string key, ResponseCacheEntry entry, CancellationToken cancellationToken)
     {
         _memoryCache.Set(key, entry, entry.GetAbsoluteExpirationDateTimeOffset());

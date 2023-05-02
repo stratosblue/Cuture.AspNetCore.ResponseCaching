@@ -12,6 +12,7 @@ public sealed class ResponseCacheHotDataCacheWrapper : IDistributedResponseCache
     #region Private 字段
 
     private readonly IDistributedResponseCache _distributedCache;
+
     private readonly IHotDataCache _hotDataCache;
 
     #endregion Private 字段
@@ -51,6 +52,12 @@ public sealed class ResponseCacheHotDataCacheWrapper : IDistributedResponseCache
             _hotDataCache.Set(key, cacheEntry);
         }
         return cacheEntry;
+    }
+
+    /// <inheritdoc/>
+    public Task<bool?> RemoveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(_hotDataCache.Remove(key));
     }
 
     /// <inheritdoc/>

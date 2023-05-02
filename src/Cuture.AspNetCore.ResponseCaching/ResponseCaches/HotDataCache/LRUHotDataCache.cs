@@ -52,6 +52,12 @@ public class LRUHotDataCache : IHotDataCache
     }
 
     /// <inheritdoc/>
+    public bool? Remove(string key)
+    {
+        return _boundedMemoryCache.Remove(key);
+    }
+
+    /// <inheritdoc/>
     public void Set(string key, ResponseCacheEntry entry)
     {
         _boundedMemoryCache.Add(key, entry);

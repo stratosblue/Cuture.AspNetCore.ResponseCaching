@@ -17,6 +17,13 @@ public interface IHotDataCache : IDisposable
     ResponseCacheEntry? Get(string key);
 
     /// <summary>
+    /// 移除缓存
+    /// </summary>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    bool? Remove(string key);
+
+    /// <summary>
     /// 设置缓存
     /// </summary>
     /// <param name="key"></param>

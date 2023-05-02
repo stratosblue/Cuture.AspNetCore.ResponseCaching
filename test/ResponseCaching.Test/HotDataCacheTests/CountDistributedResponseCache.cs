@@ -64,6 +64,11 @@ public class CountDistributedResponseCache : IDistributedResponseCache
 
     public string[] GetKeys() => _count.Keys.ToArray();
 
+    public Task<bool?> RemoveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult<bool?>(_caches.Remove(key, out _));
+    }
+
     public Task SetAsync(string key, ResponseCacheEntry entry, CancellationToken cancellationToken)
     {
         _caches.AddOrUpdate(key, entry, (_, _) => entry);

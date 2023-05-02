@@ -19,6 +19,14 @@ public interface IResponseCache
     Task<ResponseCacheEntry?> GetAsync(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// 移除缓存
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>是否移除成功</returns>
+    Task<bool?> RemoveAsync(string key, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// 设置缓存
     /// </summary>
     /// <param name="key"></param>

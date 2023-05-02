@@ -38,8 +38,11 @@ public class RedisResponseCache : IDistributedResponseCache
     private static readonly RedisValue[] s_fieldNames = new RedisValue[] { ContentTypeFieldName, BodyFieldName, ExpireFieldName };
 
     private readonly RedisValue _bodyFieldName = BodyFieldName;
+
     private readonly RedisValue _contenTypeFieldName = ContentTypeFieldName;
+
     private readonly IDatabase _database;
+
     private readonly RedisValue _expireFieldName = ExpireFieldName;
 
     #endregion Private 字段
@@ -79,6 +82,12 @@ public class RedisResponseCache : IDistributedResponseCache
             return null;
         }
         return new ResponseCacheEntry(redisValues[0], redisValues[1], expire);
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool?> RemoveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        return await _database.KeyDeleteAsync(key);
     }
 
     /// <inheritdoc/>
