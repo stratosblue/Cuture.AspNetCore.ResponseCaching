@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.Threading.Tasks;
 using Cuture.AspNetCore.ResponseCaching.Internal;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -23,15 +24,15 @@ public class RequestPathCacheKeyGenerator : ICacheKeyGenerator
     {
         var method = filterContext.HttpContext.Request.NormalizeMethodNameAsKeyPrefix();
 
-        var path = new string(_actionPathCache.GetPath(filterContext));
-
         char[]? buffer = null;
         try
         {
+            using var pathValue = _actionPathCache.GetPath(filterContext);
+            var path = pathValue.Value;
             var length = method.Length + path.Length;
             buffer = ArrayPool<char>.Shared.Rent(length);
             method.CopyTo(buffer);
-            path.CopyTo(0, buffer, method.Length, path.Length);
+            path.CopyTo(buffer.AsSpan(method.Length));
             return new ValueTask<string>(new string(buffer, 0, length));
         }
         finally

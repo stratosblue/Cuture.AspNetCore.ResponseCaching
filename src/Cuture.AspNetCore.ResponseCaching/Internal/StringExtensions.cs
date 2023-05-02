@@ -1,12 +1,28 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Cuture.AspNetCore.ResponseCaching.Internal;
 
 namespace System;
 
 internal static class StringExtensions
 {
     #region Public 方法
+
+    /// <summary>
+    /// 添加并释放<paramref name="pooledReadOnlySpan"/>
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="pooledReadOnlySpan"></param>
+    /// <returns></returns>
+    public static StringBuilder Append(this StringBuilder builder, PooledReadOnlyCharSpan pooledReadOnlySpan)
+    {
+        using (pooledReadOnlySpan)
+        {
+            builder.Append(pooledReadOnlySpan.Value);
+        }
+        return builder;
+    }
 
     /// <summary>
     /// 转化为小写字符串

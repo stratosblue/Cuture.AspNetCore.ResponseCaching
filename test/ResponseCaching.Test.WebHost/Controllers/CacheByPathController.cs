@@ -32,7 +32,7 @@ public class CacheByPathController : TestControllerBase
     [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
     public IEnumerable<WeatherForecast> Get()
     {
-        _logger.LogInformation("{0}", "path-cache");
+        _logger.LogInformation("{0}", "path-cache Get");
         return TestDataGenerator.GetData(1, 5);
     }
 
@@ -41,9 +41,33 @@ public class CacheByPathController : TestControllerBase
     [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
     public IEnumerable<WeatherForecast> Post()
     {
-        _logger.LogInformation("{0}", "path-cache");
+        _logger.LogInformation("{0}", "path-cache Post");
         return TestDataGenerator.GetData(1, 5);
     }
+
+    #region Route
+
+    [HttpGet]
+    [CacheByPath(Duration)]
+    [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
+    [Route("/R1/{Value1}")]
+    public IEnumerable<WeatherForecast> AbsoluteRoute1()
+    {
+        _logger.LogInformation("{0}", "path-cache AbsoluteRoute1");
+        return TestDataGenerator.GetData(1, 5);
+    }
+
+    [HttpGet]
+    [CacheByPath(Duration)]
+    [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
+    [Route("R1/{Value1}")]
+    public IEnumerable<WeatherForecast> RelativeRoute1()
+    {
+        _logger.LogInformation("{0}", "path-cache RelativeRoute1");
+        return TestDataGenerator.GetData(1, 5);
+    }
+
+    #endregion Route
 
     #endregion Public 方法
 }

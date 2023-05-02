@@ -26,10 +26,22 @@ public class CacheByPathTest : RequestTestBase
             () => $"{BaseUrl}/CacheByPath/Post".CreateHttpRequest().UsePost().TryGetAsObjectAsync<WeatherForecast[]>(),
         };
 
-        ////预请求，保证两种请求方式数据一致
-        //await funcs[new Random().Next(funcs.Length)].Invoke();
-
         await ExecuteAsync(funcs, false, false, 3);
+    }
+
+    [TestMethod]
+    public async Task Should_Different_With_Different_Path()
+    {
+        var funcs = new Func<Task<TextHttpOperationResult<WeatherForecast[]>>>[] {
+            () => $"{BaseUrl}/CacheByPath/RelativeRoute1/R1/1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/CacheByPath/RelativeRoute1/R1/2".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/CacheByPath/RelativeRoute1/R1/3".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/R1/1".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/R1/2".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+            () => $"{BaseUrl}/R1/3".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
+        };
+
+        await ExecuteAsync(funcs, true, false, 3);
     }
 
     #endregion Public 方法

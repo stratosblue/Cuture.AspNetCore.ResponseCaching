@@ -24,17 +24,18 @@ public class FullPathAndQueryCacheKeyGenerator : ICacheKeyGenerator
     {
         var method = filterContext.HttpContext.Request.NormalizeMethodNameAsKeyPrefix();
 
-        var path = _actionPathCache.GetPath(filterContext);
+        using var pathValue = _actionPathCache.GetPath(filterContext);
 
         var queryString = filterContext.HttpContext.Request.QueryString;
         if (!queryString.HasValue)
         {
-            return new(new string(method) + new string(path));
+            return new(new string(method) + pathValue.ToString());
         }
 
         char[]? buffer = null;
         try
         {
+            var path = pathValue.Value;
             buffer = ArrayPool<char>.Shared.Rent(method.Length + path.Length + queryString.Value!.Length);
 
             var span = buffer.AsSpan();

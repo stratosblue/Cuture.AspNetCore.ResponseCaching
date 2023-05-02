@@ -67,6 +67,10 @@ public abstract class RequestTestBase : WebServerHostedTestBase
                 {
                     Assert.AreEqual(target.Length, value.Length);
                 }
+                else if (target.Length != value.Length)
+                {
+                    continue;
+                }
 
                 for (int index = 0; index < target.Length; index++)
                 {
