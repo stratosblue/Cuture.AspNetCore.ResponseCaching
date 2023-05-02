@@ -53,7 +53,7 @@ public class ClaimsCacheKeyBuilder : CacheKeyBuilder
             }
             else
             {
-                if (!ProcessKeyNotFind(claimType))
+                if (!ProcessKeyNotFound(claimType))
                 {
                     return new ValueTask<string>();
                 }

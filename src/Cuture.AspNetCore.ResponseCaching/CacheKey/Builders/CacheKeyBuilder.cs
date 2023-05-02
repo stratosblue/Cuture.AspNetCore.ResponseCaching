@@ -70,7 +70,7 @@ public abstract class CacheKeyBuilder
     /// </summary>
     /// <param name="notFindKeyName"></param>
     /// <returns></returns>
-    protected bool ProcessKeyNotFind(string notFindKeyName)
+    protected bool ProcessKeyNotFound(string notFindKeyName)
     {
         return StrictMode switch
         {

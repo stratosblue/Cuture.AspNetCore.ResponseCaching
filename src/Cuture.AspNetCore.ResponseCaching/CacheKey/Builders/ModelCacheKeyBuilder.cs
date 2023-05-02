@@ -62,7 +62,7 @@ public class ModelCacheKeyBuilder : CacheKeyBuilder
 
             if (_useAllModel)
             {
-                foreach (var item in executingContext.ActionArguments)
+                foreach (var item in executingContext.ActionArguments.OrderBy(static m => m.Key))
                 {
                     keyBuilder.Append($"{item.Key}={_modelKeyParser.Parse(item.Value)}&");
                 }
@@ -77,7 +77,7 @@ public class ModelCacheKeyBuilder : CacheKeyBuilder
                 }
                 else
                 {
-                    if (!ProcessKeyNotFind(key))
+                    if (!ProcessKeyNotFound(key))
                     {
                         return new ValueTask<string>();
                     }

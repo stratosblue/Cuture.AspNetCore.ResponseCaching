@@ -80,7 +80,7 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
             }
             else
             {
-                if (!ProcessKeyNotFind(queryKey))
+                if (!ProcessKeyNotFound(queryKey))
                 {
                     return new ValueTask<string>();
                 }

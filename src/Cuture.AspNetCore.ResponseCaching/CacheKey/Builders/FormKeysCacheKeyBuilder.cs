@@ -62,7 +62,7 @@ public class FormKeysCacheKeyBuilder : CacheKeyBuilder
             }
             else
             {
-                if (!ProcessKeyNotFind(key))
+                if (!ProcessKeyNotFound(key))
                 {
                     return new ValueTask<string>();
                 }

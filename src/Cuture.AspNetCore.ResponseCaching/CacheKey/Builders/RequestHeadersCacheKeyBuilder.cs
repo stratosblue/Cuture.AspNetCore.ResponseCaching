@@ -54,7 +54,7 @@ public class RequestHeadersCacheKeyBuilder : CacheKeyBuilder
             }
             else
             {
-                if (!ProcessKeyNotFind(header))
+                if (!ProcessKeyNotFound(header))
                 {
                     return new ValueTask<string>();
                 }
