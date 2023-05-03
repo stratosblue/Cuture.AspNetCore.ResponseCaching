@@ -75,7 +75,8 @@ public class InterceptorAggregator : IResponseWritingInterceptor, ICacheStoringI
 
         if (interceptors is not null)
         {
-            var reversedInterceptors = interceptors.Reverse().ToArray();
+            var reversedInterceptors = interceptors.OrderByDescending(static m => m.Order)
+                                                   .ToArray();
 
             for (int i = 0; i < reversedInterceptors.Length; i++)
             {

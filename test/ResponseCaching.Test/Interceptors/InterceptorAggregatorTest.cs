@@ -23,22 +23,19 @@ public class InterceptorAggregatorTest
 
         for (int i = 0; i < 100; i++)
         {
-            var interceptor1 = new Interceptor1();
-            var interceptor2 = new Interceptor2();
-            var interceptor3 = new Interceptor3();
-            var interceptor4 = new Interceptor4();
+            var interceptor1 = new Interceptor1(random.Next());
+            var interceptor2 = new Interceptor2(random.Next());
+            var interceptor3 = new Interceptor3(random.Next());
+            var interceptor4 = new Interceptor4(random.Next());
 
-            var interceptors = new IResponseCachingInterceptor[] { interceptor1, interceptor2, interceptor3, interceptor4 };
-
-            //随机组合进行测试
-            interceptors = interceptors.OrderBy(_ => random.Next()).ToArray();
+            var interceptors = new IResponseCachingInterceptor[] { interceptor1, interceptor2, interceptor3, interceptor4 }.OrderBy(m => m.Order).ToArray();
 
             Console.WriteLine($"time: {i:D3} - order:{string.Join(" -> ", interceptors.Select(m => m.GetType().Name))}");
 
             var interceptorAggregator = new InterceptorAggregator(interceptors);
 
-            interceptorAggregator.OnCacheStoringAsync(null, null, null, (_, _, _) => Task.FromResult<ResponseCacheEntry>(null));
-            interceptorAggregator.OnResponseWritingAsync(null, null, (_, _) => Task.FromResult(true));
+            interceptorAggregator.OnCacheStoringAsync(null!, null!, null!, static (_, _, _) => Task.FromResult<ResponseCacheEntry?>(null));
+            interceptorAggregator.OnResponseWritingAsync(null!, null!, static (_, _) => Task.FromResult(true));
 
             NormalCheck(interceptors);
         }
@@ -51,23 +48,20 @@ public class InterceptorAggregatorTest
 
         for (int i = 0; i < 100; i++)
         {
-            var interceptor1 = new Interceptor1();
-            var interceptor2 = new Interceptor2();
-            var interceptor3 = new Interceptor3();
-            var interceptor4 = new Interceptor4();
-            var shortCircuitsInterceptor = new ShortCircuitsInterceptor();
+            var interceptor1 = new Interceptor1(random.Next());
+            var interceptor2 = new Interceptor2(random.Next());
+            var interceptor3 = new Interceptor3(random.Next());
+            var interceptor4 = new Interceptor4(random.Next());
+            var shortCircuitsInterceptor = new ShortCircuitsInterceptor(random.Next());
 
-            var interceptors = new IResponseCachingInterceptor[] { interceptor1, interceptor2, interceptor3, interceptor4, shortCircuitsInterceptor };
-
-            //随机组合进行测试
-            interceptors = interceptors.OrderBy(_ => random.Next()).ToArray();
+            var interceptors = new IResponseCachingInterceptor[] { interceptor1, interceptor2, interceptor3, interceptor4, shortCircuitsInterceptor }.OrderBy(m => m.Order).ToArray();
 
             Console.WriteLine($"time: {i:D3} - order:{string.Join(" -> ", interceptors.Select(m => m.GetType().Name))}");
 
             var interceptorAggregator = new InterceptorAggregator(interceptors);
 
-            interceptorAggregator.OnCacheStoringAsync(null, null, null, (_, _, _) => Task.FromResult<ResponseCacheEntry>(null));
-            interceptorAggregator.OnResponseWritingAsync(null, null, (_, _) => Task.FromResult(true));
+            interceptorAggregator.OnCacheStoringAsync(null!, null!, null!, static (_, _, _) => Task.FromResult<ResponseCacheEntry?>(null));
+            interceptorAggregator.OnResponseWritingAsync(null!, null!, static (_, _) => Task.FromResult(true));
 
             bool shortCircuited = false;
             foreach (var interceptor in interceptors)
@@ -154,6 +148,7 @@ public class InterceptorAggregatorTest
         #region Public 属性
 
         int OnCacheStoringCallCount { get; set; }
+
         int OnResponseWritingCallCount { get; set; }
 
         #endregion Public 属性
@@ -164,9 +159,21 @@ public class InterceptorAggregatorTest
         #region Public 字段
 
         public int OnCacheStoringCallCount { get; set; }
+
         public int OnResponseWritingCallCount { get; set; }
 
+        public int Order { get; }
+
         #endregion Public 字段
+
+        #region Public 构造函数
+
+        public Interceptor1(int order)
+        {
+            Order = order;
+        }
+
+        #endregion Public 构造函数
 
         #region Public 方法
 
@@ -184,13 +191,25 @@ public class InterceptorAggregatorTest
         #region Public 字段
 
         public int OnCacheStoringCallCount { get; set; }
+
         public int OnResponseWritingCallCount { get; set; }
+
+        public int Order { get; }
 
         #endregion Public 字段
 
+        #region Public 构造函数
+
+        public Interceptor2(int order)
+        {
+            Order = order;
+        }
+
+        #endregion Public 构造函数
+
         #region Public 方法
 
-        public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
+        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
         {
             OnCacheStoringCallCount++;
             return next(actionContext, key, entry);
@@ -210,13 +229,25 @@ public class InterceptorAggregatorTest
         #region Public 字段
 
         public int OnCacheStoringCallCount { get; set; }
+
         public int OnResponseWritingCallCount { get; set; }
+
+        public int Order { get; }
 
         #endregion Public 字段
 
+        #region Public 构造函数
+
+        public Interceptor3(int order)
+        {
+            Order = order;
+        }
+
+        #endregion Public 构造函数
+
         #region Public 方法
 
-        public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
+        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
         {
             OnCacheStoringCallCount++;
             return next(actionContext, key, entry);
@@ -236,13 +267,25 @@ public class InterceptorAggregatorTest
         #region Public 字段
 
         public int OnCacheStoringCallCount { get; set; }
+
         public int OnResponseWritingCallCount { get; set; }
+
+        public int Order { get; }
 
         #endregion Public 字段
 
+        #region Public 构造函数
+
+        public Interceptor4(int order)
+        {
+            Order = order;
+        }
+
+        #endregion Public 构造函数
+
         #region Public 方法
 
-        public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
+        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
         {
             OnCacheStoringCallCount++;
             return next(actionContext, key, entry);
@@ -256,16 +299,28 @@ public class InterceptorAggregatorTest
         #region Public 字段
 
         public int OnCacheStoringCallCount { get; set; }
+
         public int OnResponseWritingCallCount { get; set; }
+
+        public int Order { get; }
 
         #endregion Public 字段
 
+        #region Public 构造函数
+
+        public ShortCircuitsInterceptor(int order)
+        {
+            Order = order;
+        }
+
+        #endregion Public 构造函数
+
         #region Public 方法
 
-        public Task<ResponseCacheEntry> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
+        public Task<ResponseCacheEntry?> OnCacheStoringAsync(ActionContext actionContext, string key, ResponseCacheEntry entry, OnCacheStoringDelegate<ActionContext> next)
         {
             OnCacheStoringCallCount++;
-            return Task.FromResult<ResponseCacheEntry>(null);
+            return Task.FromResult<ResponseCacheEntry?>(null);
         }
 
         public Task<bool> OnResponseWritingAsync(ActionContext actionContext, ResponseCacheEntry entry, OnResponseWritingDelegate next)
