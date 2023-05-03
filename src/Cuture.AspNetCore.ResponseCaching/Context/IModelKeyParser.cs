@@ -12,7 +12,7 @@ public interface IModelKeyParser
     /// </summary>
     /// <param name="model"></param>
     /// <returns><paramref name="model"/>解析后等价的key字符串</returns>
-    string? Parse(object? model);
+    string? Parse<T>(in T? model);
 
     #endregion Public 方法
 }

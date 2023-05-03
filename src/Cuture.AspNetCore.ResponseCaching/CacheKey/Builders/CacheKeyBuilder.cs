@@ -59,7 +59,12 @@ public abstract class CacheKeyBuilder
     /// <param name="filterContext">Filter上下文</param>
     /// <param name="keyBuilder"></param>
     /// <returns></returns>
-    public virtual ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder) => _innerBuilder is null ? new ValueTask<string>(keyBuilder.ToString()) : _innerBuilder.BuildAsync(filterContext, keyBuilder);
+    public virtual ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
+    {
+        return _innerBuilder is null
+               ? new(keyBuilder.ToString())
+               : _innerBuilder.BuildAsync(filterContext, keyBuilder);
+    }
 
     #endregion Public 方法
 
@@ -68,15 +73,15 @@ public abstract class CacheKeyBuilder
     /// <summary>
     /// 处理未找到key的情况
     /// </summary>
-    /// <param name="notFindKeyName"></param>
+    /// <param name="notFoundKeyName"></param>
     /// <returns></returns>
-    protected bool ProcessKeyNotFound(string notFindKeyName)
+    protected bool ProcessKeyNotFound(string notFoundKeyName)
     {
         return StrictMode switch
         {
             CacheKeyStrictMode.Ignore => true,
             CacheKeyStrictMode.Strict => false,
-            CacheKeyStrictMode.StrictWithException => throw new CacheVaryKeyNotFindException(notFindKeyName),
+            CacheKeyStrictMode.StrictWithException => throw new CacheVaryKeyNotFoundException(notFoundKeyName),
             _ => throw new ArgumentException($"Unhandleable CacheKeyStrictMode: {StrictMode}"),
         };
     }

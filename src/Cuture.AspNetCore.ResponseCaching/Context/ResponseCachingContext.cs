@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
@@ -8,7 +7,6 @@ using Cuture.AspNetCore.ResponseCaching.Metadatas;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Cuture.AspNetCore.ResponseCaching;
 
@@ -31,7 +29,7 @@ public class ResponseCachingContext : IDisposable
     public IResponseCacheDeterminer CacheDeterminer { get; set; }
 
     /// <summary>
-    /// 用于Dump的MemeoryStream初始化大小
+    /// 用于Dump的MemoryStream初始化大小
     /// </summary>
     public int DumpStreamCapacity { get; }
 

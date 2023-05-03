@@ -42,7 +42,7 @@ public class RequestHeadersCacheKeyBuilder : CacheKeyBuilder
     /// <inheritdoc/>
     public override ValueTask<string> BuildAsync(FilterContext filterContext, StringBuilder keyBuilder)
     {
-        keyBuilder.Append(ResponseCachingConstants.CombineChar);
+        keyBuilder.Append(CombineChar);
 
         var headers = filterContext.HttpContext.Request.Headers;
 
@@ -56,7 +56,7 @@ public class RequestHeadersCacheKeyBuilder : CacheKeyBuilder
             {
                 if (!ProcessKeyNotFound(header))
                 {
-                    return new ValueTask<string>();
+                    return default;
                 }
             }
         }

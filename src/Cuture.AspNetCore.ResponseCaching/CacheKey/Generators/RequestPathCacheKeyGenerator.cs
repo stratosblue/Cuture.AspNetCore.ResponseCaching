@@ -33,7 +33,7 @@ public class RequestPathCacheKeyGenerator : ICacheKeyGenerator
             buffer = ArrayPool<char>.Shared.Rent(length);
             method.CopyTo(buffer);
             path.CopyTo(buffer.AsSpan(method.Length));
-            return new ValueTask<string>(new string(buffer, 0, length));
+            return new(new string(buffer, 0, length));
         }
         finally
         {

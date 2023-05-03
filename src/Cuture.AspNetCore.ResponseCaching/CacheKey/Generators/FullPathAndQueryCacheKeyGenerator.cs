@@ -49,7 +49,7 @@ public class FullPathAndQueryCacheKeyGenerator : ICacheKeyGenerator
 
             var length = QueryStringOrderUtil.Order(queryString, span.Slice(1));
 
-            return new ValueTask<string>(new string(buffer, 0, method.Length + path.Length + length));
+            return new(new string(value: buffer, startIndex: 0, length: method.Length + path.Length + length));
         }
         finally
         {

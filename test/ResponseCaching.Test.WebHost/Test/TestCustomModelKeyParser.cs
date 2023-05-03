@@ -10,7 +10,7 @@ public class TestCustomModelKeyParser : IModelKeyParser
 {
     #region Public 方法
 
-    public string Parse(object model)
+    public string? Parse<T>(in T? model)
     {
         if (model is PageResultRequestDto requestDto)
         {

@@ -95,7 +95,7 @@ public class DefaultResourceCacheFilter : CacheFilterBase<ResourceExecutingConte
         var originalBody = response.Body;
         using var dumpStream = executingContext.HttpContext.RequestServices.GetRequiredService<IResponseDumpStreamFactory>().Create(Context.DumpStreamCapacity);
 
-        ResponseCacheEntry cacheEntry = null!;
+        ResponseCacheEntry cacheEntry;
         ResourceExecutedContext executedContext;
         try
         {

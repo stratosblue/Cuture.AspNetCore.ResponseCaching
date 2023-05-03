@@ -19,7 +19,7 @@ public class CachingDiagnostics
     #region Public 属性
 
     /// <inheritdoc cref="System.Diagnostics.DiagnosticSource"/>
-    public DiagnosticSource? DiagnosticSource { get; set; }
+    public DiagnosticSource? DiagnosticSource { get; }
 
     /// <inheritdoc cref="ILogger"/>
     public ILogger Logger { get; }

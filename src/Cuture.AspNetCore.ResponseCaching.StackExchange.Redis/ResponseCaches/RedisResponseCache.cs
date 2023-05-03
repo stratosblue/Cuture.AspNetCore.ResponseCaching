@@ -39,7 +39,7 @@ public class RedisResponseCache : IDistributedResponseCache
 
     private readonly RedisValue _bodyFieldName = BodyFieldName;
 
-    private readonly RedisValue _contenTypeFieldName = ContentTypeFieldName;
+    private readonly RedisValue _contentTypeFieldName = ContentTypeFieldName;
 
     private readonly IDatabase _database;
 
@@ -50,7 +50,7 @@ public class RedisResponseCache : IDistributedResponseCache
     #region Public 构造函数
 
     /// <summary>
-    /// 基于 <see cref="StackExchange.Redis"/> 的响应缓存
+    /// 基于 StackExchange.Redis 的响应缓存
     /// </summary>
     /// <param name="optionAccessor">缓存选项</param>
     public RedisResponseCache(IOptions<RedisResponseCacheOptions> optionAccessor)
@@ -96,7 +96,7 @@ public class RedisResponseCache : IDistributedResponseCache
         //HACK 设置值与设置过期时间不是原子性操作，可能存在残留。不影响缓存正确性，是否有必要进行删除？
         RedisKey redisKey = key;
         await _database.HashSetAsync(redisKey, new[] {
-            new HashEntry(_contenTypeFieldName, entry.ContentType),
+            new HashEntry(_contentTypeFieldName, entry.ContentType),
             new HashEntry(_bodyFieldName, entry.Body),
             new HashEntry(_expireFieldName, entry.Expire),
         });

@@ -15,7 +15,9 @@ namespace Cuture.AspNetCore.ResponseCaching.Filters;
 /// <summary>
 /// CacheFilter基类
 /// </summary>
-public abstract class CacheFilterBase<TFilterExecutingContext> : IDisposable where TFilterExecutingContext : FilterContext
+public abstract class CacheFilterBase<TFilterExecutingContext>
+    : IDisposable
+    where TFilterExecutingContext : FilterContext
 {
     #region Private 字段
 

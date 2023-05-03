@@ -79,14 +79,14 @@ public class ModelCacheKeyBuilder : CacheKeyBuilder
                 {
                     if (!ProcessKeyNotFound(key))
                     {
-                        return new ValueTask<string>();
+                        return default;
                     }
                 }
             }
             return base.BuildAsync(filterContext, keyBuilder.TrimEndAnd());
         }
 
-        throw new ResponseCachingException("not find ActionArguments in HttpContext.Items");
+        throw new ResponseCachingException("Not found ActionArguments in HttpContext.Items");
     }
 
     #endregion Public 方法

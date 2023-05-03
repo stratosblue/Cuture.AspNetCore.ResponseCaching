@@ -44,9 +44,9 @@ public class FormKeysCacheKeyBuilder : CacheKeyBuilder
     {
         if (!filterContext.HttpContext.Request.HasFormContentType)
         {
-            if (!ProcessFormNotFind())
+            if (!ProcessFormNotFound())
             {
-                return new ValueTask<string>();
+                return default;
             }
         }
 
@@ -64,7 +64,7 @@ public class FormKeysCacheKeyBuilder : CacheKeyBuilder
             {
                 if (!ProcessKeyNotFound(key))
                 {
-                    return new ValueTask<string>();
+                    return default;
                 }
             }
         }
@@ -79,13 +79,13 @@ public class FormKeysCacheKeyBuilder : CacheKeyBuilder
     /// 处理未找到表单
     /// </summary>
     /// <returns></returns>
-    protected bool ProcessFormNotFind()
+    protected bool ProcessFormNotFound()
     {
         return StrictMode switch
         {
             CacheKeyStrictMode.Ignore => true,
             CacheKeyStrictMode.Strict => false,
-            CacheKeyStrictMode.StrictWithException => throw new RequestFormNotFindException(),
+            CacheKeyStrictMode.StrictWithException => throw new RequestFormNotFoundException(),
             _ => throw new ArgumentException($"Unhandleable CacheKeyStrictMode: {StrictMode}"),
         };
     }
