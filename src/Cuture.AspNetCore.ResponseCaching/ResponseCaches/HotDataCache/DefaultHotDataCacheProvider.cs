@@ -13,6 +13,7 @@ internal class DefaultHotDataCacheProvider : IHotDataCacheProvider
     #region Private 字段
 
     private readonly Dictionary<string, IHotDataCache> _caches = new();
+
     private bool _disposedValue;
 
     #endregion Private 字段

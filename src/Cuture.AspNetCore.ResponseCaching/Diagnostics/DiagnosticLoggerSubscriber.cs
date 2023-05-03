@@ -14,6 +14,7 @@ public sealed class DiagnosticLoggerSubscriber : IObserver<DiagnosticListener>
     #region Private 字段
 
     private readonly WeakReference<DiagnosticLogger> _diagnosticLogger;
+
     private readonly ConcurrentBag<IDisposable> _disposables = new();
 
     #endregion Private 字段

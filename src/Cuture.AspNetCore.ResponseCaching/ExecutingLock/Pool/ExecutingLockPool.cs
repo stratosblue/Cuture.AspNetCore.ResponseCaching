@@ -16,7 +16,9 @@ internal class ExecutingLockPool<TCachePayload, TExecutingLock>
     #region Private 字段
 
     private readonly Dictionary<string, TExecutingLock> _allLocks = new();
+
     private readonly INakedBoundedObjectPool<TExecutingLock> _lockPool;
+
     private bool _disposedValue;
 
     #endregion Private 字段

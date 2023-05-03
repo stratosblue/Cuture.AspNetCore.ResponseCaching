@@ -6,6 +6,7 @@ namespace Cuture.AspNetCore.ResponseCaching;
 /// <summary>
 ///
 /// </summary>
+[Serializable]
 public class ResponseCachingException : Exception
 {
     #region Public 构造函数

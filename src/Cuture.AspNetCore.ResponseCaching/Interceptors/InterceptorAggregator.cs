@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -58,6 +57,7 @@ public class InterceptorAggregator : IResponseWritingInterceptor, ICacheStoringI
     #region Private 字段
 
     private readonly OnCacheStoringWrappedDelegate _onCacheStoringWrappedDelegate;
+
     private readonly OnResponseWritingWrappedDelegate _onResponseWritingWrappedDelegate;
 
     #endregion Private 字段

@@ -17,6 +17,7 @@ internal class CacheHitStampInterceptor : IResponseWritingInterceptor
     #region Private 字段
 
     private readonly string _headerKey;
+
     private readonly StringValues _headerValue;
 
     #endregion Private 字段

@@ -10,10 +10,15 @@ public class ResponseCachingExecutingLockOptions
     #region Private 字段
 
     private TimeSpan _executingLockRecycleInterval = TimeSpan.FromMinutes(2);
+
     private int _maximumExecutingLockPooled = short.MaxValue >> 2;
+
     private int _maximumSemaphorePooled = short.MaxValue >> 2;
+
     private int _minimumExecutingLockPooled = (short.MaxValue >> 4) / 3;
+
     private int _minimumSemaphoreRetained = short.MaxValue >> 4;
+
     private TimeSpan _semaphoreRecycleInterval = TimeSpan.FromMinutes(4);
 
     #endregion Private 字段
