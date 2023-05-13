@@ -9,7 +9,7 @@
     <VersionPrefix>2.0.2</VersionPrefix>
     <!--<VersionSuffix>beta-05</VersionSuffix>-->
 
-    <Description>The `asp.net core server-side caching component implemented based on `ResourceFilter` and `ActionFilter`; 基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`服务端缓存组件</Description>
+    <Description>The `asp.net core` server-side caching component implemented based on `ResourceFilter` and `ActionFilter`; 基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`服务端缓存组件</Description>
 
     <PackageIdPrefix>Cuture.AspNetCore.ResponseCaching</PackageIdPrefix>
     <Authors>Stratos</Authors>
