@@ -1,5 +1,7 @@
 ﻿# Cuture.AspNetCore.ResponseCaching
 ## 1. Intro
+The `asp.net core server-side caching component implemented based on `ResourceFilter` and `ActionFilter`;
+
 基于`ResourceFilter`和`ActionFilter`实现的`asp.net core`服务端缓存组件
 
 ## 2. 注意项

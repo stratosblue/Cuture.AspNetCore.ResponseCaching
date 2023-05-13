@@ -3,7 +3,6 @@
 
   <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
