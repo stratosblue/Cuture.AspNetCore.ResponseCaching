@@ -56,7 +56,7 @@ public class LoginController : ControllerBase
             new Claim(JwtClaimTypes.Id,uid),
             new Claim(JwtClaimTypes.SessionId,new string(uid.Reverse().ToArray()))
         };
-        var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("123456789123456789"));
+        var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("123456789123456789_123456789123456789"));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var jwtToken = new JwtSecurityToken("Issuer", "Audience", claims, expires: DateTime.Now.AddMinutes(600), signingCredentials: credentials);
 

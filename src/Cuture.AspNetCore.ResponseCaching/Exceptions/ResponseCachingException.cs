@@ -31,6 +31,7 @@ public class ResponseCachingException : Exception
     #region Protected 构造函数
 
     /// <inheritdoc/>
+    [Obsolete("see https://github.com/dotnet/docs/issues/34893")]
     protected ResponseCachingException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }

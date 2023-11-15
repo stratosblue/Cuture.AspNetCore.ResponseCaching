@@ -27,10 +27,7 @@ internal class DefaultResponseCachingFilterBuilder : IResponseCachingFilterBuild
     /// <inheritdoc/>
     public IFilterMetadata CreateFilter(IServiceProvider serviceProvider)
     {
-        if (serviceProvider is null)
-        {
-            throw new ArgumentNullException(nameof(serviceProvider));
-        }
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
         var endpointAccessor = serviceProvider.GetRequiredService<IEndpointAccessor>();
 

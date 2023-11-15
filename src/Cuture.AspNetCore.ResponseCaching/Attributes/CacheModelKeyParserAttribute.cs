@@ -31,10 +31,7 @@ public class CacheModelKeyParserAttribute : Attribute, ICacheModelKeyParserMetad
     /// </param>
     public CacheModelKeyParserAttribute(Type type)
     {
-        if (type is null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
+        ArgumentNullException.ThrowIfNull(type);
 
         ModelKeyParserType = Checks.ThrowIfNotIModelKeyParser(type);
     }

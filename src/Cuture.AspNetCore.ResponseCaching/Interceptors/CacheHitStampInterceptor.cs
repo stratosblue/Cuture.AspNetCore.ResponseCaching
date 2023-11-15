@@ -55,7 +55,7 @@ internal class CacheHitStampInterceptor : IResponseWritingInterceptor
                                              ResponseCacheEntry entry,
                                              OnResponseWritingDelegate next)
     {
-        actionContext.HttpContext.Response.Headers.Add(_headerKey, _headerValue);
+        actionContext.HttpContext.Response.Headers[_headerKey] = _headerValue;
         return next(actionContext, entry);
     }
 

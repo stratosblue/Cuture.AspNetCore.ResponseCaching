@@ -185,7 +185,7 @@ public class ResponseCachingOptions
 
     #region Private 方法
 
-    private static IMemoryCache CreatedDefaultResultLocalCache()
+    private static MemoryCache CreatedDefaultResultLocalCache()
     {
         return new MemoryCache(new MemoryCacheOptions());
     }

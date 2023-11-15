@@ -15,11 +15,7 @@ jobs:
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: | 
-          3.x
-          5.x
-          6.x
-          7.x
+        dotnet-version: '8.0.x'
     - name: build - main
       run: dotnet build -c Release ./src/Cuture.AspNetCore.ResponseCaching/Cuture.AspNetCore.ResponseCaching.csproj
     - name: build - redis

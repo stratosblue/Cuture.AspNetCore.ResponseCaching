@@ -117,10 +117,7 @@ public class ResponseCachingContext : IDisposable
                                   InterceptorAggregator interceptorAggregator,
                                   int dumpStreamCapacity)
     {
-        if (metadatas is null)
-        {
-            throw new ArgumentNullException(nameof(metadatas));
-        }
+        ArgumentNullException.ThrowIfNull(metadatas);
 
         MaxCacheableResponseLength = Checks.ThrowIfMaxCacheableResponseLengthTooSmall(Metadata<IMaxCacheableResponseLengthMetadata>()?.MaxCacheableResponseLength ?? options.MaxCacheableResponseLength);
 

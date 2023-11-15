@@ -14,7 +14,7 @@ public sealed class DefaultMemoryResponseCache : IMemoryResponseCache, IDisposab
 {
     #region Private 字段
 
-    private readonly IMemoryCache _memoryCache;
+    private readonly MemoryCache _memoryCache;
 
     #endregion Private 字段
 

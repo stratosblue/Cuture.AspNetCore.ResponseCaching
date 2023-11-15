@@ -38,10 +38,7 @@ public class CacheKeyGeneratorAttribute : Attribute, ICacheKeyGeneratorMetadata
     /// <param name="filterType"></param>
     public CacheKeyGeneratorAttribute(Type type, FilterType filterType)
     {
-        if (type is null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
+        ArgumentNullException.ThrowIfNull(type);
 
         CacheKeyGeneratorType = Checks.ThrowIfNotICacheKeyGenerator(type);
         FilterType = filterType;

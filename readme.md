@@ -12,7 +12,7 @@ The `asp.net core` server-side caching component implemented based on `ResourceF
 - 已实现基于`Memory`和`Redis`(StackExchange.Redis)的缓存，可拓展；
 - 默认缓存Key生成器会包含请求路径为缓存Key；
 - 默认缓存Key是大小写不敏感（强制转换为小写）的；
-- `Asp.net Core`版本要求 - `3.1`以上；
+- `Asp.net Core`版本要求 - `6.0`以上；
 - `Diagnostics`支持；
 - [执行流程概览](/flow_of_execution.md)；
 

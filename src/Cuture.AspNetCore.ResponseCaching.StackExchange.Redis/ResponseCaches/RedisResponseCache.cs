@@ -81,7 +81,7 @@ public class RedisResponseCache : IDistributedResponseCache
         {
             return null;
         }
-        return new ResponseCacheEntry(redisValues[0], redisValues[1], expire);
+        return new ResponseCacheEntry(redisValues[0]!, redisValues[1], expire);
     }
 
     /// <inheritdoc/>
