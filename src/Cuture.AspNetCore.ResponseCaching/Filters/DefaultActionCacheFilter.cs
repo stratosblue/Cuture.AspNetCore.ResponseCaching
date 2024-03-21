@@ -45,6 +45,8 @@ public class DefaultActionCacheFilter : CacheFilterBase<ActionExecutingContext>,
         var key = (await Context.KeyGenerator.GenerateKeyAsync(executingContext)).ToLowerInvariant();
         CachingDiagnostics.CacheKeyGenerated(executingContext, key, Context.KeyGenerator, Context);
 
+        SetCacheKeyAccessor(key);
+
         if (key.Length > Context.MaxCacheKeyLength)
         {
             CachingDiagnostics.CacheKeyTooLong(key, Context.MaxCacheKeyLength, executingContext, Context);

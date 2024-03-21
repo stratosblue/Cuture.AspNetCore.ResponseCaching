@@ -324,3 +324,13 @@ app.EnableResponseCachingDiagnosticLogger();
 ```
 
 如上配置后，内部将订阅相关`Diagnostic`，并将事件信息使用`ILogger`输出。
+
+-------
+
+## 其它
+
+### 1. 启用 `CacheKeyAccessor` 在代码中访问当前请求的 `cache key`
+```C#
+services.AddCaching()
+        .EnableCacheKeyAccessor(); //启用 CacheKeyAccessor ，从DI中获取 ICacheKeyAccessor 以访问当前请求的 `cache key`
+```

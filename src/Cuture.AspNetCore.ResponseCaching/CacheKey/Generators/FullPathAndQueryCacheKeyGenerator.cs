@@ -34,7 +34,7 @@ public class FullPathAndQueryCacheKeyGenerator : ICacheKeyGenerator
         try
         {
             var path = pathValue.Value;
-            buffer = ArrayPool<char>.Shared.Rent(method.Length + path.Length + queryString.Value!.Length);
+            buffer = ArrayPool<char>.Shared.Rent(method.Length + path.Length + queryString.Value!.Length + 1);
 
             var span = buffer.AsSpan();
             method.CopyTo(span);

@@ -81,6 +81,11 @@ public class ResponseCachingContext : IDisposable
     /// </summary>
     public IResponseCache ResponseCache { get; }
 
+    /// <summary>
+    /// 构建时使用的 <see cref="IServiceProvider"/>
+    /// </summary>
+    public IServiceProvider ServiceProvider { get; }
+
     #endregion Public 属性
 
     #region Protected 构造函数
@@ -107,13 +112,15 @@ public class ResponseCachingContext : IDisposable
     /// <param name="options"></param>
     /// <param name="interceptorAggregator"></param>
     /// <param name="dumpStreamCapacity"></param>
+    /// <param name="serviceProvider"></param>
     public ResponseCachingContext(EndpointMetadataCollection metadatas,
                                   ICacheKeyGenerator cacheKeyGenerator,
                                   IResponseCache responseCache,
                                   IResponseCacheDeterminer cacheDeterminer,
                                   ResponseCachingOptions options,
                                   InterceptorAggregator interceptorAggregator,
-                                  int dumpStreamCapacity)
+                                  int dumpStreamCapacity,
+                                  IServiceProvider serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(metadatas);
 
@@ -131,12 +138,15 @@ public class ResponseCachingContext : IDisposable
         LockMillisecondsTimeout = Checks.ThrowIfLockMillisecondsTimeoutInvalid(executingLockMetadata?.LockMillisecondsTimeout ?? options.DefaultLockMillisecondsTimeout).Value;
 
         Interceptors = interceptorAggregator;
+
         DumpStreamCapacity = Checks.ThrowIfDumpStreamInitialCapacityTooSmall(dumpStreamCapacity, nameof(dumpStreamCapacity));
 
         OnCannotExecutionThroughLock = options.OnCannotExecutionThroughLock ?? DefaultExecutionLockTimeoutFallback.SetStatus429;
         OnExecutionLockTimeout = executingLockMetadata?.OnExecutionLockTimeout
                                  ?? options.OnExecutionLockTimeoutFallback
                                  ?? DefaultExecutionLockTimeoutFallback.SetStatus429;
+
+        ServiceProvider = serviceProvider;
 
         TMetadata? Metadata<TMetadata>() where TMetadata : class => metadatas.GetMetadata<TMetadata>();
         TMetadata RequiredMetadata<TMetadata>() where TMetadata : class => metadatas.RequiredMetadata<TMetadata>();

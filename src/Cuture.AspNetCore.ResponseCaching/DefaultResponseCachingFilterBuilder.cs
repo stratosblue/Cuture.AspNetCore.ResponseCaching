@@ -68,7 +68,8 @@ internal class DefaultResponseCachingFilterBuilder : IResponseCachingFilterBuild
                                                                 cacheDeterminer: cacheDeterminer,
                                                                 options: buildContext.Options,
                                                                 interceptorAggregator: interceptorAggregator,
-                                                                dumpStreamCapacity: dumpStreamCapacity);
+                                                                dumpStreamCapacity: dumpStreamCapacity,
+                                                                serviceProvider: serviceProvider);
         return filterType switch
         {
             FilterType.Resource => executingLockPool is null

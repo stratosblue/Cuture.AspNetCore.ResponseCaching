@@ -49,7 +49,7 @@ public class QueryKeysCacheKeyBuilder : CacheKeyBuilder
                 char[]? buffer = null;
                 try
                 {
-                    buffer = ArrayPool<char>.Shared.Rent(queryString.Value!.Length);
+                    buffer = ArrayPool<char>.Shared.Rent(queryString.Value!.Length + 1);
                     var length = QueryStringOrderUtil.Order(queryString, buffer);
                     keyBuilder.Append(CombineChar);
                     keyBuilder.Append(buffer, 0, length);

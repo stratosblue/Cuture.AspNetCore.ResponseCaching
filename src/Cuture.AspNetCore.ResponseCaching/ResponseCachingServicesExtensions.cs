@@ -208,6 +208,19 @@ public static class ResponseCachingServicesExtensions
         return builder;
     }
 
+    /// <summary>
+    /// 启用 <see cref="ICacheKeyAccessor"/>
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <returns></returns>
+    public static ResponseCachingServiceBuilder EnableCacheKeyAccessor(this ResponseCachingServiceBuilder builder)
+    {
+        builder.Services.TryAddSingleton<CacheKeyAccessor>();
+        builder.Services.TryAddSingleton<ICacheKeyAccessor>(static serviceProvider => serviceProvider.GetRequiredService<CacheKeyAccessor>());
+
+        return builder;
+    }
+
     [Conditional("DEBUG")]
     internal static void InternalAddDiagnosticDebugLogger(this ResponseCachingServiceBuilder builder)
     {

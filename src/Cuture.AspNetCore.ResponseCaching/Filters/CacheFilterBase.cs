@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 using Cuture.AspNetCore.ResponseCaching.Diagnostics;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
@@ -6,6 +7,7 @@ using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Cuture.AspNetCore.ResponseCaching.Filters;
@@ -19,6 +21,8 @@ public abstract class CacheFilterBase<TFilterExecutingContext>
 {
     #region Private 字段
 
+    private readonly CacheKeyAccessor? _cacheKeyAccessor;
+
     private readonly CachingDiagnosticsAccessor _cachingDiagnosticsAccessor;
 
     private readonly OnCacheStoringDelegate<ActionContext> _onCacheStoringDelegate;
@@ -26,6 +30,13 @@ public abstract class CacheFilterBase<TFilterExecutingContext>
     private bool _disposedValue;
 
     #endregion Private 字段
+
+    #region Private 属性
+
+    [MemberNotNullWhen(true, nameof(_cacheKeyAccessor))]
+    private bool NeedSetCacheKeyAccessor { get; }
+
+    #endregion Private 属性
 
     #region Protected 属性
 
@@ -61,6 +72,11 @@ public abstract class CacheFilterBase<TFilterExecutingContext>
         CachingDiagnostics = _cachingDiagnosticsAccessor.CachingDiagnostics;
         Logger = CachingDiagnostics.Logger;
         ResponseCache = Context.ResponseCache;
+
+        _cacheKeyAccessor = context.ServiceProvider.GetService<CacheKeyAccessor>();
+
+        NeedSetCacheKeyAccessor = _cacheKeyAccessor is not null;
+
         _onCacheStoringDelegate = InternalStoreCacheAsync;
     }
 
@@ -168,6 +184,18 @@ public abstract class CacheFilterBase<TFilterExecutingContext>
     }
 
     #endregion Response with cache
+
+    /// <summary>
+    /// 设置 <see cref="ICacheKeyAccessor"/>
+    /// </summary>
+    /// <param name="cacheKey"></param>
+    protected void SetCacheKeyAccessor(string cacheKey)
+    {
+        if (NeedSetCacheKeyAccessor)
+        {
+            _cacheKeyAccessor.Key = cacheKey;
+        }
+    }
 
     #endregion Protected 方法
 
