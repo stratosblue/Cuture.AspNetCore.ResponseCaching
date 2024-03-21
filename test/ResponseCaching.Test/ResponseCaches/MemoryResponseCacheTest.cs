@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+﻿using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

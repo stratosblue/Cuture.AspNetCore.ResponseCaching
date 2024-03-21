@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.Caching.Memory;
+﻿namespace Microsoft.Extensions.Caching.Memory;
 
 /// <summary>
 /// 缓存项被移除时的回调

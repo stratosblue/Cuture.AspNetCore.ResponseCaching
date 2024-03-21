@@ -1,6 +1,4 @@
-﻿using System;
-
-using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
+﻿using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 using Cuture.AspNetCore.ResponseCaching.Interceptors;
 using Cuture.AspNetCore.ResponseCaching.Internal;
 using Cuture.AspNetCore.ResponseCaching.Metadatas;

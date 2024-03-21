@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Cuture.AspNetCore.ResponseCaching.Internal;
+﻿namespace Cuture.AspNetCore.ResponseCaching.Internal;
 
 internal class ResponseDumpContext
 {

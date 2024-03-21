@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cuture.AspNetCore.ResponseCaching.Diagnostics;
+﻿namespace Cuture.AspNetCore.ResponseCaching.Diagnostics;
 
 /// <summary>
 /// DiagnosticLogger的订阅释放器访问器

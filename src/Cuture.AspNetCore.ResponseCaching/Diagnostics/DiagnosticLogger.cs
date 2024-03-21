@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Cuture.AspNetCore.ResponseCaching.Diagnostics;

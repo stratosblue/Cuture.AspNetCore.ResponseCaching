@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Cuture.AspNetCore.ResponseCaching;
+﻿using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.Extensions.Configuration;

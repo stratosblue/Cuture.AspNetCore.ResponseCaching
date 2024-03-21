@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.Caching.Memory;
+﻿namespace Microsoft.Extensions.Caching.Memory;
 
 /// <inheritdoc cref="IBoundedMemoryCache{TKey, TValue}"/>
 internal class DefaultBoundedMemoryCache<TKey, TValue> : IBoundedMemoryCache<TKey, TValue> where TValue : class

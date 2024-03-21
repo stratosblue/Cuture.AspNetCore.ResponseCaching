@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;
 
 using Microsoft.AspNetCore.Mvc.Filters;

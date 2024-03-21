@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-
-using Cuture.Http;
+﻿using Cuture.Http;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

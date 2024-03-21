@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 
 namespace Cuture.AspNetCore.ResponseCaching.Interceptors;
 

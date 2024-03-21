@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cuture.AspNetCore.ResponseCaching.Diagnostics;
+﻿namespace Cuture.AspNetCore.ResponseCaching.Diagnostics;
 
 /// <summary>
 /// 缓存诊断访问器

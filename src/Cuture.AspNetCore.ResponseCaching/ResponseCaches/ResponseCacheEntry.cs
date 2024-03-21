@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+﻿namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 /// <summary>
 /// 响应缓存条目

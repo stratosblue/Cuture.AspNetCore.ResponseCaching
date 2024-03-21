@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+﻿namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 /// <summary>
 /// 响应缓存

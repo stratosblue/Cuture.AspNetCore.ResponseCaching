@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.AspNetCore.Mvc;
+﻿namespace Microsoft.AspNetCore.Mvc;
 
 /// <summary>
 /// 根据form表单键进行响应缓存

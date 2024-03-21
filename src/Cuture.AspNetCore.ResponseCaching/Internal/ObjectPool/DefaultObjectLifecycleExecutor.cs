@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.ObjectPool;
+﻿namespace Microsoft.Extensions.ObjectPool;
 
 /// <summary>
 /// 默认对象生命周期执行器

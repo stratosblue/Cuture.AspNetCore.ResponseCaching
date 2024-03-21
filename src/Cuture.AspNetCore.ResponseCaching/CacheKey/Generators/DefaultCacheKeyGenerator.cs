@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Builders;
 using Cuture.AspNetCore.ResponseCaching.Internal;

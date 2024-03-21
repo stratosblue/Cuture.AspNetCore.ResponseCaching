@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+﻿namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 /// <summary>
 /// 响应缓存的热数据缓存包装器

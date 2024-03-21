@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Microsoft.Extensions.Caching.Memory;
+﻿namespace Microsoft.Extensions.Caching.Memory;
 
 /// <summary>
 /// LRU缓存策略

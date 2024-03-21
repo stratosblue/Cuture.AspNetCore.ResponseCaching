@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cuture.AspNetCore.ResponseCaching.Metadatas;
+﻿namespace Cuture.AspNetCore.ResponseCaching.Metadatas;
 
 /// <summary>
 /// <inheritdoc cref="IResponseCachingMetadata"/> - 用于生成Model的缓存Key的 <see cref="IModelKeyParser"/> 实现类型

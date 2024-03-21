@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+﻿using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

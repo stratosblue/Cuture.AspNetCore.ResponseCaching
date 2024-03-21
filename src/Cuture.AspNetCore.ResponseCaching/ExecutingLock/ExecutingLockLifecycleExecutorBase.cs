@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-using Microsoft.Extensions.ObjectPool;
+﻿using Microsoft.Extensions.ObjectPool;
 
 namespace Cuture.AspNetCore.ResponseCaching.ExecutingLock;
 

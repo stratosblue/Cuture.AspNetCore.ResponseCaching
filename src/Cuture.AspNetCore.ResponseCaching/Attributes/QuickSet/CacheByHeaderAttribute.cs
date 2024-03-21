@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.AspNetCore.Mvc;
+﻿namespace Microsoft.AspNetCore.Mvc;
 
 /// <summary>
 /// 根据请求头进行响应缓存

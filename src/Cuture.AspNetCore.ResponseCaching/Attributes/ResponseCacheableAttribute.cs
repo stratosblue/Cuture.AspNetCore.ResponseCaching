@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-using Cuture.AspNetCore.ResponseCaching;
+﻿using Cuture.AspNetCore.ResponseCaching;
 
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;

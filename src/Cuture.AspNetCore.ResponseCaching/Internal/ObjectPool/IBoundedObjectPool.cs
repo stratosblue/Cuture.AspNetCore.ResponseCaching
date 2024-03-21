@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.ObjectPool;
+﻿namespace Microsoft.Extensions.ObjectPool;
 
 /// <summary>
 /// 有界的对象池

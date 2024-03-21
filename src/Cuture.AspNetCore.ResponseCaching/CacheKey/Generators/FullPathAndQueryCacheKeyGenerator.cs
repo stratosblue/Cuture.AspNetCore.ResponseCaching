@@ -1,6 +1,4 @@
-﻿using System;
-using System.Buffers;
-using System.Threading.Tasks;
+﻿using System.Buffers;
 using Cuture.AspNetCore.ResponseCaching.Internal;
 using Microsoft.AspNetCore.Mvc.Filters;
 

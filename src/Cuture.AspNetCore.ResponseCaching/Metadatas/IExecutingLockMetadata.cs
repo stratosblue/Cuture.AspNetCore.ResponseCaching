@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Cuture.AspNetCore.ResponseCaching.Metadatas;
 

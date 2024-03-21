@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.ObjectPool;
+﻿namespace Microsoft.Extensions.ObjectPool;
 
 /// <summary>
 /// 有限大小的对象池配置项

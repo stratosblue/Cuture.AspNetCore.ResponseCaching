@@ -1,6 +1,4 @@
-﻿using System;
-
-using Cuture.AspNetCore.ResponseCaching;
+﻿using Cuture.AspNetCore.ResponseCaching;
 
 using ResponseCaching.Test.WebHost.Dtos;
 

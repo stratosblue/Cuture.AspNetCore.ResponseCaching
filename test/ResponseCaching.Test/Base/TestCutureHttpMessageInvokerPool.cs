@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-
-using Cuture.Http;
+﻿using Cuture.Http;
 
 namespace ResponseCaching.Test.Base;
 

@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-
-using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+﻿using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 using Cuture.Http;
 
 using Microsoft.Extensions.DependencyInjection;

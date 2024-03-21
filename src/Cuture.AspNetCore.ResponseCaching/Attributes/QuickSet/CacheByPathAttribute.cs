@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.AspNetCore.Mvc;
+﻿namespace Microsoft.AspNetCore.Mvc;
 
 /// <summary>
 /// 根据请求路径进行响应缓存（不包含查询）

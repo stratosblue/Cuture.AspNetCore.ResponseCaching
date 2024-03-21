@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Builders;
 using Cuture.AspNetCore.ResponseCaching.CacheKey.Generators;

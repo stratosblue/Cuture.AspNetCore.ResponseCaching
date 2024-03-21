@@ -1,6 +1,4 @@
-﻿using System;
-
-using Cuture.AspNetCore.ResponseCaching.Metadatas;
+﻿using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
 namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 

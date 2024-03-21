@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.AspNetCore.Mvc;
+﻿namespace Microsoft.AspNetCore.Mvc;
 
 /// <summary>
 /// 依据Claim声明进行响应缓存

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+﻿namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 /// <summary>
 /// 热点数据缓存提供器

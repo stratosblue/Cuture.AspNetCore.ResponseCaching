@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cuture.AspNetCore.ResponseCaching;
+﻿namespace Cuture.AspNetCore.ResponseCaching;
 
 /// <summary>
 /// 缓存依据的键没有找到

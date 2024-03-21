@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cuture.AspNetCore.ResponseCaching;
+﻿namespace Cuture.AspNetCore.ResponseCaching;
 
 /// <summary>
 /// 执行锁选项

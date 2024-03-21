@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-
-using ResponseCaching.Test.WebHost.Models;
+﻿using ResponseCaching.Test.WebHost.Models;
 
 namespace ResponseCaching.Test.WebHost.Test;
 

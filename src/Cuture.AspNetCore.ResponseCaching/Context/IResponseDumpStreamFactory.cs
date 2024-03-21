@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Cuture.AspNetCore.ResponseCaching;
+﻿namespace Cuture.AspNetCore.ResponseCaching;
 
 /// <summary>
 /// 创建用于转储响应的 <see cref="MemoryStream"/> 工厂

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
+﻿namespace Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 /// <summary>
 /// 热点数据缓存

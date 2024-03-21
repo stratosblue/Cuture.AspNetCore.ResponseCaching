@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Cuture.Http;
+﻿using Cuture.Http;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ResponseCaching.Test.WebHost.Models;

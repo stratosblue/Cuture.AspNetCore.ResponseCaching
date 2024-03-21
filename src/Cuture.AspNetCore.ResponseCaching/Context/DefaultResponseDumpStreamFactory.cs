@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Cuture.AspNetCore.ResponseCaching;
+﻿namespace Cuture.AspNetCore.ResponseCaching;
 
 /// <summary>
 /// 默认 <inheritdoc cref="IResponseDumpStreamFactory"/>

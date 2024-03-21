@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Cuture.AspNetCore.ResponseCaching.Metadatas;
+﻿using Cuture.AspNetCore.ResponseCaching.Metadatas;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

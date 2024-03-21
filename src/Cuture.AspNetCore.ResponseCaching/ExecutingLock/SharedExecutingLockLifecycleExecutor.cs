@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
 

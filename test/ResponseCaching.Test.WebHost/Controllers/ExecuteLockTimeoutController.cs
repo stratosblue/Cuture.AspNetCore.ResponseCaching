@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 using Cuture.AspNetCore.ResponseCaching;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 using ResponseCaching.Test.WebHost.Models;
 using ResponseCaching.Test.WebHost.Test;

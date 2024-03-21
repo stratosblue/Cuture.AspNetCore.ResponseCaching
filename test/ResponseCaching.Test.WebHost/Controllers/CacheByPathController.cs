@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using ResponseCaching.Test.WebHost.Models;
 using ResponseCaching.Test.WebHost.Test;
