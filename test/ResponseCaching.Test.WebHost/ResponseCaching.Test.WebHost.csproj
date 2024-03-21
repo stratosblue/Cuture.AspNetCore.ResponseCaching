@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="5.*" />
+    <PackageReference Include="IdentityModel" Version="6.*" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'DEBUG'">

@@ -49,7 +49,7 @@ public abstract class WebServerHostedTestBase
         await ConfigureWebHost(hostBuilder);
         WebHost = await hostBuilder.StartAsync();
 
-        HttpRequestGlobalOptions.DefaultHttpMessageInvokerFactory = new TestCutureHttpClientFactory(WebHost.GetTestClient());
+        HttpRequestGlobalOptions.DefaultHttpMessageInvokerPool = new TestCutureHttpMessageInvokerPool(WebHost.GetTestClient());
 
         HttpRequestGlobalOptions.DefaultConnectionLimit = 500;
     }
