@@ -20,7 +20,7 @@ public class TestWebHost
             .ConfigureLogging(builder =>
             {
                 builder.ClearProviders();
-                builder.AddConsole(options =>
+                builder.AddSimpleConsole(options =>
                 {
                     options.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff ";
                 });

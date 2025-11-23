@@ -27,7 +27,7 @@ public class CacheByQueryWithCookieAuthorizeTest : RequestTestBase
         for (int i = 1; i < 6; i++)
         {
             var result = await $"{BaseUrl}/login/cookie?uid=testuser{i}".CreateHttpRequest().TryGetAsStringAsync();
-            var cookie = CookieUtility.Clean(result.ResponseMessage.GetCookie());
+            var cookie = CookieUtility.Clean(result.ResponseMessage?.GetCookie());
 
             cookies.Add(cookie);
         }

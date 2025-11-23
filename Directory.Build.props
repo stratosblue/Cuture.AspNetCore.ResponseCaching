@@ -7,4 +7,8 @@
 
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <PackageReference Include="Cuture.CodeAnalysis.LoggingCodeFixes" Version="1.0.1" PrivateAssets="all" />
+  </ItemGroup>
 </Project>

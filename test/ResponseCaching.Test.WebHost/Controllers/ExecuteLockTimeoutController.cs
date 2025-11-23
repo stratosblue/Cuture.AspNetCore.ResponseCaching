@@ -33,7 +33,7 @@ public class ExecuteLockTimeoutController : TestControllerBase
     [ExecutingLock(ExecutingLockMode.ActionSingle, 500)]
     public async Task<IEnumerable<WeatherForecast>> ActionFilterAsync([Required][FromQuery] Input input)
     {
-        _logger.LogInformation("Wait {0} - {1}", nameof(ActionFilterAsync), input.WaitMilliseconds);
+        _logger.LogInformation("Wait {ActionFilterAsync} - {InputWaitMilliseconds}", nameof(ActionFilterAsync), input.WaitMilliseconds);
         await Task.Delay(input.WaitMilliseconds);
         return TestDataGenerator.GetData(1, 5);
     }
@@ -43,7 +43,7 @@ public class ExecuteLockTimeoutController : TestControllerBase
     [ExecutingLock(ExecutingLockMode.ActionSingle, 500)]
     public async Task<IEnumerable<WeatherForecast>> ResourceFilterAsync([Required][FromQuery] int waitMilliseconds)
     {
-        _logger.LogInformation("Wait {0} - {1}", nameof(ResourceFilterAsync), waitMilliseconds);
+        _logger.LogInformation("Wait {ResourceFilterAsync} - {WaitMilliseconds}", nameof(ResourceFilterAsync), waitMilliseconds);
         await Task.Delay(waitMilliseconds);
         return TestDataGenerator.GetData(1, 5);
     }

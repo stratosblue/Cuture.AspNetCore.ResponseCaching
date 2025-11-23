@@ -32,7 +32,7 @@ public class CacheByFullUrlController : TestControllerBase
     [ResponseDumpCapacity(128)]
     public IEnumerable<WeatherForecast> Get([Required] int page, [Required] int pageSize)
     {
-        _logger.LogInformation("{0} - {1}", page, pageSize);
+        _logger.LogInformation("{Page} - {PageSize}", page, pageSize);
         return TestDataGenerator.GetData((page - 1) * pageSize, pageSize);
     }
 

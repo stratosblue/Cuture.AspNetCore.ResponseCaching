@@ -33,7 +33,7 @@ public abstract class ResponseCacheTest
     public async Task GetSetResponseEntry()
     {
         //注意：redis所在系统时间与运行测试所在系统时间有误差时，会导致测试无法通过
-        var duration = 1;
+        var duration = 2;
         var key = "ResponseCacheTestKey";
         var contentType = "application/json; charset=utf-8";
         var body = Encoding.UTF8.GetBytes(SimResponseContent);
@@ -47,7 +47,7 @@ public abstract class ResponseCacheTest
 
         TestUtil.EntryEquals(entry, cachedEntry);
 
-        await Task.Delay(TimeSpan.FromSeconds(duration + 1));
+        await Task.Delay(TimeSpan.FromSeconds(duration + 2));
 
         cachedEntry = await ResponseCache.GetAsync(key, CancellationToken.None);
 

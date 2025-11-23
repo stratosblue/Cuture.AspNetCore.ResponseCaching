@@ -29,6 +29,6 @@ public abstract class CookieAuthenticationRequiredTestBase : AuthenticationRequi
     {
         var result = await $"{BaseUrl}/login/cookie?uid={account}".CreateHttpRequest().TryGetAsStringAsync();
 
-        return CookieUtility.Clean(result.ResponseMessage.GetCookie());
+        return CookieUtility.Clean(result.ResponseMessage?.GetCookie());
     }
 }

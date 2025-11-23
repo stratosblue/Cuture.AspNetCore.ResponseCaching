@@ -12,14 +12,19 @@ public class WeatherForecast : IEquatable<WeatherForecast>
 
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 
-    public string Summary { get; set; }
+    public required string Summary { get; set; }
 
     public bool Equals([AllowNull] WeatherForecast other)
     {
         return other != null
-               & other.Date == Date
-               & other.Summary == Summary
-               & other.TemperatureC == TemperatureC;
+               && other.Date == Date
+               && other.Summary == Summary
+               && other.TemperatureC == TemperatureC;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as WeatherForecast);
     }
 
     public override int GetHashCode()
@@ -27,12 +32,12 @@ public class WeatherForecast : IEquatable<WeatherForecast>
         return HashCode.Combine(Date, TemperatureC, Summary);
     }
 
-    public static bool operator ==(WeatherForecast left, WeatherForecast right)
+    public static bool operator ==(WeatherForecast? left, WeatherForecast? right)
     {
         return EqualityComparer<WeatherForecast>.Default.Equals(left, right);
     }
 
-    public static bool operator !=(WeatherForecast left, WeatherForecast right)
+    public static bool operator !=(WeatherForecast? left, WeatherForecast? right)
     {
         return !(left == right);
     }

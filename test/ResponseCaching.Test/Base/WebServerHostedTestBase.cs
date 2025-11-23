@@ -157,7 +157,7 @@ public abstract class WebServerHostedTestBase
 
         Assert.IsFalse(tasks.Any(m => m.Result.Data == null));
 
-        return tasks.Select(m => m.Result.Data).ToArray();
+        return tasks.Select(m => m.Result.Data!).ToArray();
     }
 
     /// <summary>

@@ -32,7 +32,7 @@ public class CacheByHeaderController : TestControllerBase
     {
         int page = int.Parse(Request.Headers["page"].ToString());
         int pageSize = int.Parse(Request.Headers["pageSize"].ToString());
-        _logger.LogInformation("{0} - {1}", page, pageSize);
+        _logger.LogInformation("{Page} - {PageSize}", page, pageSize);
         return TestDataGenerator.GetData((page - 1) * pageSize, pageSize);
     }
 

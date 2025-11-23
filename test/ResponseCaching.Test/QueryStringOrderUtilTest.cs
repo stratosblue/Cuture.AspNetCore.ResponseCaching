@@ -45,7 +45,7 @@ public class QueryStringOrderUtilTest
     [DataRow("?=v3&=v1&=v5", "=v1&=v3&=v5&")]
     [DataRow("?=v1&=v5&=v3", "=v1&=v3&=v5&")]
     //----------------------------------
-    [DataRow("?v3&v1&v5=", "v1&v3&v5=&")]
+    [DataRow("?v3&v1&v5", "v1&v3&v5&")]
     [DataRow("?v3=&v1=&v5=", "v1=&v3=&v5=&")]
     [DataRow("?v1=&v5=&v3=", "v1=&v3=&v5=&")]
     [TestMethod]

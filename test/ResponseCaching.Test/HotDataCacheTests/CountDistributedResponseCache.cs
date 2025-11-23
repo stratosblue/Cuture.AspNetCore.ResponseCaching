@@ -35,7 +35,7 @@ public class CountDistributedResponseCache : IDistributedResponseCache
         return 0;
     }
 
-    public Task<ResponseCacheEntry> GetAsync(string key, CancellationToken cancellationToken)
+    public Task<ResponseCacheEntry?> GetAsync(string key, CancellationToken cancellationToken)
     {
         if (_caches.TryGetValue(key, out var cacheEntry))
         {
@@ -52,10 +52,10 @@ public class CountDistributedResponseCache : IDistributedResponseCache
                         _count[key] = 1;
                     }
                 }
-                return Task.FromResult(cacheEntry);
+                return Task.FromResult(cacheEntry)!;
             }
         }
-        return Task.FromResult((ResponseCacheEntry)null);
+        return Task.FromResult((ResponseCacheEntry?)null);
     }
 
     public string[] GetKeys() => _count.Keys.ToArray();

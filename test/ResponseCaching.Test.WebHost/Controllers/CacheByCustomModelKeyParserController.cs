@@ -33,7 +33,7 @@ public class CacheByCustomModelKeyParserController : TestControllerBase
     {
         int page = input.Page;
         int pageSize = input.PageSize;
-        _logger.LogInformation("{0} - {1}", page, pageSize);
+        _logger.LogInformation("{Page} - {PageSize}", page, pageSize);
         return TestDataGenerator.GetData(0, 5);
     }
 

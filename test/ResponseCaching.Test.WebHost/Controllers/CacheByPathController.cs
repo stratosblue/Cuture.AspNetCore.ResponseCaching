@@ -29,7 +29,7 @@ public class CacheByPathController : TestControllerBase
     [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
     public IEnumerable<WeatherForecast> Get()
     {
-        _logger.LogInformation("{0}", "path-cache Get");
+        _logger.LogInformation("{String}", "path-cache Get");
         return TestDataGenerator.GetData(1, 5);
     }
 
@@ -38,7 +38,7 @@ public class CacheByPathController : TestControllerBase
     [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
     public IEnumerable<WeatherForecast> Post()
     {
-        _logger.LogInformation("{0}", "path-cache Post");
+        _logger.LogInformation("{String}", "path-cache Post");
         return TestDataGenerator.GetData(1, 5);
     }
 
@@ -50,7 +50,7 @@ public class CacheByPathController : TestControllerBase
     [Route("/R1/{Value1}")]
     public IEnumerable<WeatherForecast> AbsoluteRoute1()
     {
-        _logger.LogInformation("{0}", "path-cache AbsoluteRoute1");
+        _logger.LogInformation("{String}", "path-cache AbsoluteRoute1");
         return TestDataGenerator.GetData(1, 5);
     }
 
@@ -60,7 +60,7 @@ public class CacheByPathController : TestControllerBase
     [Route("R1/{Value1}")]
     public IEnumerable<WeatherForecast> RelativeRoute1()
     {
-        _logger.LogInformation("{0}", "path-cache RelativeRoute1");
+        _logger.LogInformation("{String}", "path-cache RelativeRoute1");
         return TestDataGenerator.GetData(1, 5);
     }
 
