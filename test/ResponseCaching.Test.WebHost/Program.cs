@@ -50,7 +50,7 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 services.AddTransient<TestCustomCacheKeyGenerator>();
 services.AddSingleton<TestCustomModelKeyParser>();
 
-#if NET9_0_OR_GREATER
+#if DEBUG && NET9_0_OR_GREATER
 services.AddOpenApi();
 #endif
 
@@ -60,9 +60,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 
-#if NET9_0_OR_GREATER
-    app.MapOpenApi();
-    app.MapSwaggerUI();
+#if DEBUG && NET9_0_OR_GREATER
+app.MapOpenApi();
+app.MapSwaggerUI();
 #endif
 }
 
