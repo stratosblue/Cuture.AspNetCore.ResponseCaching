@@ -3,7 +3,7 @@ using System.Buffers;
 
 namespace Cuture.AspNetCore.ResponseCaching.Internal;
 
-internal ref struct PooledReadOnlyCharSpan
+internal readonly ref struct PooledReadOnlyCharSpan
 {
     #region Private 字段
 

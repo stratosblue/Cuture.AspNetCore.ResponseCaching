@@ -12,12 +12,12 @@ public class InterceptorOptions : IOptions<InterceptorOptions>
     /// <summary>
     /// 拦截器实例集合
     /// </summary>
-    public List<IResponseCachingInterceptor> CachingProcessInterceptors { get; } = new();
+    public List<IResponseCachingInterceptor> CachingProcessInterceptors { get; } = [];
 
     /// <summary>
     /// 需要从 <see cref="IServiceProvider"/> 中获取的拦截器类型
     /// </summary>
-    public List<Type> CachingProcessInterceptorTypes { get; } = new();
+    public List<Type> CachingProcessInterceptorTypes { get; } = [];
 
     /// <inheritdoc/>
     public InterceptorOptions Value => this;

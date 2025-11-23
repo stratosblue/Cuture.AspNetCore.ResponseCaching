@@ -33,7 +33,7 @@ public class CacheKeyAccessorTest : WebServerHostedTestBase
         var requests = GetRequests();
         var exectedCacheKeys = GetExpectedCacheKeys().Select(m => m.ToLowerInvariant()).ToArray();
 
-        Assert.AreEqual(requests.Length, exectedCacheKeys.Length);
+        Assert.HasCount(requests.Length, exectedCacheKeys);
 
         var requestTasks = requests.Select(m => m.GetAsStringAsync()).ToArray();
 

@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="flow_of_execution.md" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="package.props" />
+    <File Path="readme.md" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/" />
+  <Folder Name="/Solution Items/.github/workflows/">
+    <File Path=".github/workflows/PublishNugetPackage.yml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Cuture.AspNetCore.ResponseCaching.StackExchange.Redis/Cuture.AspNetCore.ResponseCaching.StackExchange.Redis.csproj" />
+    <Project Path="src/Cuture.AspNetCore.ResponseCaching/Cuture.AspNetCore.ResponseCaching.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/ResponseCaching.Test.WebHost/ResponseCaching.Test.WebHost.csproj" />
+    <Project Path="test/ResponseCaching.Test/ResponseCaching.Test.csproj" />
+  </Folder>
+</Solution>

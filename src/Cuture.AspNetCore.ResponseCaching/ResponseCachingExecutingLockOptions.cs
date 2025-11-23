@@ -31,10 +31,7 @@ public class ResponseCachingExecutingLockOptions
         get => _executingLockRecycleInterval;
         set
         {
-            if (value <= TimeSpan.Zero)
-            {
-                throw new ArgumentOutOfRangeException(nameof(ExecutingLockRecycleInterval));
-            }
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(value, TimeSpan.Zero);
             _executingLockRecycleInterval = value;
         }
     }
@@ -47,10 +44,7 @@ public class ResponseCachingExecutingLockOptions
         get => _maximumExecutingLockPooled;
         set
         {
-            if (value <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(MaximumExecutingLockPooled));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
             if (value < MinimumExecutingLockRetained)
             {
                 throw new ArgumentException($"cannot be less than {nameof(MinimumExecutingLockRetained)}", nameof(MaximumExecutingLockPooled));
@@ -67,10 +61,7 @@ public class ResponseCachingExecutingLockOptions
         get => _maximumSemaphorePooled;
         set
         {
-            if (value <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(MaximumSemaphorePooled));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
             if (MinimumSemaphoreRetained > value)
             {
                 throw new ArgumentException($"cannot be less than {nameof(MinimumSemaphoreRetained)}", nameof(MaximumSemaphorePooled));
@@ -87,10 +78,7 @@ public class ResponseCachingExecutingLockOptions
         get => _minimumExecutingLockPooled;
         set
         {
-            if (value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(MinimumExecutingLockRetained));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegative(value);
             if (MaximumExecutingLockPooled < value)
             {
                 throw new ArgumentException($"cannot be large than {nameof(MaximumExecutingLockPooled)}", nameof(MinimumExecutingLockRetained));
@@ -107,10 +95,7 @@ public class ResponseCachingExecutingLockOptions
         get => _minimumSemaphoreRetained;
         set
         {
-            if (value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(MinimumSemaphoreRetained));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegative(value);
             if (MaximumSemaphorePooled < value)
             {
                 throw new ArgumentException($"cannot be large than {nameof(MaximumSemaphorePooled)}", nameof(MinimumSemaphoreRetained));
@@ -127,10 +112,7 @@ public class ResponseCachingExecutingLockOptions
         get => _semaphoreRecycleInterval;
         set
         {
-            if (value <= TimeSpan.Zero)
-            {
-                throw new ArgumentOutOfRangeException(nameof(SemaphoreRecycleInterval));
-            }
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(value, TimeSpan.Zero);
             _semaphoreRecycleInterval = value;
         }
     }

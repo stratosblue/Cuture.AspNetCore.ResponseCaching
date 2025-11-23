@@ -32,7 +32,7 @@ public abstract class RequestTestBase : WebServerHostedTestBase
         var funcs = requestFucFactors;
         var data = await InternalRunAsync(funcs);
 
-        Assert.IsTrue(data.Length > 0);
+        Assert.IsNotEmpty(data);
 
         if (checkEachOtherRequest)
         {
@@ -52,7 +52,7 @@ public abstract class RequestTestBase : WebServerHostedTestBase
 
             if (reRequestShouldEqual)
             {
-                Assert.AreEqual(data.Length, values.Length);
+                Assert.HasCount(data.Length, values);
             }
 
             for (int i = 0; i < values.Length; i++)
@@ -62,7 +62,7 @@ public abstract class RequestTestBase : WebServerHostedTestBase
 
                 if (reRequestShouldEqual)
                 {
-                    Assert.AreEqual(target.Length, value.Length);
+                    Assert.HasCount(target.Length, value);
                 }
                 else if (target.Length != value.Length)
                 {
@@ -75,11 +75,11 @@ public abstract class RequestTestBase : WebServerHostedTestBase
 
                     if (reRequestShouldEqual)
                     {
-                        Assert.IsTrue(target[index].Equals(value[index]), "Fail at {0} , item1:{1} , item2:{2}", index, target[index], value[index]);
+                        Assert.IsTrue(target[index].Equals(value[index]), $"Fail at {index} , item1:{target[index]} , item2:{value[index]}");
                     }
                     else
                     {
-                        Assert.IsFalse(target[index].Equals(value[index]), "Fail at {0} , item1:{1} , item2:{2}", index, target[index], value[index]);
+                        Assert.IsFalse(target[index].Equals(value[index]), $"Fail at {index} , item1:{target[index]} , item2:{value[index]}");
                     }
                 }
             }

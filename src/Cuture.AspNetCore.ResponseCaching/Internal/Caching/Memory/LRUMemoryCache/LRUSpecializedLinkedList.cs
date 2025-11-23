@@ -150,10 +150,7 @@ internal class LRUSpecializedLinkedList<TValue> : IEnumerable<TValue>, IReverseE
         else    //移除的是首节点
         {
             _head = node.Next;
-            if (_head is not null)
-            {
-                _head.Previous = null;
-            }
+            _head?.Previous = null;
         }
 
         if (--_count == 1)

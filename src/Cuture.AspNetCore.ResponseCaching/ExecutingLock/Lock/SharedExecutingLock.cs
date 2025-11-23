@@ -33,7 +33,7 @@ internal sealed class SharedExecutingLock<TCachePayload>
     /// <inheritdoc/>
     public override void SetLocalCache(string key, TCachePayload? payload, long expireMilliseconds)
     {
-        Debug.WriteLine("{0} - SetLocalCache {1} {2} {3}", nameof(SharedExecutingLock<TCachePayload>), key, expireMilliseconds, payload);
+        Debug.WriteLine("{0} - SetLocalCache {1} {2} {3}", nameof(SharedExecutingLock<>), key, expireMilliseconds, payload);
         // HACK 此处使用私有变量 _key 存放当前的缓存key，在清除缓存时使用 _key 进行清除，逻辑上进行清除缓存时当前 lock 已经没有引用，理论上没有问题。。。
         if (payload is null)
         {
@@ -54,7 +54,7 @@ internal sealed class SharedExecutingLock<TCachePayload>
     /// <inheritdoc/>
     public override bool TryGetLocalCache(string key, long checkMilliseconds, [NotNullWhen(true)] out TCachePayload? cachedPayload)
     {
-        Debug.WriteLine("{0} - TryGetLocalCache {1} {2}", nameof(ExclusiveExecutingLock<TCachePayload>), key, checkMilliseconds);
+        Debug.WriteLine("{0} - TryGetLocalCache {1} {2}", nameof(ExclusiveExecutingLock<>), key, checkMilliseconds);
         if (_memoryCache.TryGetValue<LocalCachedPayload<TCachePayload>>(key, out var localCachedPayload)
             && localCachedPayload.ExpireTime >= checkMilliseconds
             && localCachedPayload.Payload is not null)

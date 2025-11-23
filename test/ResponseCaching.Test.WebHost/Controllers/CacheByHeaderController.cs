@@ -30,8 +30,8 @@ public class CacheByHeaderController : TestControllerBase
     [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
     public IEnumerable<WeatherForecast> Get()
     {
-        int page = int.Parse(Request.Headers["page"]);
-        int pageSize = int.Parse(Request.Headers["pageSize"]);
+        int page = int.Parse(Request.Headers["page"].ToString());
+        int pageSize = int.Parse(Request.Headers["pageSize"].ToString());
         _logger.LogInformation("{0} - {1}", page, pageSize);
         return TestDataGenerator.GetData((page - 1) * pageSize, pageSize);
     }

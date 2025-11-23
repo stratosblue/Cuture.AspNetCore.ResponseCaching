@@ -94,10 +94,7 @@ internal class ExecutingLockPool<TCachePayload, TExecutingLock>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckDisposed()
     {
-        if (_disposedValue)
-        {
-            throw new ObjectDisposedException(nameof(ExecutingLockPool<TCachePayload, TExecutingLock>));
-        }
+        ObjectDisposedException.ThrowIf(_disposedValue, this);
     }
 
     #endregion Private 方法

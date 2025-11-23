@@ -34,7 +34,7 @@ public class QueryStringOrderUtilTest
     {
         var destination = new char[1];
         var length = QueryStringOrderUtil.Order(new Microsoft.AspNetCore.Http.QueryString(""), destination);
-        Assert.AreEqual(length, 0);
+        Assert.AreEqual(0, length);
     }
 
     [DataRow("?v3&v1=&=v5&v4=2&_t=1&_t=0", "_t=0&_t=1&=v5&v1=&v3&v4=2&")]
@@ -62,7 +62,7 @@ public class QueryStringOrderUtilTest
     {
         var destination = new char[1];
         var length = QueryStringOrderUtil.Order(new Microsoft.AspNetCore.Http.QueryString(null), destination);
-        Assert.AreEqual(length, 0);
+        Assert.AreEqual(0, length);
     }
 
     [TestMethod]
@@ -70,7 +70,7 @@ public class QueryStringOrderUtilTest
     {
         var destination = new char[1];
         var length = QueryStringOrderUtil.Order(new Microsoft.AspNetCore.Http.QueryString("?"), destination);
-        Assert.AreEqual(length, 0);
+        Assert.AreEqual(0, length);
     }
 
     #endregion Public 方法

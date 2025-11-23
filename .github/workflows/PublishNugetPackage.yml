@@ -9,13 +9,19 @@ jobs:
   publish-with-build:
 
     runs-on: ubuntu-latest
-        
+
+    permissions:
+      id-token: write
+      
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: |
+          8.x
+          9.x
+          10.x
     - name: build - main
       run: dotnet build -c Release ./src/Cuture.AspNetCore.ResponseCaching/Cuture.AspNetCore.ResponseCaching.csproj
     - name: build - redis
@@ -26,7 +32,14 @@ jobs:
       run: dotnet user-secrets set 'ResponseCache_Test_Redis' '127.0.0.1:6379,allowAdmin=true' -p ./test/ResponseCaching.Test.WebHost/ResponseCaching.Test.WebHost.csproj && dotnet test -c Release
     - name: pack
       run: dotnet pack -c Release -o ./output --include-symbols
+
+    - name: NuGet login
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+
     - name: push package
       shell: pwsh
       working-directory: ./output
-      run: Get-ChildItem -File -Filter '*.nupkg' | ForEach-Object { dotnet nuget push $_ -k ${{secrets.NUGET_KEY}} -s https://api.nuget.org/v3/index.json --no-service-endpoint --skip-duplicate; dotnet nuget push $_ -k ${{secrets.NUGET_GITHUB_KEY}} -s https://nuget.pkg.github.com/StratosBlue/index.json --no-service-endpoint --skip-duplicate; }
+      run: Get-ChildItem -File -Filter '*.nupkg' | ForEach-Object { dotnet nuget push $_ -k ${{steps.login.outputs.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --no-service-endpoint --skip-duplicate; dotnet nuget push $_ -k ${{secrets.NUGET_GITHUB_KEY}} -s https://nuget.pkg.github.com/StratosBlue/index.json --no-service-endpoint --skip-duplicate; }

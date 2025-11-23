@@ -29,9 +29,9 @@ public class CacheByFormController : TestControllerBase
     [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
     public IEnumerable<WeatherForecast> Post()
     {
-        int page = int.Parse(Request.Form["page"]);
-        int pageSize = int.Parse(Request.Form["pageSize"]);
-        _logger.LogInformation("{0} - {1}", page, pageSize);
+        int page = int.Parse(Request.Form["page"].ToString());
+        int pageSize = int.Parse(Request.Form["pageSize"].ToString());
+        _logger.LogInformation("{Page} - {PageSize}", page, pageSize);
         return TestDataGenerator.GetData((page - 1) * pageSize, pageSize);
     }
 

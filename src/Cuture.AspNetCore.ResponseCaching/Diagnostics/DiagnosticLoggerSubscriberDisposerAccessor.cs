@@ -23,10 +23,8 @@ public sealed class DiagnosticLoggerSubscriberDisposerAccessor : IDisposable
         get => _disposable;
         set
         {
-            if (_isDisposed)
-            {
-                throw new ObjectDisposedException(nameof(DiagnosticLoggerSubscriberDisposerAccessor));
-            }
+            ObjectDisposedException.ThrowIf(_isDisposed, this);
+
             _disposable?.Dispose();
             _disposable = value;
         }

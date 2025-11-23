@@ -18,7 +18,7 @@ internal sealed class ObjectOwner<T> : IObjectOwner<T>
     #region Public 属性
 
     /// <inheritdoc/>
-    public T Item { get => _item ?? throw new ObjectDisposedException(nameof(IObjectOwner<T>)); }
+    public T Item { get => _item ?? throw new ObjectDisposedException(nameof(IObjectOwner<>)); }
 
     #endregion Public 属性
 

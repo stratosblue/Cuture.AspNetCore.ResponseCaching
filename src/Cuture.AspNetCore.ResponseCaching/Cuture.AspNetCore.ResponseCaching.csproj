@@ -5,6 +5,8 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
 
     <PackageReadmeFile>readme.md</PackageReadmeFile>
+
+    <NoWarn>$(NoWarn);IDE0130</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

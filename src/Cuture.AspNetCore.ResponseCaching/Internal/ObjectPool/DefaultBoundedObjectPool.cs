@@ -46,26 +46,14 @@ internal class DefaultBoundedObjectPool<T> : INakedBoundedObjectPool<T>, IBounde
     {
         _lifecycleExecutor = lifecycleExecutor ?? throw new ArgumentNullException(nameof(lifecycleExecutor));
 
-        if (options is null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentOutOfRangeException.ThrowIfLessThan(options.MaximumPooled, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(options.MinimumRetained, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(options.RecycleInterval, TimeSpan.Zero);
 
-        if (options.MaximumPooled < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(options.MaximumPooled), $"{nameof(options.MaximumPooled)} can not be less than 1.");
-        }
-        if (options.MinimumRetained < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(options.MinimumRetained), $"{nameof(options.MaximumPooled)} can not be less than 0.");
-        }
         if (options.MaximumPooled < options.MinimumRetained)
         {
             throw new ArgumentException($"{nameof(options.MaximumPooled)} must be larger than {nameof(options.MinimumRetained)}.", nameof(options));
-        }
-        if (options.RecycleInterval < TimeSpan.Zero)
-        {
-            throw new ArgumentOutOfRangeException(nameof(options.RecycleInterval), $"{nameof(options.RecycleInterval)} must be larger than 0.");
         }
 
         _maximumPooled = options.MaximumPooled;
@@ -171,10 +159,7 @@ internal class DefaultBoundedObjectPool<T> : INakedBoundedObjectPool<T>, IBounde
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckDisposed()
     {
-        if (_disposedValue)
-        {
-            throw new ObjectDisposedException(nameof(DefaultBoundedObjectPool<T>));
-        }
+        ObjectDisposedException.ThrowIf(_disposedValue, this);
     }
 
     private T? InternalRent()

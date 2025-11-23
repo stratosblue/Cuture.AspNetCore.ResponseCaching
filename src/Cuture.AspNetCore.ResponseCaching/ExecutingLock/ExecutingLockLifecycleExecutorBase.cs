@@ -50,7 +50,7 @@ internal abstract class ExecutingLockLifecycleExecutorBase<TCachePayload, TExecu
         {
             if (executingLockBase.ReferenceCount > 0)
             {
-                throw new InvalidOperationException($"{nameof(ExecutingLockBase<TCachePayload>)} in use.");
+                throw new InvalidOperationException($"{nameof(ExecutingLockBase<>)} in use.");
             }
             while (executingLockBase.Semaphore.CurrentCount < 1)
             {

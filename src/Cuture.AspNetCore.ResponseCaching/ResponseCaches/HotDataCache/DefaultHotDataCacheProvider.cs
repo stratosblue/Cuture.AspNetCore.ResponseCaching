@@ -7,7 +7,7 @@ internal class DefaultHotDataCacheProvider : IHotDataCacheProvider
 {
     #region Private 字段
 
-    private readonly Dictionary<string, IHotDataCache> _caches = new();
+    private readonly Dictionary<string, IHotDataCache> _caches = [];
 
     private bool _disposedValue;
 
@@ -72,10 +72,7 @@ internal class DefaultHotDataCacheProvider : IHotDataCacheProvider
 
     private void CheckDisposed()
     {
-        if (_disposedValue)
-        {
-            throw new ObjectDisposedException(nameof(IHotDataCacheProvider));
-        }
+        ObjectDisposedException.ThrowIf(_disposedValue, this);
     }
 
     #endregion Private 方法

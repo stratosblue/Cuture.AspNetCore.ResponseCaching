@@ -13,10 +13,7 @@ public class CacheByModelAttribute : ResponseCachingAttribute
     /// <inheritdoc cref="CacheByModelAttribute(int, CacheStoreLocation, string[])"/>
     public CacheByModelAttribute(int duration, params string[] modelNames) : base(duration, CacheMode.Custom)
     {
-        if (modelNames is null)
-        {
-            throw new ArgumentNullException(nameof(modelNames));
-        }
+        ArgumentNullException.ThrowIfNull(modelNames);
         VaryByModels = modelNames;
     }
 

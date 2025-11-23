@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="MSTest.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
@@ -6,15 +6,12 @@
 
   <ItemGroup>
     <PackageReference Include="Cuture.Http" Version="2.*" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.*" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.*" />
-    <PackageReference Include="coverlet.collector" Version="6.*">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="Microsoft.VisualStudio.TestTools.UnitTesting.DoNotParallelizeAttribute"/>
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\Cuture.AspNetCore.ResponseCaching.StackExchange.Redis\Cuture.AspNetCore.ResponseCaching.StackExchange.Redis.csproj" />
     <ProjectReference Include="..\..\src\Cuture.AspNetCore.ResponseCaching\Cuture.AspNetCore.ResponseCaching.csproj" />

@@ -5,6 +5,8 @@
     <RootNamespace>Cuture.AspNetCore.ResponseCaching</RootNamespace>
 
     <Description>$(Description)。此包为使用 StackExchange.Redis 的 ResponseCache 实现。</Description>
+    
+    <NoWarn>$(NoWarn);IDE0130</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -12,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.7.4" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cuture.AspNetCore.ResponseCaching\Cuture.AspNetCore.ResponseCaching.csproj" />

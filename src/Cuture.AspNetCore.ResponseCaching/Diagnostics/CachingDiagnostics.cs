@@ -51,7 +51,10 @@ public class CachingDiagnostics
             DiagnosticSource.Write(CacheBodyTooLargeEventData.EventName, new CacheBodyTooLargeEventData(key, body, maxAvailableLength, filterContext, context));
             return;
         }
-        Logger.LogWarning("Response too long to cache, key: {Key}, maxLength: {MaxAvailableLength}, length: {Length}", key, maxAvailableLength, body.Length);
+        if (Logger.IsEnabled(LogLevel.Warning))
+        {
+            Logger.LogWarning("Response too long to cache, key: {Key}, maxLength: {MaxAvailableLength}, length: {Length}", key, maxAvailableLength, body.Length);
+        }
     }
 
     /// <inheritdoc cref="CacheKeyGeneratedEventData"/>
@@ -73,7 +76,10 @@ public class CachingDiagnostics
             DiagnosticSource.Write(CacheKeyTooLongEventData.EventName, new CacheKeyTooLongEventData(key, maxAvailableLength, filterContext, context));
             return;
         }
-        Logger.LogWarning("CacheKey is too long to cache. maxLength: {MaxAvailableLength} key: {Key}", maxAvailableLength, key);
+        if (Logger.IsEnabled(LogLevel.Warning))
+        {
+            Logger.LogWarning("CacheKey is too long to cache. maxLength: {MaxAvailableLength} key: {Key}", maxAvailableLength, key);
+        }
     }
 
     /// <inheritdoc cref="CannotExecutionThroughLockEventData"/>

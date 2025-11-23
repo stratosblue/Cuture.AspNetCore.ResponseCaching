@@ -46,7 +46,7 @@ public class ExecuteLockTimeoutTest : WebServerHostedTestBase
 
         Assert.IsTrue(waitTask.IsCompletedSuccessfully);
 
-        Assert.IsTrue(waitTask.Result?.Data?.Length > 0);
+        Assert.IsGreaterThan(0, waitTask.Result?.Data?.Length ?? 0);
 
         for (int i = 0; i < noWaitTasks.Length; i++)
         {

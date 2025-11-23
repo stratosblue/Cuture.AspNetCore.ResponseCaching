@@ -34,7 +34,7 @@ internal sealed class ExclusiveExecutingLock<TCachePayload>
     /// <inheritdoc/>
     public override void SetLocalCache(string key, TCachePayload? payload, long expireMilliseconds)
     {
-        Debug.WriteLine("{0} - SetLocalCache {1} {2} {3}", nameof(ExclusiveExecutingLock<TCachePayload>), key, expireMilliseconds, payload);
+        Debug.WriteLine("{0} - SetLocalCache {1} {2} {3}", nameof(ExclusiveExecutingLock<>), key, expireMilliseconds, payload);
         _localCachedPayload = payload;
         _localCacheExpire = expireMilliseconds;
     }
@@ -42,7 +42,7 @@ internal sealed class ExclusiveExecutingLock<TCachePayload>
     /// <inheritdoc/>
     public override bool TryGetLocalCache(string key, long checkMilliseconds, [NotNullWhen(true)] out TCachePayload? cachedPayload)
     {
-        Debug.WriteLine("{0} - TryGetLocalCache {1} {2}", nameof(ExclusiveExecutingLock<TCachePayload>), key, checkMilliseconds);
+        Debug.WriteLine("{0} - TryGetLocalCache {1} {2}", nameof(ExclusiveExecutingLock<>), key, checkMilliseconds);
         if (checkMilliseconds <= _localCacheExpire
             && _localCachedPayload is not null)
         {

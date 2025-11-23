@@ -31,7 +31,7 @@ public class RedisResponseCache : IDistributedResponseCache
 
     #region Private 字段
 
-    private static readonly RedisValue[] s_fieldNames = new RedisValue[] { ContentTypeFieldName, BodyFieldName, ExpireFieldName };
+    private static readonly RedisValue[] s_fieldNames = [ContentTypeFieldName, BodyFieldName, ExpireFieldName];
 
     private readonly RedisValue _bodyFieldName = BodyFieldName;
 
@@ -91,11 +91,11 @@ public class RedisResponseCache : IDistributedResponseCache
     {
         //HACK 设置值与设置过期时间不是原子性操作，可能存在残留。不影响缓存正确性，是否有必要进行删除？
         RedisKey redisKey = key;
-        await _database.HashSetAsync(redisKey, new[] {
+        await _database.HashSetAsync(redisKey, [
             new HashEntry(_contentTypeFieldName, entry.ContentType),
             new HashEntry(_bodyFieldName, entry.Body),
             new HashEntry(_expireFieldName, entry.Expire),
-        });
+        ]);
         _ = _database.KeyExpireAsync(redisKey, DateTimeOffset.FromUnixTimeMilliseconds(entry.Expire).UtcDateTime, CommandFlags.FireAndForget);
     }
 
