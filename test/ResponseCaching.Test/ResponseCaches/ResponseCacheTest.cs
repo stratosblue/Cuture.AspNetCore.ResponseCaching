@@ -2,8 +2,6 @@
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace ResponseCaching.Test.ResponseCaches;
 
 [TestClass]

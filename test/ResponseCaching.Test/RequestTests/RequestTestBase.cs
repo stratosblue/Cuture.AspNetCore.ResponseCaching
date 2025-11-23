@@ -2,8 +2,6 @@
 
 using Cuture.Http;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using ResponseCaching.Test.Base;
 
 namespace ResponseCaching.Test.RequestTests;

@@ -1,5 +1,4 @@
 ﻿using Cuture.AspNetCore.ResponseCaching.Internal;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ResponseCaching.Test;
 

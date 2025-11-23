@@ -10,7 +10,7 @@ public class CountDistributedResponseCache : IDistributedResponseCache
 
     private readonly ConcurrentDictionary<string, ResponseCacheEntry> _caches = new();
 
-    private readonly Dictionary<string, int> _count = new();
+    private readonly Dictionary<string, int> _count = [];
 
     #endregion Private 字段
 
@@ -27,9 +27,9 @@ public class CountDistributedResponseCache : IDistributedResponseCache
         }
         lock (_count)
         {
-            if (_count.ContainsKey(key))
+            if (_count.TryGetValue(key, out int value))
             {
-                return _count[key];
+                return value;
             }
         }
         return 0;

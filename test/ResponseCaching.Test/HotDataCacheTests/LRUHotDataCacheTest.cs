@@ -2,8 +2,6 @@
 using Cuture.Http;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ResponseCaching.Test.Base;
 
@@ -14,10 +12,10 @@ public class LRUHotDataCacheTest : WebServerHostedTestBase
 {
     private readonly CountDistributedResponseCache _countDistributedResponseCache = new();
 
-    protected override Task ConfigureWebHost(IHostBuilder hostBuilder)
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        hostBuilder.ConfigureServices(services => services.AddSingleton<IDistributedResponseCache>(_countDistributedResponseCache));
-        return base.ConfigureWebHost(hostBuilder);
+        services.AddSingleton<IDistributedResponseCache>(_countDistributedResponseCache);
+        base.ConfigureServices(services);
     }
 
     [TestMethod]

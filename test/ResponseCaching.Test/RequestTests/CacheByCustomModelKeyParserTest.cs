@@ -1,7 +1,5 @@
 ﻿using Cuture.Http;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using ResponseCaching.Test.WebHost.Dtos;
 using ResponseCaching.Test.WebHost.Models;
 

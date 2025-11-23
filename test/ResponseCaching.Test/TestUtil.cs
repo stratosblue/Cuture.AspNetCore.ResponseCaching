@@ -1,7 +1,5 @@
 ﻿using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace ResponseCaching.Test;
 
 public static class TestUtil

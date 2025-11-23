@@ -2,9 +2,6 @@
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using ResponseCaching.Test.WebHost;
 
 using StackExchange.Redis;
 
@@ -20,7 +17,7 @@ public class RedisResponseCacheTest : ResponseCacheTest
         var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", true)
                                                       .AddJsonFile("appsettings.Development.json", true)
                                                       .AddEnvironmentVariables()
-                                                      .AddUserSecrets<TestWebHost>()
+                                                      .AddUserSecrets<Program>()
                                                       .Build()
                                                       .GetValue<string>("ResponseCache_Test_Redis");
         if (string.IsNullOrWhiteSpace(configuration))

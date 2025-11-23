@@ -1,8 +1,6 @@
 ﻿using Cuture.Http;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using ResponseCaching.Test.Base;
 using ResponseCaching.Test.WebHost.Dtos;
@@ -48,10 +46,10 @@ public class CacheKeyAccessorTest : WebServerHostedTestBase
 
     #region Protected 方法
 
-    protected override Task ConfigureWebHost(IHostBuilder hostBuilder)
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        hostBuilder.ConfigureServices(services => services.AddCaching().EnableCacheKeyAccessor());
-        return base.ConfigureWebHost(hostBuilder);
+        services.AddCaching().EnableCacheKeyAccessor();
+        base.ConfigureServices(services);
     }
 
     protected string[] GetExpectedCacheKeys()

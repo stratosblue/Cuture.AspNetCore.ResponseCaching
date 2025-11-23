@@ -1,12 +1,9 @@
 ﻿using System.Diagnostics;
 
 using Cuture.Http;
-
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Hosting;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using ResponseCaching.Test.WebHost;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ResponseCaching.Test.Base;
 
@@ -15,13 +12,15 @@ public abstract class WebServerHostedTestBase
 {
     #region Public 属性
 
-    public string BaseUrl { get; set; } = "http://127.0.0.1:18080";
+    public string BaseUrl { get; set; } = "http://127.0.0.1";
 
     #endregion Public 属性
 
     #region Protected 属性
 
-    protected IHost WebHost { get; private set; }
+    protected TestServer TestServer { get; private set; } = null!;
+
+    protected IAsyncDisposable WebApplication { get; private set; } = null!;
 
     #endregion Protected 属性
 
@@ -30,22 +29,27 @@ public abstract class WebServerHostedTestBase
     [TestCleanup]
     public virtual async Task CleanupAsync()
     {
-        if (WebHost != null)
+        TestServer?.Dispose();
+
+        if (WebApplication != null)
         {
-            await WebHost.StopAsync();
-            WebHost.Dispose();
+            await WebApplication.DisposeAsync();
         }
     }
 
     [TestInitialize]
     public virtual async Task InitAsync()
     {
-        TestWebHost.IsTest = true;
-        var hostBuilder = TestWebHost.CreateHostBuilder(GetHostArgs());
-        await ConfigureWebHost(hostBuilder);
-        WebHost = await hostBuilder.StartAsync();
+        var webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseTestServer();
+            builder.ConfigureTestServices(ConfigureServices);
+        });
 
-        HttpRequestGlobalOptions.DefaultHttpMessageInvokerPool = new TestCutureHttpMessageInvokerPool(WebHost.GetTestClient());
+        WebApplication = webApplicationFactory;
+        TestServer = webApplicationFactory.Server;
+
+        HttpRequestGlobalOptions.DefaultHttpMessageInvokerPool = new TestCutureHttpMessageInvokerPool(TestServer.CreateClient());
 
         HttpRequestGlobalOptions.DefaultConnectionLimit = 500;
     }
@@ -141,9 +145,8 @@ public abstract class WebServerHostedTestBase
 
     protected virtual IHttpRequest ConfigureBeforeRequest(IHttpRequest request) => request;
 
-    protected virtual Task ConfigureWebHost(IHostBuilder hostBuilder) => Task.CompletedTask;
-
-    protected virtual string[] GetHostArgs() => new[] { "--urls", BaseUrl };
+    protected virtual void ConfigureServices(IServiceCollection services)
+    { }
 
     protected virtual async Task<T[][]> InternalRunAsync<T>(Func<Task<TextHttpOperationResult<T[]>>>[] funcs)
     {
