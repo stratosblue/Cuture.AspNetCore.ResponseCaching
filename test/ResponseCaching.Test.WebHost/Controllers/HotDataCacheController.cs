@@ -10,7 +10,7 @@ public class HotDataCacheController : TestControllerBase
 
     [HttpGet]
     [HotDataCache(50, HotDataCachePolicy.LRU)]
-    [ResponseCaching(10,
+    [ResponseCaching(60,
         Mode = CacheMode.FullPathAndQuery,
         StoreLocation = CacheStoreLocation.Distributed)]
     [ExecutingLock(ExecutingLockMode.CacheKeySingle)]
