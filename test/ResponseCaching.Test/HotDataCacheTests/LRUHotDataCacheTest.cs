@@ -2,10 +2,9 @@
 using Cuture.Http;
 
 using Microsoft.Extensions.DependencyInjection;
-
 using ResponseCaching.Test.Base;
 
-namespace ResponseCaching.Test.RequestTests;
+namespace ResponseCaching.Test.HotDataCacheTests;
 
 [TestClass]
 public class LRUHotDataCacheTest : WebServerHostedTestBase

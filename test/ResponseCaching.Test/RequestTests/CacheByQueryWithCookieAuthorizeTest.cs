@@ -10,7 +10,7 @@ public class CacheByQueryWithCookieAuthorizeTest : RequestTestBase
 {
     #region Private 字段
 
-    private string[] _cookies = null;
+    private string[] _cookies = null!;
 
     #endregion Private 字段
 

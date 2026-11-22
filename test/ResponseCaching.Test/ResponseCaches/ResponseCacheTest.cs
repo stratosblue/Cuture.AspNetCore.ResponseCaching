@@ -4,7 +4,6 @@ using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
 namespace ResponseCaching.Test.ResponseCaches;
 
-[TestClass]
 public abstract class ResponseCacheTest
 {
     #region Public 字段
@@ -15,16 +14,22 @@ public abstract class ResponseCacheTest
 
     #region Protected 属性
 
-    protected IResponseCache ResponseCache { get; set; }
+    protected IResponseCache ResponseCache { get; set; } = null!;
 
     #endregion Protected 属性
+
+    #region Public 属性
+
+    public TestContext TestContext { get; set; } = null!;
+
+    #endregion Public 属性
 
     #region Public 方法
 
     [TestCleanup]
     public virtual void Cleanup()
     {
-        ResponseCache = null;
+        ResponseCache = null!;
     }
 
     [TestMethod]
@@ -46,7 +51,7 @@ public abstract class ResponseCacheTest
 
         TestUtil.EntryEquals(entry, cachedEntry);
 
-        await Task.Delay(TimeSpan.FromSeconds(duration + 2));
+        await Task.Delay(TimeSpan.FromSeconds(duration + 2), TestContext.CancellationToken);
 
         cachedEntry = await ResponseCache.GetAsync(key, CancellationToken.None);
 
@@ -79,7 +84,7 @@ public abstract class ResponseCacheTest
 
             TestUtil.EntryEquals(entry, cachedEntry);
 
-            await Task.Delay(TimeSpan.FromSeconds(duration + 2));
+            await Task.Delay(TimeSpan.FromSeconds(duration + 2), TestContext.CancellationToken);
 
             cachedEntry = await ResponseCache.GetAsync(key, CancellationToken.None);
 

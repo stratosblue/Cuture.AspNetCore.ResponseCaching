@@ -2,7 +2,7 @@
 
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
 
-namespace ResponseCaching.Test.RequestTests;
+namespace ResponseCaching.Test.HotDataCacheTests;
 
 public class CountDistributedResponseCache : IDistributedResponseCache
 {
@@ -16,7 +16,7 @@ public class CountDistributedResponseCache : IDistributedResponseCache
 
     #region Public 方法
 
-    public int Count(string key)
+    public int Count(string? key)
     {
         if (string.IsNullOrEmpty(key))
         {

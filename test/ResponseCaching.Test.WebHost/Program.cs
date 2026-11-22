@@ -1,7 +1,10 @@
 ﻿using System.Text;
+using Cuture.AspNetCore.ResponseCaching;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using ResponseCaching.Test.WebHost;
 using ResponseCaching.Test.WebHost.Test;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,16 +20,23 @@ var services = builder.Services;
 
 services.AddResponseCaching();
 
-var redisConfigureString = builder.Configuration.GetValue<string>("ResponseCache_Test_Redis");
-services.AddCaching(builder.Configuration.GetSection("Caching:ResponseCaching"))
-        //.UseRedisResponseCache(redisConfigureString, Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value)
-        .AddDiagnosticDebugLogger();
+var useRedis = args.Contains("--use-redis");
 
-//HACK 清理缓存，避免影响测试 -- 连接字符串需要添加 allowAdmin=true
-//{
-//    var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConfigureString);
-//    connectionMultiplexer.GetServer(redisConfigureString.Split(',')[0]).FlushAllDatabases();
-//}
+GarnetServerDescriptor? garnetServerDescriptor = null;
+if (useRedis)
+{
+    garnetServerDescriptor = GarnetServerUtil.Create();
+    services.AddSingleton(garnetServerDescriptor);
+}
+
+var cachingServiceBuilder = services.AddCaching(builder.Configuration.GetSection("Caching:ResponseCaching"))
+                                    .AddDiagnosticDebugLogger();
+
+if (useRedis)
+{
+    services.PostConfigure<ResponseCachingOptions>(options => options.DefaultCacheStoreLocation = CacheStoreLocation.Distributed);
+    cachingServiceBuilder.UseRedisResponseCache(garnetServerDescriptor!.RedisConfigureString, builder.Configuration.GetSection("Caching:ResponseCaching:CacheKeyPrefix").Value);
+}
 
 services.AddControllers();
 
@@ -50,7 +60,7 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 services.AddTransient<TestCustomCacheKeyGenerator>();
 services.AddSingleton<TestCustomModelKeyParser>();
 
-#if DEBUG && NET9_0_OR_GREATER
+#if DEBUG
 services.AddOpenApi();
 #endif
 
@@ -60,9 +70,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 
-#if DEBUG && NET9_0_OR_GREATER
-app.MapOpenApi();
-app.MapSwaggerUI();
+#if DEBUG
+    app.MapOpenApi();
+    app.MapSwaggerUI();
 #endif
 }
 

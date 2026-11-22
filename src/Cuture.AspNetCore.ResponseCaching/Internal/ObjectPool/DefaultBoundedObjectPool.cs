@@ -18,7 +18,7 @@ internal class DefaultBoundedObjectPool<T> : INakedBoundedObjectPool<T>, IBounde
     private readonly ConcurrentQueue<T> _objctQueue;
     private readonly IPoolReductionPolicy _poolReductionPolicy;
     private readonly TimeSpan _recycleInterval;
-    private readonly object _syncRoot = new();
+    private readonly Lock _syncRoot = new();
     private bool _disposedValue;
     private long _lastCreateObjectTime = DateTimeOffset.UtcNow.Ticks;
     private volatile int _objectCount = 0;

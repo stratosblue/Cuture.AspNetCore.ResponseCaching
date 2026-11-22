@@ -17,7 +17,7 @@ public class CacheHitStampHeaderTestBase : WebServerHostedTestBase
 
     protected Task<TextHttpOperationResult<WeatherForecast[]>>[] GetRequestTasks()
     {
-        return new Task<TextHttpOperationResult<WeatherForecast[]>>[] {
+        return [
             $"{BaseUrl}/CacheByFullUrl/Get?page=1&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
             $"{BaseUrl}/CacheByFullUrl/Get?page=2&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
             $"{BaseUrl}/CacheByFullUrl/Get?page=3&pageSize=5".CreateHttpRequest().TryGetAsObjectAsync<WeatherForecast[]>(),
@@ -29,7 +29,7 @@ public class CacheHitStampHeaderTestBase : WebServerHostedTestBase
             $"{BaseUrl}/CacheByModel/Post".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 2,PageSize = 4 }).TryGetAsObjectAsync<WeatherForecast[]>(),
             $"{BaseUrl}/CacheByModel/Post".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 2,PageSize = 6 }).TryGetAsObjectAsync<WeatherForecast[]>(),
             $"{BaseUrl}/CacheByModel/Post".CreateHttpRequest().UsePost().WithJsonContent(new PageResultRequestDto(){ Page = 3,PageSize = 3 }).TryGetAsObjectAsync<WeatherForecast[]>(),
-        };
+        ];
     }
 
     protected async Task CheckRequestsAsync(Task<TextHttpOperationResult<WeatherForecast[]>>[] tasks, Action<TextHttpOperationResult<WeatherForecast[]>> action)
@@ -43,13 +43,16 @@ public class CacheHitStampHeaderTestBase : WebServerHostedTestBase
 
     protected void CheckNoCacheHeader(TextHttpOperationResult<WeatherForecast[]> httpResult)
     {
-        var headerExist = httpResult.ResponseMessage.Headers.TryGetValues(HeaderKey, out _);
+        var headerExist = httpResult.ResponseMessage?.Headers.TryGetValues(HeaderKey, out _);
         Assert.IsFalse(headerExist);
     }
 
     protected void CheckHasCacheHeader(TextHttpOperationResult<WeatherForecast[]> httpResult)
     {
+        Assert.IsNotNull(httpResult.ResponseMessage?.RequestMessage);
+
         var headerExist = httpResult.ResponseMessage.Headers.TryGetValues(HeaderKey, out var value);
+        Assert.IsNotNull(value);
         Assert.IsTrue(headerExist, $"{httpResult.ResponseMessage.RequestMessage.RequestUri} : [{httpResult.ResponseMessage.StatusCode}] - {httpResult.Text}");
         Assert.AreEqual(HeaderValue, value.First());
     }
@@ -68,7 +71,7 @@ public class CacheHitStampHeaderTest : CacheHitStampHeaderTestBase
     public async Task Check()
     {
         await CheckRequestsAsync(GetRequestTasks(), httpResult => CheckNoCacheHeader(httpResult));
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.CancellationToken);
         for (int i = 0; i < 5; i++)
         {
             await CheckRequestsAsync(GetRequestTasks(), httpResult => CheckHasCacheHeader(httpResult));

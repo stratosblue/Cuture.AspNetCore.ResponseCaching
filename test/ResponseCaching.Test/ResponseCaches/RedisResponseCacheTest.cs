@@ -1,8 +1,6 @@
 ﻿using Cuture.AspNetCore.ResponseCaching;
 using Cuture.AspNetCore.ResponseCaching.ResponseCaches;
-
-using Microsoft.Extensions.Configuration;
-
+using ResponseCaching.Test.WebHost;
 using StackExchange.Redis;
 
 namespace ResponseCaching.Test.ResponseCaches;
@@ -10,28 +8,35 @@ namespace ResponseCaching.Test.ResponseCaches;
 [TestClass]
 public class RedisResponseCacheTest : ResponseCacheTest
 {
-    private ConnectionMultiplexer _connectionMultiplexer;
+    #region Protected 字段
 
-    protected override async Task<IResponseCache> GetResponseCache()
-    {
-        var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", true)
-                                                      .AddJsonFile("appsettings.Development.json", true)
-                                                      .AddEnvironmentVariables()
-                                                      .AddUserSecrets<Program>()
-                                                      .Build()
-                                                      .GetValue<string>("ResponseCache_Test_Redis");
-        if (string.IsNullOrWhiteSpace(configuration))
-        {
-            throw new ArgumentException("Must set ‘ResponseCache_Test_Redis’ first.");
-        }
-        _connectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(configuration);
-        return new RedisResponseCache(new RedisResponseCacheOptions() { ConnectionMultiplexer = _connectionMultiplexer });
-    }
+    protected ConnectionMultiplexer ConnectionMultiplexer = null!;
+
+    protected GarnetServerDescriptor GarnetServerDescriptor = null!;
+
+    #endregion Protected 字段
+
+    #region Public 方法
 
     [TestCleanup]
     public override void Cleanup()
     {
-        _connectionMultiplexer.Dispose();
-        _connectionMultiplexer = null;
+        GarnetServerDescriptor?.Dispose();
+        GarnetServerDescriptor = null!;
+        ConnectionMultiplexer?.Dispose();
+        ConnectionMultiplexer = null!;
     }
+
+    #endregion Public 方法
+
+    #region Protected 方法
+
+    protected override async Task<IResponseCache> GetResponseCache()
+    {
+        GarnetServerDescriptor = GarnetServerUtil.Create();
+        ConnectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(GarnetServerDescriptor.RedisConfigureString);
+        return new RedisResponseCache(new RedisResponseCacheOptions() { ConnectionMultiplexer = ConnectionMultiplexer });
+    }
+
+    #endregion Protected 方法
 }

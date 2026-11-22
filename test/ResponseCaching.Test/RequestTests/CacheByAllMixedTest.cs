@@ -28,7 +28,7 @@ public class CacheByAllMixedTest : RequestTestBase
         for (int i = 1; i < CookieCount; i++)
         {
             var result = await $"{BaseUrl}/login/cookie?uid=testuser{i}".CreateHttpRequest().TryGetAsStringAsync();
-            var cookie = CookieUtility.Clean(result.ResponseMessage.GetCookie());
+            var cookie = CookieUtility.Clean(result.ResponseMessage?.GetCookie());
 
             cookies.Add(cookie);
         }

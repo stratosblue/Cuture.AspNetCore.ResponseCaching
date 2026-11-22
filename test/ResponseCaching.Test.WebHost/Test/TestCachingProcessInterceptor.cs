@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ResponseCaching.Test.WebHost.Test;
 
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class TestCachingProcessInterceptor : Attribute, ICacheStoringInterceptor
 {
     #region Public 方法

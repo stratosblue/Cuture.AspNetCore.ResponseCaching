@@ -11,7 +11,7 @@ internal class LRUMemoryCachePolicy<TKey, TValue> : IBoundedMemoryCachePolicy<TK
 
     private readonly Dictionary<TKey, LRUSpecializedLinkedListNode<BoundedMemoryCacheEntry<TKey, TValue>>> _entries;
     private readonly LRUSpecializedLinkedList<BoundedMemoryCacheEntry<TKey, TValue>> _linkedList;
-    private readonly object _syncRoot = new();
+    private readonly Lock _syncRoot = new();
 
     #endregion Private 字段
 
@@ -39,7 +39,7 @@ internal class LRUMemoryCachePolicy<TKey, TValue> : IBoundedMemoryCachePolicy<TK
     /// <inheritdoc/>
     public void Add(in BoundedMemoryCacheEntry<TKey, TValue> cacheEntry)
     {
-        LRUSpecializedLinkedListNode<BoundedMemoryCacheEntry<TKey, TValue>>? removedNode = null;
+        LRUSpecializedLinkedListNode<BoundedMemoryCacheEntry<TKey, TValue>>? removedNode;
 
         // lock 简单、方便、快捷
         lock (_syncRoot)

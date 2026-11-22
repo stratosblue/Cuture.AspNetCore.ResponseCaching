@@ -39,7 +39,7 @@ public class CacheKeyAccessorTest : WebServerHostedTestBase
 
         var responseCacheKeys = requestTasks.Select(m => m.Result).ToArray();
 
-        CollectionAssert.AreEqual(exectedCacheKeys, responseCacheKeys);
+        Assert.AreSequenceEqual(exectedCacheKeys, responseCacheKeys);
     }
 
     #endregion Public 方法

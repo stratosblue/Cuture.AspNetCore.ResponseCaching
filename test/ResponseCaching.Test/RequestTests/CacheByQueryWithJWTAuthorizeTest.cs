@@ -9,7 +9,7 @@ public class CacheByQueryWithJWTAuthorizeTest : RequestTestBase
 {
     #region Private 字段
 
-    private string[] _jwts = null;
+    private string[] _jwts = null!;
 
     #endregion Private 字段
 

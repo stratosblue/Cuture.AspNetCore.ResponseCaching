@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ResponseCaching.Test.Base;
 
-[TestClass]
 public abstract class WebServerHostedTestBase
 {
     #region Public 属性
@@ -23,6 +22,8 @@ public abstract class WebServerHostedTestBase
     protected IAsyncDisposable WebApplication { get; private set; } = null!;
 
     #endregion Protected 属性
+
+    public TestContext TestContext { get; set; } = null!;
 
     #region Public 方法
 
@@ -50,8 +51,6 @@ public abstract class WebServerHostedTestBase
         TestServer = webApplicationFactory.Server;
 
         HttpRequestGlobalOptions.DefaultHttpMessageInvokerPool = new TestCutureHttpMessageInvokerPool(TestServer.CreateClient());
-
-        HttpRequestGlobalOptions.DefaultConnectionLimit = 500;
     }
 
     #endregion Public 方法
@@ -158,7 +157,7 @@ public abstract class WebServerHostedTestBase
         }
         await Task.WhenAll(tasks);
 
-        Assert.IsFalse(tasks.Any(m => m.Result.Data == null));
+        Assert.DoesNotContain(m => m.Result.Data == null, tasks);
 
         return tasks.Select(m => m.Result.Data!).ToArray();
     }
@@ -175,20 +174,9 @@ public abstract class WebServerHostedTestBase
                                                          Func<IHttpRequest> getRequestFunc,
                                                          Action<HttpOperationResult<T>> assertAction)
     {
-        if (requestCount < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(requestCount));
-        }
-
-        if (getRequestFunc is null)
-        {
-            throw new ArgumentNullException(nameof(getRequestFunc));
-        }
-
-        if (assertAction is null)
-        {
-            throw new ArgumentNullException(nameof(assertAction));
-        }
+        ArgumentOutOfRangeException.ThrowIfLessThan(requestCount, 1);
+        ArgumentNullException.ThrowIfNull(getRequestFunc);
+        ArgumentNullException.ThrowIfNull(assertAction);
 
         Debug.WriteLine($"Start Request, Count: {requestCount}");
 

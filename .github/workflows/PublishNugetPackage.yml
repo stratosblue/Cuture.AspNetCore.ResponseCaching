@@ -3,7 +3,7 @@
 on:
   release:
     types: [released,prereleased]
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   publish-with-build:
@@ -14,22 +14,20 @@ jobs:
       id-token: write
       
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v6.1.0
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6.1.0
       with:
         dotnet-version: |
-          8.x
-          9.x
           10.x
+          11.x
     - name: build - main
       run: dotnet build -c Release ./src/Cuture.AspNetCore.ResponseCaching/Cuture.AspNetCore.ResponseCaching.csproj
     - name: build - redis
       run: dotnet build -c Release ./src/Cuture.AspNetCore.ResponseCaching.StackExchange.Redis/Cuture.AspNetCore.ResponseCaching.StackExchange.Redis.csproj
-    - name: setup test redis
-      uses: zhulik/redis-action@1.1.0
+
     - name: run test
-      run: dotnet user-secrets set 'ResponseCache_Test_Redis' '127.0.0.1:6379,allowAdmin=true' -p ./test/ResponseCaching.Test.WebHost/ResponseCaching.Test.WebHost.csproj && dotnet test -c Release
+      run: dotnet test -c Release
     - name: pack
       run: dotnet pack -c Release -o ./output --include-symbols
 

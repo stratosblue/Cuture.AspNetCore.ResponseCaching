@@ -3,13 +3,11 @@ using Cuture.Http.Util;
 
 namespace ResponseCaching.Test.Base;
 
-[TestClass]
 public abstract class AuthenticationRequiredTestBase : WebServerHostedTestBase
 {
     protected abstract Task<string> LoginAsync(string account);
 }
 
-[TestClass]
 public abstract class JwtAuthenticationRequiredTestBase : AuthenticationRequiredTestBase
 {
     protected override async Task<string> LoginAsync(string account)
@@ -20,7 +18,6 @@ public abstract class JwtAuthenticationRequiredTestBase : AuthenticationRequired
     }
 }
 
-[TestClass]
 public abstract class CookieAuthenticationRequiredTestBase : AuthenticationRequiredTestBase
 {
     protected override async Task<string> LoginAsync(string account)
